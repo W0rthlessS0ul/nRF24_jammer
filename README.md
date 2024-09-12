@@ -76,13 +76,17 @@ To create this project, you will need:
 
 ## 🎉 Final Outcome
 ![final outcome](img/nRF24_jammer.jpg)
-Normal spectrum
+
+### Normal spectrum
 ![Normal spctr](img/normal_spctr.jpg)
-Bluetooth jam spectrum
+
+### Bluetooth jam spectrum
 ![bluetooth_jam_spctr](img/bluetooth_jam_spctr.jpg)
-Drone jam spectrum
+
+### Drone jam spectrum
 ![drone_jam_spctr](img/drone_jam_spctr.jpg)
-Wifi jam spectrum
+
+### Wifi jam spectrum
 ![wifi_jam_spctr](img/wifi_jam_spctr.jpg)
 
 ## ❤️ Thank You for Your Support!
