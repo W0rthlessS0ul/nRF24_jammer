@@ -1,2 +1,1 @@
-# nrf24_jammer
-🌟 nrf24 jammer 🌟
+#🌟 nrf24 jammer 🌟
