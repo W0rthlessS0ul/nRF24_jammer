@@ -65,11 +65,13 @@ To create this project, you will need:
 1. Download the files from the 'bin' folder in the repository or from the releases section.
 2. Transition to ESPWebTool. https://esp.huhn.me/
 3. To arrange the files in accordance with the table below.
+
 | Address | File Name                               |
 |---------|-----------------------------------------|
 | 0x1000  | nRF24_jammer_bootloader.bin            |
 | 0x8000  | nRF24_jammer_partitions.bin            |
 | 0x10000 | nRF24_jammer.bin                        |
+
 4. Click on "Flash," and once the installation is complete, restart your board and enjoy the experience!
 
 ## 🎉 Final Outcome
