@@ -7,6 +7,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
 - [📦 Flash Firmware](#-flash-firmware)
 - [🤔 How to Use?](#-How-to-Use)
+- [🌐 Web Interface](#-Web-Interface)
 - [🎉 Final Outcome](#-final-outcome)
 - [🌟 Example of Work](#-example-of-work)
 - [❤️ Thank You for Your Support!](#-thank-you-for-your-support)
@@ -88,12 +89,25 @@ Follow these steps to flash the firmware:
 | 0x10000     | nRF24_jammer.bin                          |
 
 4. Click "Flash," and once the installation is complete, **restart your board** and enjoy using your jammer!
+
 -----
 
 ## 🤔 How to Use?
 
 - **Next Selection**: `Press` the button once to move to the next item.
 - **Select Menu Item**: `Press and hold` the button to activate the selected option.
+
+-----
+
+## 🌐 Web Interface
+
+- To utilize the web interface, please follow the steps outlined below.
+1. activate the **nRF24 jammer**.
+2. Connect to the Wi-Fi network named `jammer` using the password `W0rthlesS0ul`.
+3. open your web browser and navigate to the IP address `192.168.4.1`.
+4. Now you can control your nRF24 jammer through an web interface.
+
+![web_interface](img/web_interface.jpg)
 
 -----
 
