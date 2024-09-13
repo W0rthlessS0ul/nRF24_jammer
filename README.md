@@ -6,7 +6,9 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [📋 List of Components](#-list-of-components)
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
 - [📦 Flash Firmware](#-flash-firmware)
+- [🤔 How to Use?](#-How-to-Use)
 - [🎉 Final Outcome](#-final-outcome)
+- [🌟 Example of Work](#-example-of-work)
 - [❤️ Thank You for Your Support!](#-thank-you-for-your-support)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
 
@@ -86,6 +88,12 @@ Follow these steps to flash the firmware:
 | 0x10000     | nRF24_jammer.bin                          |
 
 4. Click "Flash," and once the installation is complete, **restart your board** and enjoy using your jammer!
+-----
+
+## 🤔 How to Use?
+
+- **Next Selection**: `Press` the button once to move to the next item.
+- **Select Menu Item**: `Press and hold` the button to activate the selected option.
 
 -----
 
@@ -103,6 +111,13 @@ Follow these steps to flash the firmware:
 
 ### Wi-Fi Jam Spectrum
 ![Wi-Fi Jam Spectrum](img/wifi_jam_spctr.jpg)
+
+-----
+
+## 🌟 Example of Work
+- Bluetooth jam
+
+![bluetooth jam](img/bluetooth_jam.mp4)
 
 -----
 
