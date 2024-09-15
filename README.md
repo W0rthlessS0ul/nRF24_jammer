@@ -109,7 +109,7 @@ Follow these steps to flash the firmware:
 3. open your web browser and navigate to the IP address `192.168.4.1`.
 4. Now you can control your nRF24 jammer through an web interface.
 
-![web_interface](img/web_interface.jpg)
+![web_interface](img/web_interface_.jpg)
 
 -----
 
