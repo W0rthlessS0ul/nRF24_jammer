@@ -128,6 +128,9 @@ Follow these steps to flash the firmware:
 ### Wi-Fi Jam Spectrum
 ![Wi-Fi Jam Spectrum](img/wifi_jam_spctr.jpg)
 
+### BLE Jam Spectrum
+![BLE Jam Spectrum](img/ble_jam_spctr.jpg)
+
 -----
 
 ## 🌟 Example of Work
