@@ -24,6 +24,7 @@ const char* html = R"rawliteral(
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
             width: 90%;
             max-width: 350px;
+            position: relative;
         }
 
         .header {
@@ -67,7 +68,63 @@ const char* html = R"rawliteral(
         .button:active {
             transform: translateY(1px); 
         }
+
+        .button:focus {
+            outline: none; 
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .settings-button {
+            background-color: #28a745;
+        }
+
+        .dropdown-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dropdown-button:hover {
+            background-color: #0056b3;
+        }
+
+        .dropdown-button:active {
+            transform: translateY(1px); 
+        }
+
+        .dropdown-button:focus {
+            outline: none;
+        }
     </style>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -80,6 +137,12 @@ const char* html = R"rawliteral(
             <button onclick="location.href='/drone_jam'" class="button">Drone jammer</button>
             <button onclick="location.href='/wifi_jam'" class="button">WiFi jammer</button>
             <button onclick="location.href='/ble_jam'" class="button">BLE jammer</button>
+            <button class="button settings-button" onclick="toggleDropdown()">Settings</button>
+            <div id="settingsDropdown" class="dropdown">
+                <button onclick="location.href='/setting_bluetooth_jam'" class="dropdown-button">Bluetooth Jam</button>
+                <button onclick="location.href='/setting_drone_jam'" class="dropdown-button">Drone Jam</button>
+                <button onclick="location.href='/setting_separate_together'" class="dropdown-button">Separate or Together</button>
+            </div>
         </div>
     </div>
 </body>
@@ -127,7 +190,7 @@ const char* html_bluetooth_jam = R"rawliteral(
 </head>
 <body>
     <div class="container">
-        <div class="text">Bluetooth & BLE jam</div>
+        <div class="text">Bluetooth jam</div>
         <div class="dots" id="dots">.</div>
     </div>
 
@@ -314,6 +377,403 @@ const char* html_ble_jam = R"rawliteral(
             dotsElement.innerText = '.'.repeat(dots);
         }, 1000);
     </script>
+</body>
+</html>
+)rawliteral";
+const char* html_bluetooth_setings = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: #0056b3; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:active {
+            transform: translateY(1px); 
+        }
+
+        .button:focus {
+            outline: none; 
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .dropdown-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dropdown-button:hover {
+            background-color: #0056b3;
+        }
+
+        .dropdown-button:active {
+            transform: translateY(1px); 
+        }
+
+        .dropdown-button:focus {
+            outline: none;
+        }
+    </style>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Select the channel scanning type:</h1>
+        </div>
+
+        <div class="buttons">
+            <button class="button" onclick="location.href='/bluetooth_method_0'">Brute Force By List (List 21)</button>
+            <button class="button" onclick="location.href='/bluetooth_method_1'">Randomize Values (0-79)</button>
+            <button class="button" onclick="location.href='/bluetooth_method_2'">Brute Force By Values (0-79)</button>
+        </div>
+    </div>
+</body>
+</html>
+)rawliteral";
+const char* html_drone_setings = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: #0056b3; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:active {
+            transform: translateY(1px); 
+        }
+
+        .button:focus {
+            outline: none; 
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .dropdown-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dropdown-button:hover {
+            background-color: #0056b3;
+        }
+
+        .dropdown-button:active {
+            transform: translateY(1px); 
+        }
+
+        .dropdown-button:focus {
+            outline: none;
+        }
+    </style>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Select the channel scanning type:</h1>
+        </div>
+
+        <div class="buttons">
+            <button class="button" onclick="location.href='/drone_method_0'">Randomize Values (0-125)</button>
+            <button class="button" onclick="location.href='/drone_method_1'">Brute Force By Values (0-125)</button>
+        </div>
+    </div>
+</body>
+</html>
+)rawliteral";
+const char* html_separate_or_together = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: #0056b3; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:active {
+            transform: translateY(1px); 
+        }
+
+        .button:focus {
+            outline: none; 
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .dropdown-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dropdown-button:hover {
+            background-color: #0056b3;
+        }
+
+        .dropdown-button:active {
+            transform: translateY(1px); 
+        }
+
+        .dropdown-button:focus {
+            outline: none;
+        }
+    </style>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Select the channel scanning type:</h1>
+        </div>
+
+        <div class="buttons">
+            <button class="button" onclick="location.href='/separate_or_together_method_0'">Modules on Different Channels</button>
+            <button class="button" onclick="location.href='/separate_or_together_method_1'">Modules on Same Channel</button>
+        </div>
+    </div>
 </body>
 </html>
 )rawliteral";

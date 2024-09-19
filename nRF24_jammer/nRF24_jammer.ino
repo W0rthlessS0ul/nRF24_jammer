@@ -1,195 +1,180 @@
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include <GyverButton.h>
+#include "SPI.h"
+#include "Adafruit_GFX.h"
+#include "Adafruit_SSD1306.h"
+#include "GyverButton.h"
 #include "RF24.h"
 #include "bitmap.h"
 #include "html.h"
-#include <WiFi.h>
-#include <WebServer.h>
-
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 32
-#define OLED_RESET    -1
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-SPIClass *sp = nullptr;
-SPIClass *hp = nullptr;
-RF24 radio(16, 15, 16000000);
-RF24 radio1(22, 21, 16000000);
-int menu_number = 0;
-byte bluetooth_channels[] = {32, 34, 46, 48, 50, 52, 0, 1, 2, 4, 6, 8, 22, 24, 26, 28, 30, 74, 76, 78, 80};
-byte bluetooth_channels_reversed[] = {80, 78, 76, 74, 30, 28, 26, 24, 22, 8, 6, 4, 2, 1, 0, 52, 50, 48, 46, 34, 32};
-byte ble_channels[] = {2, 26, 80};
-byte ble_channels_reversed[] = {80, 26, 2};
-const char jam_text[] = "xxxxxxxxxxxxxxxx";
-GButton butt1(25);
-const char *ssid = "jammer";
-const char *password = "W0rthlesS0ul";
-WebServer server(80);
+#include "WiFi.h"
+#include "WebServer.h"
+#include "options.h"
+#include "jam.h"
+#include "EEPROM.h"
 
 void handleRoot() {
-  server.send(200, "text/html", html);
+    server.send(200, "text/html", html);
 }
+
 void bluetooth_jammer() {
-  server.send(200, "text/html", html_bluetooth_jam);
-  display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_bluetooth_jam, 128, 32, WHITE);
-  display.display();
-  HSPI_init();
-  VSPI_init();
-  while (true){
-    for (int i = 0; i < 22; i++) {
-      radio.setChannel(bluetooth_channels[i]);
-      radio1.setChannel(bluetooth_channels_reversed[i]);
-    }
-  }
+    server.send(200, "text/html", html_bluetooth_jam);
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap_bluetooth_jam, 128, 32, WHITE);
+    display.display();
+    bluetooth_jam();
 }
+
 void drone_jammer() {
-  server.send(200, "text/html", html_drone_jam);
-  display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_drone_jam, 128, 32, WHITE);
-  display.display();
-  HSPI_init();
-  VSPI_init();
-  while (true){
-    radio.setChannel(random(62));
-    radio1.setChannel(random(62, 125));
-  }
+    server.send(200, "text/html", html_drone_jam);
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap_drone_jam, 128, 32, WHITE);
+    display.display();
+    drone_jam();
 }
+
 void wifi_jammer() {
-  server.send(200, "text/html", html_wifi_jam);
-  display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
-  display.display();
-  HSPI_init();
-  VSPI_init();
-  while (true){
-    for (int channel = 0; channel < 13; channel++) {
-      for (int i = (channel * 5) + 1; i < (channel * 5) + 23; i++) {
-        radio.setChannel(i);
-        radio1.setChannel(i);
-        radio.writeFast(&jam_text, sizeof(jam_text));
-        radio1.writeFast(&jam_text, sizeof(jam_text));
-      }
-    }
-  }
+    server.send(200, "text/html", html_wifi_jam);
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
+    display.display();
+    wifi_jam();
 }
+
 void ble_jammer() {
-  server.send(200, "text/html", html_ble_jam);
-  display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_ble_jam, 128, 32, WHITE);
-  display.display();
-  HSPI_init();
-  VSPI_init();
-  while (true){
-    for (int i = 0; i < 3; i++){
-      radio.setChannel(ble_channels[i]);
-      radio1.setChannel(ble_channels_reversed[i]);
-    }
-  }
+    server.send(200, "text/html", html_ble_jam);
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap_ble_jam, 128, 32, WHITE);
+    display.display();
+    ble_jam();
 }
+
+void setting_bluetooth_jam() {
+    server.send(200, "text/html", html_bluetooth_setings);
+}
+
+void setting_drone_jam() {
+    server.send(200, "text/html", html_drone_setings);
+}
+
+void setting_separate_together() {
+    server.send(200, "text/html", html_separate_or_together);
+}
+
+void bluetooth_method_0() {
+    EEPROM.write(0, 0);
+    EEPROM.commit();
+    server.send(200, "text/html", html);
+}
+
+void bluetooth_method_1() {
+    EEPROM.write(0, 1);
+    EEPROM.commit();
+    server.send(200, "text/html", html);
+}
+
+void bluetooth_method_2() {
+    EEPROM.write(0, 2);
+    EEPROM.commit();
+    server.send(200, "text/html", html);
+}
+
+void drone_method_0() {
+    EEPROM.write(1, 0);
+    EEPROM.commit();
+    server.send(200, "text/html", html);
+}
+
+void drone_method_1() {
+    EEPROM.write(1, 1);
+    EEPROM.commit();
+    server.send(200, "text/html", html);
+}
+
+void separate_or_together_method_0() {
+    EEPROM.write(4, 0);
+    EEPROM.commit();
+    server.send(200, "text/html", html);
+}
+
+void separate_or_together_method_1() {
+    EEPROM.write(4, 1);
+    EEPROM.commit();
+    server.send(200, "text/html", html);
+}
+
 void setup() {
-  Serial.begin(115200);
-  WiFi.softAP(ssid, password);
-  server.on("/", handleRoot);
-  server.on("/bluetooth_jam", bluetooth_jammer);
-  server.on("/drone_jam", drone_jammer);
-  server.on("/wifi_jam", wifi_jammer);
-  server.on("/ble_jam", ble_jammer);
-  server.begin();
-  butt1.setTimeout(200);
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_logo, 128, 32, WHITE);
-  display.display();
-  delay(2000);
-  display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_bluetooth_jammer, 128, 32, WHITE);
-  display.display();
+    Serial.begin(115200);
+    EEPROM.begin(EEPROM_SIZE);
+    bluetooth_jam_method = EEPROM.read(0);
+    drone_jam_method = EEPROM.read(1);
+    ble_jam_method = EEPROM.read(2);
+    wifi_jam_method = EEPROM.read(3);
+    Separate_or_together = EEPROM.read(4);
+    for (int i = 0; i < 5; i++) {
+        if (EEPROM.read(i) == 255) {
+            EEPROM.write(i, 0);
+            EEPROM.commit();
+        }
+    }
+    WiFi.softAP(ssid, password);
+    server.on("/", handleRoot);
+    server.on("/bluetooth_jam", bluetooth_jammer);
+    server.on("/drone_jam", drone_jammer);
+    server.on("/wifi_jam", wifi_jammer);
+    server.on("/ble_jam", ble_jammer);
+    server.on("/setting_bluetooth_jam", setting_bluetooth_jam);
+    server.on("/setting_drone_jam", setting_drone_jam);
+    server.on("/setting_separate_together", setting_separate_together);
+    server.on("/bluetooth_method_0", bluetooth_method_0);
+    server.on("/bluetooth_method_1", bluetooth_method_1);
+    server.on("/bluetooth_method_2", bluetooth_method_2);
+    server.on("/drone_method_0", drone_method_0);
+    server.on("/drone_method_1", drone_method_1);
+    server.on("/separate_or_together_method_0", separate_or_together_method_0);
+    server.on("/separate_or_together_method_1", separate_or_together_method_1);
+    server.begin();
+    butt1.setTimeout(200);
+    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap_logo, 128, 32, WHITE);
+    display.display();
+    delay(2000);
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap_bluetooth_jammer, 128, 32, WHITE);
+    display.display();
 }
-
-void VSPI_init() {
-  sp = new SPIClass(VSPI);
-  sp->begin();
-  radio1.begin(sp);
-  radio1.setAutoAck(false);
-  radio1.stopListening();
-  radio1.setRetries(0, 0);
-  radio1.setPALevel(RF24_PA_MAX, true);
-  radio1.setDataRate(RF24_2MBPS);
-  radio1.setCRCLength(RF24_CRC_DISABLED);
-  radio1.startConstCarrier(RF24_PA_MAX, 80);
-}
-
-void HSPI_init() {
-  hp = new SPIClass(HSPI);
-  hp->begin();
-  radio.begin(hp);
-  radio.setAutoAck(false);
-  radio.stopListening();
-  radio.setRetries(0, 0);
-  radio.setPALevel(RF24_PA_MAX, true);
-  radio.setDataRate(RF24_2MBPS);
-  radio.setCRCLength(RF24_CRC_DISABLED);
-  radio.startConstCarrier(RF24_PA_MAX, 40); 
-}
-
 void loop() {
-  butt1.tick();
-  server.handleClient();  
-  if (butt1.isSingle()) {
-    menu_number = (menu_number + 1) % 4;
-    display.clearDisplay();
-    const uint8_t* bitmap = (menu_number == 0) ? bitmap_bluetooth_jammer :
-                            (menu_number == 1) ? bitmap_drone_jammer :
-                            (menu_number == 2) ? bitmap_wifi_jammer : bitmap_ble_jammer;
-    display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
-    display.display();
-  }
+    butt1.tick();
+    server.handleClient();
+    if (butt1.isSingle()) {
+        menu_number = (menu_number + 1) % 4;
+        display.clearDisplay();
+        const uint8_t* bitmap = (menu_number == 0) ? bitmap_bluetooth_jammer :
+                                (menu_number == 1) ? bitmap_drone_jammer :
+                                (menu_number == 2) ? bitmap_wifi_jammer : bitmap_ble_jammer;
+        display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
+        display.display();
+    }
+    if (butt1.isHolded()) {
+        display.clearDisplay();
+        const uint8_t* bitmap = (menu_number == 0) ? bitmap_bluetooth_jam :
+                                (menu_number == 1) ? bitmap_drone_jam :
+                                (menu_number == 2) ? bitmap_wifi_jam : bitmap_ble_jam;
 
-  if (butt1.isHolded()) {
-    display.clearDisplay();
-    const uint8_t* bitmap = (menu_number == 0) ? bitmap_bluetooth_jam :
-                            (menu_number == 1) ? bitmap_drone_jam :
-                            (menu_number == 2) ? bitmap_wifi_jam : bitmap_ble_jam;
-    display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
-    display.display();
-    HSPI_init();
-    VSPI_init();
-    
-    if (menu_number == 0) {
-      while (true){
-        for (int i = 0; i < 22; i++) {
-          radio.setChannel(bluetooth_channels[i]);
-          radio1.setChannel(bluetooth_channels_reversed[i]);
+        display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
+        display.display();
+        switch (menu_number) {
+            case 0:
+                bluetooth_jam();
+                break;
+            case 1:
+                drone_jam();
+                break;
+            case 2:
+                wifi_jam();
+                break;
+            case 3:
+                ble_jam();
+                break;
         }
-      }
     }
-    else if (menu_number == 1) {
-      while (true){
-        radio.setChannel(random(62));
-        radio1.setChannel(random(62, 125));
-      }
-    }
-    else if (menu_number == 2) {
-      while (true){
-        for (int channel = 0; channel < 13; channel++) {
-          for (int i = (channel * 5) + 1; i < (channel * 5) + 23; i++) {
-            radio.setChannel(i);
-            radio1.setChannel(i);
-            radio.writeFast(&jam_text, sizeof(jam_text));
-            radio1.writeFast(&jam_text, sizeof(jam_text));
-          }
-        }
-      }
-    }
-    else if (menu_number == 3) {
-      while (true){
-        for (int i = 0; i < 3; i++){
-          radio.setChannel(ble_channels[i]);
-          radio1.setChannel(ble_channels_reversed[i]);
-        }
-      }
-    }
-  }
 }
