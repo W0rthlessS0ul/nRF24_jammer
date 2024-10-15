@@ -133,10 +133,11 @@ const char* html = R"rawliteral(
         </div>
 
         <div class="buttons">
-            <button onclick="location.href='/bluetooth_jam'" class="button">Bluetooth & BLE jammer</button>
+            <button onclick="location.href='/bluetooth_jam'" class="button">Bluetooth jammer</button>
             <button onclick="location.href='/drone_jam'" class="button">Drone jammer</button>
             <button onclick="location.href='/wifi_jam'" class="button">WiFi jammer</button>
             <button onclick="location.href='/ble_jam'" class="button">BLE jammer</button>
+            <button onclick="location.href='/zigbee_jam'" class="button">Zigbee jammer</button>
             <button class="button settings-button" onclick="toggleDropdown()">Settings</button>
             <div id="settingsDropdown" class="dropdown">
                 <button onclick="location.href='/setting_bluetooth_jam'" class="dropdown-button">Bluetooth Jam</button>
@@ -148,6 +149,7 @@ const char* html = R"rawliteral(
 </body>
 </html>
 )rawliteral";
+
 const char* html_bluetooth_jam = R"rawliteral(
 <!DOCTYPE html>
 <html lang="ru">
@@ -206,6 +208,7 @@ const char* html_bluetooth_jam = R"rawliteral(
 </body>
 </html>
 )rawliteral";
+
 const char* html_drone_jam = R"rawliteral(
 <!DOCTYPE html>
 <html lang="ru">
@@ -264,6 +267,7 @@ const char* html_drone_jam = R"rawliteral(
 </body>
 </html>
 )rawliteral";
+
 const char* html_wifi_jam = R"rawliteral(
 <!DOCTYPE html>
 <html lang="ru">
@@ -322,6 +326,7 @@ const char* html_wifi_jam = R"rawliteral(
 </body>
 </html>
 )rawliteral";
+
 const char* html_ble_jam = R"rawliteral(
 <!DOCTYPE html>
 <html lang="ru">
@@ -380,6 +385,66 @@ const char* html_ble_jam = R"rawliteral(
 </body>
 </html>
 )rawliteral";
+
+const char* html_zigbee_jam = R"rawliteral(
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+        }
+
+        .text {
+            font-size: 24px;
+            color: #007bff;
+            border-radius: 8px;
+        }
+
+        .dots {
+            font-size: 24px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text">Zigbee jam</div>
+        <div class="dots" id="dots">.</div>
+    </div>
+
+    <script>
+        const dotsElement = document.getElementById('dots');
+        let dots = 1;
+
+        setInterval(() => {
+            dots = (dots % 3) + 1;
+            dotsElement.innerText = '.'.repeat(dots);
+        }, 1000);
+    </script>
+</body>
+</html>
+)rawliteral";
+
 const char* html_bluetooth_setings = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -513,6 +578,7 @@ const char* html_bluetooth_setings = R"rawliteral(
 </body>
 </html>
 )rawliteral";
+
 const char* html_drone_setings = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -645,6 +711,7 @@ const char* html_drone_setings = R"rawliteral(
 </body>
 </html>
 )rawliteral";
+
 const char* html_separate_or_together = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">

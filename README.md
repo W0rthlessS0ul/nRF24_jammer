@@ -21,6 +21,7 @@ This amazing jammer is built on the **ESP32** architecture integrated with **two
 - **BLE** 📱
 - **Drones** 🚁
 - **Wi-Fi** 📶
+- **Zigbee**📡
 
 -----
 
@@ -130,6 +131,9 @@ Follow these steps to flash the firmware:
 
 ### BLE Jam Spectrum
 ![BLE Jam Spectrum](img/ble_jam_spctr.jpg)
+
+### Zigbee Jam Spectrum
+![Zigbee Jam Spectrum](img/zigbee_jam_spctr.jpg)
 
 -----
 
