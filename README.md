@@ -106,7 +106,7 @@ Follow these steps to flash the firmware:
 
 - To utilize the web interface, please follow the steps outlined below.
 1. activate the **nRF24 jammer**.
-2. Connect to the Wi-Fi network named `jammer` using the password `W0rthlesS0ul`.
+2. Connect to the Wi-Fi network named `jammer` using the password `W0rthlessS0ul`.
 3. open your web browser and navigate to the IP address `192.168.4.1`.
 4. Now you can control your nRF24 jammer through an web interface.
 
