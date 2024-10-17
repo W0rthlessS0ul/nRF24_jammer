@@ -153,7 +153,7 @@ Every donation is greatly appreciated and contributes to the ongoing development
 
 ---
 
-### 🌐 Follow Me for Updates
+## 🌐 Follow Me for Updates
 Stay connected to receive the latest updates:
 
 [![GitHub](https://img.shields.io/badge/GitHub-W0rthlessS0ul-181717?style=flat&logo=github&logoColor=white)](https://github.com/W0rthlessS0ul)
