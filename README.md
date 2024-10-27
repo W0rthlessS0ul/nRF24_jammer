@@ -30,7 +30,7 @@ To bring this project to life, you will need the following components:
 1. **Two NRF24L01+PA+LNA modules** 🛠️
 2. **ESP32 (30 pins)** ⚙️
 3. **Two 16V capacitors** rated at **100µF** 🔋
-4. **128x32 OLED display** 📺
+4. **128x32 or 128x64 OLED display** 📺
 5. **Tactile button** 🔘
 
 -----
@@ -79,7 +79,7 @@ To bring this project to life, you will need the following components:
 
 ## 📦 Flash Firmware
 Follow these steps to flash the firmware:
-1. Download the required files from the **'bin' folder** in the repository or from the **releases section**.
+1. Download the firmware from the **releases** section that corresponds to your display.
 2. Navigate to **ESPWebTool**: [ESPWebTool](https://esp.huhn.me/)
 3. Arrange the files as per the table below:
 
