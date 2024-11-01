@@ -1,4 +1,8 @@
-# 🌟 nRF24 Jammer 🌟
+<div align="center">
+  <img src="https://avatars.githubusercontent.com/u/176677387" width="150" height="auto" />
+  <h1> 🌟 nRF24 Jammer 🌟 </h1>
+</div>
+-----
 Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF interference with this unique project based on the ESP32 and NRF24 technology.
 
 ## 📚 Table of Contents
