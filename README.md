@@ -151,7 +151,17 @@ Follow these steps to flash the firmware:
 ## ❤️ Thank You for Your Support!
 If you would like to support this project, please consider starring the repository or following me! If you appreciate the hard work that went into this, buying me a cup of coffee would keep me fueled! ☕ 
 
-**BTC Address:** `3PpBpNs1wXkhA93g5tfpMf4qierz4m9BCW` (this is a **SegWit** address)
+**BTC Address:** `bc1qvul4mlxxw5h2hnt8knnxdrxuwgpf4styyk20tm`
+
+**ETH Address:** `0x5c54eAb2acFE1c6C866FB4b050d8B69CfB1138Af`
+
+**LTC Address:** `LbdzCsYbxuD341raar6Cg1yKavaDq7fjuV`
+
+**XRP Address:** `rKLLPzoBGfqY3pAQPwTFPRYaWjpHSwHNDw`
+
+**ADA Address:** `addr1qyz2aku0ucmxqnl60lza23lkx2xha8zmxz9wqxnrtvpjysgy4mdcle3kvp8l5l7964rlvv5d06w9kvy2uqdxxkcryfqs7pajev`
+
+**DOGE Address:** `DBzAvD62yQUkP4Cb7C5LuFYQEierF3D3oG`
 
 Every donation is greatly appreciated and contributes to the ongoing development of this project!
 
