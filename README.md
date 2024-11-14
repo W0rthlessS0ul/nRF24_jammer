@@ -14,6 +14,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [🌐 Web Interface](#-Web-Interface)
 - [🎉 Final Outcome](#-final-outcome)
 - [🌟 Example of Work](#-example-of-work)
+- [🙏 Acknowledgments](#-acknowledgments)
 - [❤️ Thank You for Your Support!](#-thank-you-for-your-support)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
 
@@ -145,6 +146,11 @@ Follow these steps to flash the firmware:
 - Bluetooth jam
 
 ![bluetooth jam](img/bluetooth_jam.mp4)
+
+-----
+
+## 🙏 Acknowledgments
+- [smoochiee](https://github.com/smoochiee)
 
 -----
 
