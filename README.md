@@ -1,4 +1,8 @@
-# 🌟 nRF24 Jammer 🌟
+<div align="center">
+  <img src="https://avatars.githubusercontent.com/u/176677387" width="150" height="auto" />
+  <h1> 🌟 nRF24 Jammer 🌟 </h1>
+</div>
+
 Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF interference with this unique project based on the ESP32 and NRF24 technology.
 
 ## 📚 Table of Contents
@@ -10,6 +14,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [🌐 Web Interface](#-Web-Interface)
 - [🎉 Final Outcome](#-final-outcome)
 - [🌟 Example of Work](#-example-of-work)
+- [🙏 Acknowledgments](#-acknowledgments)
 - [❤️ Thank You for Your Support!](#-thank-you-for-your-support)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
 
@@ -30,12 +35,16 @@ To bring this project to life, you will need the following components:
 1. **Two NRF24L01+PA+LNA modules** 🛠️
 2. **ESP32 (30 pins)** ⚙️
 3. **Two 16V capacitors** rated at **100µF** 🔋
-4. **128x32 or 128x64 OLED display** 📺
-5. **Tactile button** 🔘
+4. **128x32 or 128x64 OLED display** 📺 *(Not required when using the "without OLED" version.)*
+5. **Tactile button** 🔘 *(Not required when using the "without OLED" version.)*
 
 -----
 
 ## 🧑‍🔧 Let's Get Started with Soldering!
+<details>
+<summary><strong>With OLED</strong></summary>
+
+<div style="margin-left: 20px;">
 
 ### HSPI Connection
 | **Pin Name** | **ESP32 GPIO** | **Connection**       |
@@ -74,6 +83,40 @@ To bring this project to life, you will need the following components:
 |--------------|----------------|
 | GND          | GND           |
 |              | GPIO 25       |
+
+</div>
+</details>
+<details>
+<summary><strong>Without OLED</strong></summary>
+
+<div style="margin-left: 20px;">
+
+### HSPI Connection
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 16       |                      |
+| CSN          | GPIO 15       |                      |
+| SCK          | GPIO 14       |                      |
+| MOSI         | GPIO 13       |                      |
+| MISO         | GPIO 12       |                      |
+| IRQ          |                |                      |
+
+### VSPI Connection
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 22       |                      |
+| CSN          | GPIO 21       |                      |
+| SCK          | GPIO 18       |                      |
+| MOSI         | GPIO 23       |                      |
+| MISO         | GPIO 19       |                      |
+| IRQ          |                |                      |
+
+</div>
+</details>
 
 -----
 
@@ -144,10 +187,25 @@ Follow these steps to flash the firmware:
 
 -----
 
+## 🙏 Acknowledgments
+- [smoochiee](https://github.com/smoochiee)
+
+-----
+
 ## ❤️ Thank You for Your Support!
 If you would like to support this project, please consider starring the repository or following me! If you appreciate the hard work that went into this, buying me a cup of coffee would keep me fueled! ☕ 
 
-**BTC Address:** `3PpBpNs1wXkhA93g5tfpMf4qierz4m9BCW` (this is a **SegWit** address)
+**BTC Address:** `bc1qvul4mlxxw5h2hnt8knnxdrxuwgpf4styyk20tm`
+
+**ETH Address:** `0x5c54eAb2acFE1c6C866FB4b050d8B69CfB1138Af`
+
+**LTC Address:** `LbdzCsYbxuD341raar6Cg1yKavaDq7fjuV`
+
+**XRP Address:** `rKLLPzoBGfqY3pAQPwTFPRYaWjpHSwHNDw`
+
+**ADA Address:** `addr1qyz2aku0ucmxqnl60lza23lkx2xha8zmxz9wqxnrtvpjysgy4mdcle3kvp8l5l7964rlvv5d06w9kvy2uqdxxkcryfqs7pajev`
+
+**DOGE Address:** `DBzAvD62yQUkP4Cb7C5LuFYQEierF3D3oG`
 
 Every donation is greatly appreciated and contributes to the ongoing development of this project!
 
@@ -157,4 +215,5 @@ Every donation is greatly appreciated and contributes to the ongoing development
 Stay connected to receive the latest updates:
 
 [![GitHub](https://img.shields.io/badge/GitHub-W0rthlessS0ul-181717?style=flat&logo=github&logoColor=white)](https://github.com/W0rthlessS0ul)
-![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FW0rthlessS0ul%2FnRF24_jammer&countColor=%232ccce4&style=flat-square)
+
+<img src="https://profile-counter.glitch.me/W0rthlessS0ul.nRF24_jammer/count.svg"/>
