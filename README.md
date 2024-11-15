@@ -35,12 +35,16 @@ To bring this project to life, you will need the following components:
 1. **Two NRF24L01+PA+LNA modules** 🛠️
 2. **ESP32 (30 pins)** ⚙️
 3. **Two 16V capacitors** rated at **100µF** 🔋
-4. **128x32 or 128x64 OLED display** 📺
-5. **Tactile button** 🔘
+4. **128x32 or 128x64 OLED display** 📺 *(Not required when using the "without OLED" version.)*
+5. **Tactile button** 🔘 *(Not required when using the "without OLED" version.)*
 
 -----
 
 ## 🧑‍🔧 Let's Get Started with Soldering!
+<details>
+<summary><strong>With OLED</strong></summary>
+
+<div style="margin-left: 20px;">
 
 ### HSPI Connection
 | **Pin Name** | **ESP32 GPIO** | **Connection**       |
@@ -79,6 +83,40 @@ To bring this project to life, you will need the following components:
 |--------------|----------------|
 | GND          | GND           |
 |              | GPIO 25       |
+
+</div>
+</details>
+<details>
+<summary><strong>Without OLED</strong></summary>
+
+<div style="margin-left: 20px;">
+
+### HSPI Connection
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 16       |                      |
+| CSN          | GPIO 15       |                      |
+| SCK          | GPIO 14       |                      |
+| MOSI         | GPIO 13       |                      |
+| MISO         | GPIO 12       |                      |
+| IRQ          |                |                      |
+
+### VSPI Connection
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 22       |                      |
+| CSN          | GPIO 21       |                      |
+| SCK          | GPIO 18       |                      |
+| MOSI         | GPIO 23       |                      |
+| MISO         | GPIO 19       |                      |
+| IRQ          |                |                      |
+
+</div>
+</details>
 
 -----
 
