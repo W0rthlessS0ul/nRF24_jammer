@@ -139,9 +139,26 @@ Follow these steps to flash the firmware:
 -----
 
 ## 🤔 How to Use?
+<details>
+<summary><strong>General Control</strong></summary>
+
+<div style="margin-left: 20px;">
 
 - **Next Selection**: `Press` the button once to move to the next item.
 - **Select Menu Item**: `Press and hold` the button to activate the selected option.
+
+</div>
+</details>
+
+<details>
+<summary><strong>Misc Jammer Control</strong></summary>
+
+- **Increase by one channel**: `Press` the button once to increase by one channel.
+- **Increase channel**: `Hold` the button to increase the channel.
+- **Proceed to the next value**: `Double Press` the button to proceed to the next value.
+
+</div>
+</details>
 
 -----
 
