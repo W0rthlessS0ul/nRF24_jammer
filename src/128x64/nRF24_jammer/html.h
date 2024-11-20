@@ -138,14 +138,76 @@ const char* html = R"rawliteral(
             <button onclick="location.href='/wifi_jam'" class="button">WiFi jammer</button>
             <button onclick="location.href='/ble_jam'" class="button">BLE jammer</button>
             <button onclick="location.href='/zigbee_jam'" class="button">Zigbee jammer</button>
+            <button onclick="location.href='/misc_jammer'" class="button">Misc jammer</button>
             <button class="button settings-button" onclick="toggleDropdown()">Settings</button>
             <div id="settingsDropdown" class="dropdown">
                 <button onclick="location.href='/setting_bluetooth_jam'" class="dropdown-button">Bluetooth Jam</button>
                 <button onclick="location.href='/setting_drone_jam'" class="dropdown-button">Drone Jam</button>
                 <button onclick="location.href='/setting_separate_together'" class="dropdown-button">Separate or Together</button>
+                <button onclick="location.href='/setting_misc_jam'" class="dropdown-button">Misc Jam</button>
+                <button onclick="location.href='/setting_logo'" class="dropdown-button">Logo</button>
             </div>
         </div>
     </div>
+</body>
+</html>
+)rawliteral";
+
+const char* html_misc_jam = R"rawliteral(
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+        }
+
+        .text {
+            font-size: 24px;
+            color: #007bff;
+            border-radius: 8px;
+        }
+
+        .dots {
+            font-size: 24px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text">Jamming of selected channels</div>
+        <div class="dots" id="dots">.</div>
+    </div>
+
+    <script>
+        const dotsElement = document.getElementById('dots');
+        let dots = 1;
+
+        setInterval(() => {
+            dots = (dots % 3) + 1;
+            dotsElement.innerText = '.'.repeat(dots);
+        }, 1000);
+    </script>
 </body>
 </html>
 )rawliteral";
@@ -712,6 +774,272 @@ const char* html_drone_setings = R"rawliteral(
 </html>
 )rawliteral";
 
+const char* html_misc_setings = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: #0056b3; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:active {
+            transform: translateY(1px); 
+        }
+
+        .button:focus {
+            outline: none; 
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .dropdown-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dropdown-button:hover {
+            background-color: #0056b3;
+        }
+
+        .dropdown-button:active {
+            transform: translateY(1px); 
+        }
+
+        .dropdown-button:focus {
+            outline: none;
+        }
+    </style>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Select the channel scanning type:</h1>
+        </div>
+
+        <div class="buttons">
+            <button class="button" onclick="location.href='/misc_method_0'">Channel Switching (fast mode; used in Bluetooth Jam)</button>
+            <button class="button" onclick="location.href='/misc_method_1'">Packet Sending (slow mode; used in WiFi Jam)</button>
+        </div>
+    </div>
+</body>
+</html>
+)rawliteral";
+
+const char* html_logo_setings = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: #0056b3; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:active {
+            transform: translateY(1px); 
+        }
+
+        .button:focus {
+            outline: none; 
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .dropdown-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dropdown-button:hover {
+            background-color: #0056b3;
+        }
+
+        .dropdown-button:active {
+            transform: translateY(1px); 
+        }
+
+        .dropdown-button:focus {
+            outline: none;
+        }
+    </style>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Select the channel scanning type:</h1>
+        </div>
+
+        <div class="buttons">
+            <button class="button" onclick="location.href='/logo_on'">Show logo on startup</button>
+            <button class="button" onclick="location.href='/logo_off'">Hide logo on startup</button>
+        </div>
+    </div>
+</body>
+</html>
+)rawliteral";
+
 const char* html_separate_or_together = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -840,6 +1168,105 @@ const char* html_separate_or_together = R"rawliteral(
             <button class="button" onclick="location.href='/separate_or_together_method_0'">Modules on Different Channels</button>
             <button class="button" onclick="location.href='/separate_or_together_method_1'">Modules on Same Channel</button>
         </div>
+    </div>
+</body>
+</html>
+)rawliteral";
+
+const char* html_misc_jammer = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .input {
+            background-color: #333333;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .button:focus {
+            outline: none;
+        }
+    </style>
+    <script>
+        function validateAndRedirect() {
+            const startValue = parseInt(document.getElementById('startInput').value);
+            const stopValue = parseInt(document.getElementById('stopInput').value);
+
+            if (isNaN(startValue) || startValue < 0 || startValue > 125) {
+                alert('Start value must be a number between 0 and 125.');
+                return;
+            }
+            if (isNaN(stopValue) || stopValue < 0 || stopValue > 125) {
+                alert('Stop value must be a number between 0 and 125.');
+                return;
+            }
+            location.href = `/misc_jam?start=${startValue}&stop=${stopValue}`;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Set Start and Stop Values:</h1>
+        <input id="startInput" class="input" type="number" placeholder="Start (0-125)" max="125" min="0" />
+        <input id="stopInput" class="input" type="number" placeholder="Stop (0-125)" max="125" min="0" />
+        <button class="button" onclick="validateAndRedirect()">Jam</button>
     </div>
 </body>
 </html>

@@ -38,6 +38,19 @@ void ble_jammer() {
 void zigbee_jammer() {
     jamHandler(html_zigbee_jam, bitmap_zigbee_jam, zigbee_jam);
 }
+void misc_jammer() {
+    server.send(200, "text/html", html_misc_jammer);
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap_misc_jammer, 128, 64, WHITE);
+    display.display();
+}
+
+void misc_channels() {
+    int channel1 = server.arg("start").toInt();
+    int channel2 = server.arg("stop").toInt();
+    server.send(200, "text/html", html_misc_jam);
+    misc_jam(channel1, channel2);
+}
 
 void settingsHandler(const char* htmlResponse) {
     server.send(200, "text/html", htmlResponse);
@@ -46,6 +59,8 @@ void settingsHandler(const char* htmlResponse) {
 void setting_bluetooth_jam() { settingsHandler(html_bluetooth_setings); }
 void setting_drone_jam() { settingsHandler(html_drone_setings); }
 void setting_separate_together() { settingsHandler(html_separate_or_together); }
+void setting_misc_jam() { settingsHandler(html_misc_setings); }
+void setting_logo() { settingsHandler(html_logo_setings); }
 
 void storeEEPROM(int index, int value) {
     EEPROM.write(index, value);
@@ -53,18 +68,94 @@ void storeEEPROM(int index, int value) {
     server.send(200, "text/html", html);
 }
 
-void bluetooth_method_0() { storeEEPROM(0, 0); }
-void bluetooth_method_1() { storeEEPROM(0, 1); }
-void bluetooth_method_2() { storeEEPROM(0, 2); }
-void drone_method_0() { storeEEPROM(1, 0); }
-void drone_method_1() { storeEEPROM(1, 1); }
-void separate_or_together_method_0() { storeEEPROM(4, 0); }
-void separate_or_together_method_1() { storeEEPROM(4, 1); }
+void bluetooth_method_0() { storeEEPROM(0, 0); bluetooth_jam_method = 0; }
+void bluetooth_method_1() { storeEEPROM(0, 1); bluetooth_jam_method = 1; }
+void bluetooth_method_2() { storeEEPROM(0, 2); bluetooth_jam_method = 2; }
+void drone_method_0() { storeEEPROM(1, 0); drone_jam_method = 0;}
+void drone_method_1() { storeEEPROM(1, 1); drone_jam_method = 1;}
+void separate_or_together_method_0() { storeEEPROM(4, 0); Separate_or_together = 0;}
+void separate_or_together_method_1() { storeEEPROM(4, 1); Separate_or_together = 1;}
+void misc_method_0(){ storeEEPROM(6, 0); misc_jam_method = 0;}
+void misc_method_1(){ storeEEPROM(6, 1); misc_jam_method = 1;}
+void logo_on(){ storeEEPROM(7, 0); logo = 0;}
+void logo_off(){ storeEEPROM(7, 1); logo = 1;}
 
+void misc() {
+    auto display_info = [&](String info) {
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.println("Start");
+        display.setCursor(96, 0);
+        display.println("Stop");
+        display.setCursor(52, 0);
+        display.println("Width");
+        display.setCursor(8, 10);
+        display.println(String(channel1));
+        display.setCursor(60, 10);
+        display.println(String(channel2-channel1));
+        display.setCursor(100, 10);
+        display.println(String(channel2));
+        display.setCursor(0, 20);
+        display.println(info);
+        display.display();
+    };
+
+    display.setTextColor(WHITE);
+    display.setTextSize(1);
+    display_info("");
+
+    while (true) {
+        butt1.tick();
+
+        if (butt1.isSingle()) {
+            if (flag == 0) {
+                channel1++;
+                if (channel1 > 125) {
+                    channel1 = 0;
+                }
+            } else if (flag == 1) {
+                channel2++;
+                if (channel2 > 125) {
+                    channel2 = 0;
+                }
+            }
+            display_info(""); 
+        } 
+        else if (butt1.isHold()) {
+            if (flag == 0) {
+                channel1++;
+                if (channel1 > 125) {
+                    channel1 = 0;
+                }
+            } else if (flag == 1) {
+                channel2++;
+                if (channel2 > 125) {
+                    channel2 = 0;
+                }
+            }
+            display_info(""); 
+            delay(100);
+        }
+        else if (butt1.isDouble()) {
+            if (flag == 0) {
+                flag = 1;
+            } else {
+                if (channel1 > channel2) {
+                    display_info("Error: Second < First");
+                    flag = 0;
+                }
+                else {
+                    display_info("Jamming Started");
+                    misc_jam(channel1, channel2);
+                }
+            }
+        }
+    }
+}
 void setup() {
     Serial.begin(115200);
     EEPROM.begin(EEPROM_SIZE);
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 8; ++i) {
         if (EEPROM.read(i) == 255) {
             EEPROM.write(i, 0);
             EEPROM.commit();
@@ -76,6 +167,8 @@ void setup() {
     wifi_jam_method = EEPROM.read(3);
     Separate_or_together = EEPROM.read(4);
     zigbee_jam_method = EEPROM.read(5);
+    misc_jam_method = EEPROM.read(6);
+    logo = EEPROM.read(7);
     WiFi.softAP(ssid, password);
     server.on("/", handleRoot);
     server.on("/bluetooth_jam", bluetooth_jammer);
@@ -93,14 +186,24 @@ void setup() {
     server.on("/drone_method_1", drone_method_1);
     server.on("/separate_or_together_method_0", separate_or_together_method_0);
     server.on("/separate_or_together_method_1", separate_or_together_method_1);
+    server.on("/misc_jammer", misc_jammer);
+    server.on("/misc_jam", misc_channels);
+    server.on("/setting_misc_jam", setting_misc_jam);
+    server.on("/misc_method_0", misc_method_0);
+    server.on("/misc_method_1", misc_method_1);
+    server.on("/setting_logo", setting_logo);
+    server.on("/logo_on", logo_on);
+    server.on("/logo_off", logo_off);
 
     server.begin();
     butt1.setTimeout(200);
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-    display.clearDisplay();
-    display.drawBitmap(0, 0, bitmap_logo, 128, 64, WHITE);
-    display.display();
-    delay(2000);
+    if (logo == 0){
+        display.clearDisplay();
+        display.drawBitmap(0, 0, bitmap_logo, 128, 64, WHITE);
+        display.display();
+        delay(2000);
+    }
     display.clearDisplay();
     display.drawBitmap(0, 0, bitmap_bluetooth_jammer, 128, 64, WHITE);
     display.display();
@@ -111,17 +214,21 @@ void loop() {
     server.handleClient();
     
     if (butt1.isSingle()) {
-        menu_number = (menu_number + 1) % 5;
+        menu_number = (menu_number + 1) % 6;
         display.clearDisplay();
         const uint8_t* bitmap = (menu_number == 0) ? bitmap_bluetooth_jammer :
                                 (menu_number == 1) ? bitmap_drone_jammer :
                                 (menu_number == 2) ? bitmap_wifi_jammer : 
-                                (menu_number == 3) ? bitmap_ble_jammer : bitmap_zigbee_jammer;
+                                (menu_number == 3) ? bitmap_ble_jammer : 
+                                (menu_number == 4) ? bitmap_zigbee_jammer : bitmap_misc_jammer;
         display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
         display.display();
     }
     
     if (butt1.isHolded()) {
+        if (menu_number == 5){
+          misc();
+        }
         display.clearDisplay();
         const uint8_t* bitmap = (menu_number == 0) ? bitmap_bluetooth_jam :
                                 (menu_number == 1) ? bitmap_drone_jam :

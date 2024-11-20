@@ -167,3 +167,22 @@ void zigbee_jam(){
     }
   }
 }
+void misc_jam(int channel1, int channel2){
+  HSPI_init();
+  VSPI_init();
+  while (true) {
+    for (int i = 0; i <= channel2 - channel1; i++) {
+      if (Separate_or_together == 0) {
+        radio1.setChannel(channel2 - i);
+      }
+      else if (Separate_or_together == 1) {
+        radio1.setChannel(channel1 + i);
+      }
+      radio.setChannel(channel1 + i);
+      if (misc_jam_method == 1){
+        radio.writeFast(&jam_text, sizeof(jam_text));
+        radio1.writeFast(&jam_text, sizeof(jam_text));
+      }
+    }
+  }
+}
