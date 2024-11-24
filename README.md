@@ -121,6 +121,11 @@ To bring this project to life, you will need the following components:
 -----
 
 ## 📦 Flash Firmware
+<details>
+<summary><strong>Manual Update</strong></summary>
+
+<div style="margin-left: 20px;">
+
 Follow these steps to flash the firmware:
 1. Download the firmware from the **releases** section that corresponds to your display.
 2. Navigate to **ESPWebTool**: [ESPWebTool](https://esp.huhn.me/)
@@ -135,6 +140,22 @@ Follow these steps to flash the firmware:
 4. Click "Flash," and once the installation is complete, **restart your board** and enjoy using your jammer!
 
 ![flash](img/flash.jpg)
+
+</div>
+</details>
+<details>
+<summary><strong>OTA upgrade</strong></summary>
+
+<div style="margin-left: 20px;">
+
+### This method can only be used if you have firmware version 1.9 or higher installed.
+Follow these steps to flash the firmware:
+1. Turn on your device and open a web browser
+2. Navigate to the web interface at **192.168.4.1**
+3. Click on "**OTA**" and select the file "**nRF24_jammer.bin**" (`⚠️️ make sure not to choose the bootloader or partitions files`).
+
+</div>
+</details>
 
 -----
 

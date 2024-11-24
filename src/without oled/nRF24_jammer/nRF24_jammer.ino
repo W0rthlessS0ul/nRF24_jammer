@@ -1,4 +1,5 @@
 #include "SPI.h"
+#include "Update.h"
 #include "EEPROM.h"
 #include "RF24.h"
 #include "html.h"
@@ -42,6 +43,46 @@ void registerRoute(const char* path, void (*handler)()) {
     server.on(path, handler);
 }
 
+void handleFileUpload() {
+    HTTPUpload &upload = server.upload();
+    static unsigned long lastUpdate = 0; 
+    const unsigned long updateInterval = 100;
+
+    if (upload.status == UPLOAD_FILE_START) {
+        Serial.printf("Update: %s\n", upload.filename.c_str());
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
+            Update.printError(Serial);
+            server.send(200, "text/plain", "Update Failed");
+            return;
+        } else {
+            server.sendContent(html_upload_progress);
+            lastUpdate = millis();
+        }
+    } 
+    else if (upload.status == UPLOAD_FILE_WRITE) {
+        if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+            Update.printError(Serial);
+        }
+
+        if (millis() - lastUpdate >= updateInterval) {
+            lastUpdate = millis();
+            int progress = (100.0 * Update.progress() / Update.size());
+            server.sendContent(String("<script>updateProgress(") + progress + ");</script>");
+        }
+    } 
+    else if (upload.status == UPLOAD_FILE_END) {
+        if (Update.end(true)) {
+            Serial.printf("Update Success: %u bytes\n", upload.totalSize);
+            server.sendContent(String("<script>updateProgress(100); document.getElementById('status').innerHTML = 'Update Success';</script>"));
+            delay(2000);
+            ESP.restart();
+        } else {
+            Update.printError(Serial);
+            server.sendContent("<script>document.getElementById('status').innerHTML = 'Update Failed';</script>");
+        }
+    }
+}
+
 void setup() {
     Serial.begin(115200);
     EEPROM.begin(EEPROM_SIZE);
@@ -79,6 +120,11 @@ void setup() {
     registerRoute("/setting_drone_jam", []() { settingsHandler(html_drone_setings); });
     registerRoute("/setting_separate_together", []() { settingsHandler(html_separate_or_together); });
     registerRoute("/setting_misc_jam", []() { settingsHandler(html_misc_setings); });
+    registerRoute("/OTA", []() { settingsHandler(html_ota); });
+    
+    server.on("/update", HTTP_POST, []() {
+        server.send(200, "text/plain", (Update.end() ? "Update Success" : "Update Failed"));
+    }, handleFileUpload);
 
     registerRoute("/bluetooth_method_0", []() { storeEEPROMAndSet(0, 0, bluetooth_jam_method); });
     registerRoute("/bluetooth_method_1", []() { storeEEPROMAndSet(0, 1, bluetooth_jam_method); });
