@@ -15,71 +15,36 @@ void handleRoot() {
     server.send(200, "text/html", html);
 }
 
-void jamHandler(const char* htmlResponse, const uint8_t* bitmap, void (*jamFunction)()) {
+void sendHtmlAndExecute(const char* htmlResponse, void (*action)() = nullptr) {
     server.send(200, "text/html", htmlResponse);
-    display.clearDisplay();
-    display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
-    display.display();
-    jamFunction();
+    if (action) action();
 }
 
-void bluetooth_jammer() {
-    jamHandler(html_bluetooth_jam, bitmap_bluetooth_jam, bluetooth_jam);
-}
-void drone_jammer() {
-    jamHandler(html_drone_jam, bitmap_drone_jam, drone_jam);
-}
-void wifi_jammer() {
-    jamHandler(html_wifi_jam, bitmap_wifi_jam, wifi_jam);
-}
-void ble_jammer() {
-    jamHandler(html_ble_jam, bitmap_ble_jam, ble_jam);
-}
-void zigbee_jammer() {
-    jamHandler(html_zigbee_jam, bitmap_zigbee_jam, zigbee_jam);
-}
-void misc_jammer() {
-    server.send(200, "text/html", html_misc_jammer);
-    display.clearDisplay();
-    display.drawBitmap(0, 0, bitmap_misc_jammer, 128, 32, WHITE);
-    display.display();
+void jamHandler(const char* htmlResponse, void (*jamFunction)()) {
+    sendHtmlAndExecute(htmlResponse, jamFunction);
 }
 
-void misc_channels() {
+void miscChannelsHandler() {
     int channel1 = server.arg("start").toInt();
     int channel2 = server.arg("stop").toInt();
-    server.send(200, "text/html", html_misc_jam);
+    sendHtmlAndExecute(html_misc_jam);
     misc_jam(channel1, channel2);
 }
 
 void settingsHandler(const char* htmlResponse) {
-    server.send(200, "text/html", htmlResponse);
+    sendHtmlAndExecute(htmlResponse);
 }
 
-void setting_bluetooth_jam() { settingsHandler(html_bluetooth_setings); }
-void setting_drone_jam() { settingsHandler(html_drone_setings); }
-void setting_separate_together() { settingsHandler(html_separate_or_together); }
-void setting_misc_jam() { settingsHandler(html_misc_setings); }
-void setting_logo() { settingsHandler(html_logo_setings); }
-
-void storeEEPROM(int index, int value) {
+void storeEEPROMAndSet(int index, int value, int& targetVar) {
     EEPROM.write(index, value);
     EEPROM.commit();
-    server.send(200, "text/html", html);
+    targetVar = value;
+    sendHtmlAndExecute(html);
 }
 
-void bluetooth_method_0() { storeEEPROM(0, 0); bluetooth_jam_method = 0; }
-void bluetooth_method_1() { storeEEPROM(0, 1); bluetooth_jam_method = 1; }
-void bluetooth_method_2() { storeEEPROM(0, 2); bluetooth_jam_method = 2; }
-void drone_method_0() { storeEEPROM(1, 0); drone_jam_method = 0;}
-void drone_method_1() { storeEEPROM(1, 1); drone_jam_method = 1;}
-void separate_or_together_method_0() { storeEEPROM(4, 0); Separate_or_together = 0;}
-void separate_or_together_method_1() { storeEEPROM(4, 1); Separate_or_together = 1;}
-void misc_method_0(){ storeEEPROM(6, 0); misc_jam_method = 0;}
-void misc_method_1(){ storeEEPROM(6, 1); misc_jam_method = 1;}
-void logo_on(){ storeEEPROM(7, 0); logo = 0;}
-void logo_off(){ storeEEPROM(7, 1); logo = 1;}
-
+void registerRoute(const char* path, void (*handler)()) {
+    server.on(path, handler);
+}
 void misc() {
     auto display_info = [&](String info) {
         display.clearDisplay();
@@ -92,7 +57,7 @@ void misc() {
         display.setCursor(8, 10);
         display.println(String(channel1));
         display.setCursor(60, 10);
-        display.println(String(channel2-channel1));
+        display.println(String(channel2 - channel1));
         display.setCursor(100, 10);
         display.println(String(channel2));
         display.setCursor(0, 20);
@@ -104,42 +69,28 @@ void misc() {
     display.setTextSize(1);
     display_info("");
 
+    auto incrementChannel = [&](int& channel) {
+        channel++;
+        if (channel > 125) {
+            channel = 0;
+        }
+    };
+
     while (true) {
         butt1.tick();
 
-        if (butt1.isSingle()) {
-            if (flag == 0) {
-                channel1++;
-                if (channel1 > 125) {
-                    channel1 = 0;
-                }
-            } else if (flag == 1) {
-                channel2++;
-                if (channel2 > 125) {
-                    channel2 = 0;
-                }
+        if (butt1.isSingle() || butt1.isHold()) {
+            if (butt1.isHold()) {
+                delay(100);
             }
-            display_info(""); 
+            incrementChannel(flag == 0 ? channel1 : channel2);
+            display_info("");
         } 
-        else if (butt1.isHold()) {
-            if (flag == 0) {
-                channel1++;
-                if (channel1 > 125) {
-                    channel1 = 0;
-                }
-            } else if (flag == 1) {
-                channel2++;
-                if (channel2 > 125) {
-                    channel2 = 0;
-                }
-            }
-            display_info(""); 
-            delay(100);
-        }
         else if (butt1.isDouble()) {
             if (flag == 0) {
                 flag = 1;
-            } else {
+            } 
+            else {
                 if (channel1 > channel2) {
                     display_info("Error: Second < First");
                     flag = 0;
@@ -155,12 +106,16 @@ void misc() {
 void setup() {
     Serial.begin(115200);
     EEPROM.begin(EEPROM_SIZE);
-    for (int i = 0; i < 8; ++i) {
+
+    // Initialize EEPROM values if unset
+    for (int i = 0; i < 7; ++i) {
         if (EEPROM.read(i) == 255) {
             EEPROM.write(i, 0);
             EEPROM.commit();
         }
     }
+
+    // Load settings
     bluetooth_jam_method = EEPROM.read(0);
     drone_jam_method = EEPROM.read(1);
     ble_jam_method = EEPROM.read(2);
@@ -168,32 +123,36 @@ void setup() {
     Separate_or_together = EEPROM.read(4);
     zigbee_jam_method = EEPROM.read(5);
     misc_jam_method = EEPROM.read(6);
-    logo = EEPROM.read(7);
+
     WiFi.softAP(ssid, password);
-    server.on("/", handleRoot);
-    server.on("/bluetooth_jam", bluetooth_jammer);
-    server.on("/drone_jam", drone_jammer);
-    server.on("/wifi_jam", wifi_jammer);
-    server.on("/ble_jam", ble_jammer);
-    server.on("/zigbee_jam", zigbee_jammer);
-    server.on("/setting_bluetooth_jam", setting_bluetooth_jam);
-    server.on("/setting_drone_jam", setting_drone_jam);
-    server.on("/setting_separate_together", setting_separate_together);
-    server.on("/bluetooth_method_0", bluetooth_method_0);
-    server.on("/bluetooth_method_1", bluetooth_method_1);
-    server.on("/bluetooth_method_2", bluetooth_method_2);
-    server.on("/drone_method_0", drone_method_0);
-    server.on("/drone_method_1", drone_method_1);
-    server.on("/separate_or_together_method_0", separate_or_together_method_0);
-    server.on("/separate_or_together_method_1", separate_or_together_method_1);
-    server.on("/misc_jammer", misc_jammer);
-    server.on("/misc_jam", misc_channels);
-    server.on("/setting_misc_jam", setting_misc_jam);
-    server.on("/misc_method_0", misc_method_0);
-    server.on("/misc_method_1", misc_method_1);
-    server.on("/setting_logo", setting_logo);
-    server.on("/logo_on", logo_on);
-    server.on("/logo_off", logo_off);
+
+    // Register routes
+    registerRoute("/", handleRoot);
+    registerRoute("/bluetooth_jam", []() { jamHandler(html_bluetooth_jam, bluetooth_jam); });
+    registerRoute("/drone_jam", []() { jamHandler(html_drone_jam, drone_jam); });
+    registerRoute("/wifi_jam", []() { jamHandler(html_wifi_jam, wifi_jam); });
+    registerRoute("/ble_jam", []() { jamHandler(html_ble_jam, ble_jam); });
+    registerRoute("/zigbee_jam", []() { jamHandler(html_zigbee_jam, zigbee_jam); });
+    registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
+    registerRoute("/misc_jam", miscChannelsHandler);
+
+    registerRoute("/setting_bluetooth_jam", []() { settingsHandler(html_bluetooth_setings); });
+    registerRoute("/setting_drone_jam", []() { settingsHandler(html_drone_setings); });
+    registerRoute("/setting_separate_together", []() { settingsHandler(html_separate_or_together); });
+    registerRoute("/setting_misc_jam", []() { settingsHandler(html_misc_setings); });
+    registerRoute("/setting_logo", []() { settingsHandler(html_logo_setings); });
+
+    registerRoute("/bluetooth_method_0", []() { storeEEPROMAndSet(0, 0, bluetooth_jam_method); });
+    registerRoute("/bluetooth_method_1", []() { storeEEPROMAndSet(0, 1, bluetooth_jam_method); });
+    registerRoute("/bluetooth_method_2", []() { storeEEPROMAndSet(0, 2, bluetooth_jam_method); });
+    registerRoute("/drone_method_0", []() { storeEEPROMAndSet(1, 0, drone_jam_method); });
+    registerRoute("/drone_method_1", []() { storeEEPROMAndSet(1, 1, drone_jam_method); });
+    registerRoute("/separate_or_together_method_0", []() { storeEEPROMAndSet(4, 0, Separate_or_together); });
+    registerRoute("/separate_or_together_method_1", []() { storeEEPROMAndSet(4, 1, Separate_or_together); });
+    registerRoute("/misc_method_0", []() { storeEEPROMAndSet(6, 0, misc_jam_method); });
+    registerRoute("/misc_method_1", []() { storeEEPROMAndSet(6, 1, misc_jam_method); });
+    registerRoute("/logo_on", []() { storeEEPROMAndSet(7, 0, logo); });
+    registerRoute("/logo_off", []() { storeEEPROMAndSet(7, 1, logo); });
 
     server.begin();
     butt1.setTimeout(200);
@@ -212,7 +171,6 @@ void setup() {
 void loop() {
     butt1.tick();
     server.handleClient();
-    
     if (butt1.isSingle()) {
         menu_number = (menu_number + 1) % 6;
         display.clearDisplay();
