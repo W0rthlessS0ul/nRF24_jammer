@@ -108,7 +108,7 @@ void setup() {
     EEPROM.begin(EEPROM_SIZE);
 
     // Initialize EEPROM values if unset
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0; i < 8; ++i) {
         if (EEPROM.read(i) == 255) {
             EEPROM.write(i, 0);
             EEPROM.commit();
@@ -123,6 +123,7 @@ void setup() {
     Separate_or_together = EEPROM.read(4);
     zigbee_jam_method = EEPROM.read(5);
     misc_jam_method = EEPROM.read(6);
+    logo = EEPROM.read(7);
 
     WiFi.softAP(ssid, password);
 
