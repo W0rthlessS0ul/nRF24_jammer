@@ -32,6 +32,12 @@ void miscChannelsHandler() {
     misc_jam(channel1, channel2);
 }
 
+void wifiChannelsHandler() {
+    int channel = server.arg("channel").toInt();
+    sendHtmlAndExecute(html_wifi_jam);
+    wifi_channel(channel);
+}
+
 void settingsHandler(const char* htmlResponse) {
     sendHtmlAndExecute(htmlResponse);
 }
@@ -107,8 +113,6 @@ void misc() {
         display.display();
     };
 
-    display.setTextColor(WHITE);
-    display.setTextSize(1);
     display_info("");
 
     auto incrementChannel = [&](int& channel) {
@@ -146,6 +150,52 @@ void misc() {
     }
 }
 
+void wifi_select(){
+    auto display_info = [&](int flag) {
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.println("channel: "+String(flag));
+        display.display();
+    };
+    while (true){
+        butt1.tick();
+        if (butt1.isSingle()) {
+            menu_number = (menu_number + 1) % 2;
+            display.clearDisplay();
+            const uint8_t* bitmap = (menu_number == 0) ? bitmap_wifi_all : bitmap_wifi_select;
+            display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
+            display.display();
+        }
+    
+        if (butt1.isHolded()) {
+            if (menu_number == 1){
+                flag = 0;
+                display_info(flag);
+                while (true){
+                    butt1.tick();
+                    if (butt1.isSingle()){
+                        flag = flag + 1;
+                        if (flag > 13){
+                          flag = 0;
+                        }
+                        display_info(flag);
+                    }
+                    if (butt1.isHolded()){
+                        display.clearDisplay();
+                        display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
+                        display.display();
+                        wifi_channel(flag);
+                    }
+                }
+            }
+            display.clearDisplay();
+            display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
+            display.display();
+            wifi_jam();
+        }
+    }
+}
+
 void setup() {
     Serial.begin(115200);
     EEPROM.begin(EEPROM_SIZE);
@@ -179,6 +229,7 @@ void setup() {
     registerRoute("/zigbee_jam", []() { jamHandler(html_zigbee_jam, zigbee_jam); });
     registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
     registerRoute("/misc_jam", miscChannelsHandler);
+    registerRoute("/wifi_selected_jam", wifiChannelsHandler);
 
     registerRoute("/setting_bluetooth_jam", []() { settingsHandler(html_bluetooth_setings); });
     registerRoute("/setting_drone_jam", []() { settingsHandler(html_drone_setings); });
@@ -186,6 +237,8 @@ void setup() {
     registerRoute("/setting_misc_jam", []() { settingsHandler(html_misc_setings); });
     registerRoute("/setting_logo", []() { settingsHandler(html_logo_setings); });
     registerRoute("/OTA", []() { settingsHandler(html_ota); });
+    registerRoute("/wifi_select", []() { settingsHandler(html_wifi_select); });
+    registerRoute("/wifi_channel", []() { settingsHandler(html_wifi_channel); });
     
     server.on("/update", HTTP_POST, []() {
         server.send(200, "text/plain", (Update.end() ? "Update Success" : "Update Failed"));
@@ -206,6 +259,8 @@ void setup() {
     server.begin();
     butt1.setTimeout(200);
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+    display.setTextColor(WHITE);
+    display.setTextSize(1);
     if (logo == 0){
         display.clearDisplay();
         display.drawBitmap(0, 0, bitmap_logo, 128, 32, WHITE);
@@ -239,7 +294,7 @@ void loop() {
         display.clearDisplay();
         const uint8_t* bitmap = (menu_number == 0) ? bitmap_bluetooth_jam :
                                 (menu_number == 1) ? bitmap_drone_jam :
-                                (menu_number == 2) ? bitmap_wifi_jam : 
+                                (menu_number == 2) ? bitmap_wifi_all : 
                                 (menu_number == 3) ? bitmap_ble_jam : bitmap_zigbee_jam;
         display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
         display.display();
@@ -247,7 +302,7 @@ void loop() {
         switch (menu_number) {
             case 0: bluetooth_jam(); break;
             case 1: drone_jam(); break;
-            case 2: wifi_jam(); break;
+            case 2: wifi_select(); break;
             case 3: ble_jam(); break;
             case 4: zigbee_jam(); break;
         }
