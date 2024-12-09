@@ -140,6 +140,28 @@ void wifi_jam(){
     }
   }
 }
+void wifi_channel(int channel){
+  HSPI_init();
+  VSPI_init();
+  while (true){
+    if (Separate_or_together == 0){
+      for (int i = (channel * 5) + 1; i < (channel * 5) + 23; i++) {
+        radio.setChannel(i);
+        radio1.setChannel((channel * 5 + 23) - (i - (channel * 5)));
+        radio.writeFast(&jam_text, sizeof(jam_text));
+        radio1.writeFast(&jam_text, sizeof(jam_text));
+      }
+    }
+    if (Separate_or_together == 1){
+      for (int i = (channel * 5) + 1; i < (channel * 5) + 23; i++) {
+        radio.setChannel(i);
+        radio1.setChannel(i);
+        radio.writeFast(&jam_text, sizeof(jam_text));
+        radio1.writeFast(&jam_text, sizeof(jam_text));
+      }
+    }
+  }
+}
 void zigbee_jam(){
   HSPI_init();
   VSPI_init();

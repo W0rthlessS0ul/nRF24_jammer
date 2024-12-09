@@ -28,6 +28,12 @@ void miscChannelsHandler() {
     misc_jam(channel1, channel2);
 }
 
+void wifiChannelsHandler() {
+    int channel = server.arg("channel").toInt();
+    sendHtmlAndExecute(html_wifi_jam);
+    wifi_channel(channel);
+}
+
 void settingsHandler(const char* htmlResponse) {
     sendHtmlAndExecute(htmlResponse);
 }
@@ -115,12 +121,15 @@ void setup() {
     registerRoute("/zigbee_jam", []() { jamHandler(html_zigbee_jam, zigbee_jam); });
     registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
     registerRoute("/misc_jam", miscChannelsHandler);
+    registerRoute("/wifi_selected_jam", wifiChannelsHandler);
 
     registerRoute("/setting_bluetooth_jam", []() { settingsHandler(html_bluetooth_setings); });
     registerRoute("/setting_drone_jam", []() { settingsHandler(html_drone_setings); });
     registerRoute("/setting_separate_together", []() { settingsHandler(html_separate_or_together); });
     registerRoute("/setting_misc_jam", []() { settingsHandler(html_misc_setings); });
     registerRoute("/OTA", []() { settingsHandler(html_ota); });
+    registerRoute("/wifi_select", []() { settingsHandler(html_wifi_select); });
+    registerRoute("/wifi_channel", []() { settingsHandler(html_wifi_channel); });
     
     server.on("/update", HTTP_POST, []() {
         server.send(200, "text/plain", (Update.end() ? "Update Success" : "Update Failed"));
