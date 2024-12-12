@@ -15,6 +15,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [🎉 Final Outcome](#-final-outcome)
 - [🌟 Example of Work](#-example-of-work)
 - [🙏 Acknowledgments](#-acknowledgments)
+- [🗳️ Concept Change Vote](#-concept-change-vote)
 - [❤️ Thank You for Your Support!](#-thank-you-for-your-support)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
 
@@ -227,6 +228,23 @@ Follow these steps to flash the firmware:
 
 ## 🙏 Acknowledgments
 - [smoochiee](https://github.com/smoochiee)
+
+-----
+
+## 🗳️ Concept Change Vote
+
+### **Important Announcement!**
+
+A concept change vote is currently underway for this repository, and we want to hear from you! 🗳️
+
+### **Repository Evolution**
+As the repository evolves, we're considering a significant change to its concept. If you have a stake in the repository's direction, we invite you to participate in this vote and share your thoughts on the proposed changes.
+
+### **How to Participate**
+To join the discussion and cast your vote, please visit: [**Concept Change Vote Discussion**](https://github.com/W0rthlessS0ul/nRF24_jammer/discussions/12)
+
+### **Your Input Matters**
+Your input will help us make informed decisions about the repository's future and ensure it stays aligned with your needs and expectations.
 
 -----
 
