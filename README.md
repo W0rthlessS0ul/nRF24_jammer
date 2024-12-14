@@ -227,7 +227,8 @@ Follow these steps to flash the firmware:
 -----
 
 ## 🙏 Acknowledgments
-- [smoochiee](https://github.com/smoochiee)
+- [smoochiee](https://github.com/smoochiee) - **for the main logic of the jammer.**
+- [samukas81](https://github.com/samukas81) - **for suggesting ideas.**
 
 -----
 

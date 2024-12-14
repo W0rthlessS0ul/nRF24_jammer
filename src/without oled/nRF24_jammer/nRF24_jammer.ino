@@ -80,7 +80,7 @@ void handleFileUpload() {
         if (Update.end(true)) {
             Serial.printf("Update Success: %u bytes\n", upload.totalSize);
             server.sendContent(String("<script>updateProgress(100); document.getElementById('status').innerHTML = 'Update Success';</script>"));
-            delay(2000);
+            delay(100);
             ESP.restart();
         } else {
             Update.printError(Serial);

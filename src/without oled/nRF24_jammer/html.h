@@ -14,6 +14,17 @@ const char* html = R"rawliteral(
             margin: 0;
             background-color: #121212;
             color: #ffffff;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .container {
@@ -25,10 +36,29 @@ const char* html = R"rawliteral(
             width: 90%;
             max-width: 350px;
             position: relative;
+            transform: translateY(20px);
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .header {
             margin-bottom: 20px;
+            animation: logoMovement 1s infinite alternate;
+        }
+
+        @keyframes logoMovement {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-5px); }
         }
 
         .header img {
@@ -43,7 +73,7 @@ const char* html = R"rawliteral(
             gap: 15px; 
         }
 
-        .button {
+        .button, .dropdown-button {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -57,19 +87,20 @@ const char* html = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
             font-size: 16px;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        .button:hover {
+        .button:hover, .dropdown-button:hover {
             background-color: #0056b3; 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px) scale(1.05); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
-        .button:active {
-            transform: translateY(1px); 
+        .button:active, .dropdown-button:active {
+            transform: translateY(2px); 
         }
 
-        .button:focus {
+        .button:focus, .dropdown-button:focus {
             outline: none; 
         }
 
@@ -78,18 +109,14 @@ const char* html = R"rawliteral(
         }
 
         .ota-button {
-            background-color: #ffc107;
-        }
-
-        .ota-button:hover {
-            background-color: #e0a800;
+            background-color: #ffc107; 
         }
 
         .dropdown {
             position: absolute;
             top: 50px;
             right: 0;
-            background-color: rgba(30, 30, 30, 0.8);
+            background-color: rgba(30, 30, 30, 0.9);
             border-radius: 8px;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
             display: none;
@@ -98,45 +125,67 @@ const char* html = R"rawliteral(
             z-index: 10;
         }
 
-        .dropdown-button {
+        .dropdown.show {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
-            font-size: 16px;
-            width: 100%;
+            animation: dropdownExpand 0.6s forwards;
         }
 
-        .dropdown-button:hover {
-            background-color: #0056b3;
+        @keyframes dropdownExpand {
+            0% {
+                opacity: 0;
+                transform: scaleY(0);
+            }
         }
 
-        .dropdown-button:active {
-            transform: translateY(1px); 
-        }
-
-        .dropdown-button:focus {
-            outline: none;
+        .hidden {
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
         }
     </style>
     <script>
         function toggleDropdown() {
             const dropdown = document.getElementById('settingsDropdown');
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+            dropdown.classList.toggle('show');
+
+            const items = dropdown.querySelectorAll('.dropdown-button');
+
+            if (dropdown.classList.contains('show')) {
+                items.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.remove('hidden');
+                        item.style.opacity = 1;
+                        item.style.transform = 'translateY(0)';
+                    }, index * 50);
+                });
+            } else {
+                items.forEach((item) => {
+                    item.classList.add('hidden');
+                    item.style.opacity = 0;
+                    item.style.transform = 'translateY(-20px)';
+                });
+            }
         }
+
+        window.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('settingsDropdown');
+            const settingsButton = document.querySelector('.settings-button');
+            if (!settingsButton.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+                const items = dropdown.querySelectorAll('.dropdown-button');
+                items.forEach((item) => {
+                    item.classList.add('hidden');
+                    item.style.opacity = 0;
+                    item.style.transform = 'translateY(-20px)';
+                });
+            }
+        });
     </script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="data:image/png;base64,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"></img>
+            <img src="data:image/png;base64,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" alt="Logo"></img>
         </div>
 
         <div class="buttons">
@@ -149,10 +198,10 @@ const char* html = R"rawliteral(
             <button class="button settings-button" onclick="toggleDropdown()">Settings</button>
             <button onclick="location.href='/OTA'" class="button ota-button">OTA</button>
             <div id="settingsDropdown" class="dropdown">
-                <button onclick="location.href='/setting_bluetooth_jam'" class="dropdown-button">Bluetooth Jam</button>
-                <button onclick="location.href='/setting_drone_jam'" class="dropdown-button">Drone Jam</button>
-                <button onclick="location.href='/setting_separate_together'" class="dropdown-button">Separate or Together</button>
-                <button onclick="location.href='/setting_misc_jam'" class="dropdown-button">Misc Jam</button>
+                <button onclick="location.href='/setting_bluetooth_jam'" class="dropdown-button hidden">Bluetooth Jam</button>
+                <button onclick="location.href='/setting_drone_jam'" class="dropdown-button hidden">Drone Jam</button>
+                <button onclick="location.href='/setting_separate_together'" class="dropdown-button hidden">Separate or Together</button>
+                <button onclick="location.href='/setting_misc_jam'" class="dropdown-button hidden">Misc Jam</button>
             </div>
         </div>
     </div>
@@ -176,6 +225,18 @@ const char* html_ota = R"rawliteral(
             margin: 0;
             background-color: #121212;
             color: #ffffff;
+            transition: background-color 0.5s;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .container {
@@ -186,6 +247,20 @@ const char* html_ota = R"rawliteral(
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
             width: 90%;
             max-width: 400px;
+            position: relative;
+            transform: translateY(20px);
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         h2 {
@@ -208,11 +283,13 @@ const char* html_ota = R"rawliteral(
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
         }
 
         .file-upload label:hover {
             background-color: #0056b3;
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .button {
@@ -227,11 +304,17 @@ const char* html_ota = R"rawliteral(
             margin-top: 20px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
         }
 
         .button:hover {
             background-color: #218838;
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(2px);
         }
 
         .hint {
@@ -364,27 +447,83 @@ const char* html_misc_jam = R"rawliteral(
             font-size: 24px;
             color: #007bff;
             border-radius: 8px;
+            margin-bottom: 15px;
+            display: inline-block;
         }
 
-        .dots {
-            font-size: 24px;
-            color: #007bff;
+        .circle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circle {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #00c3ff);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
+                        0 0 20px rgba(0, 195, 255, 0.3);
+            animation: pulse 1.2s infinite;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .circle:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .circle:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="text">Jamming of selected channels</div>
-        <div class="dots" id="dots">.</div>
+        <div id="textElement" class="text">Jamming of selected channels</div>
+        <div class="circle-container">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
     </div>
 
     <script>
-        const dotsElement = document.getElementById('dots');
-        let dots = 1;
+        const textElement = document.getElementById('textElement');
+        const originalText = textElement.textContent;
+        const specialChars = '*&^%$#@!)(_+-';
 
         setInterval(() => {
-            dots = (dots % 3) + 1;
-            dotsElement.innerText = '.'.repeat(dots);
+            const words = originalText.split(' ');
+            const randomWordIndex = Math.floor(Math.random() * words.length);
+            const randomWord = words[randomWordIndex];
+
+            if (randomWord) {
+                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
+
+                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+
+                const modifiedWord = randomWord.split('');
+                modifiedWord[randomCharIndex] = randomChar;
+                words[randomWordIndex] = modifiedWord.join('');
+
+                textElement.textContent = words.join(' ');
+
+                setTimeout(() => {
+                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
+                    words[randomWordIndex] = modifiedWord.join('');
+                    textElement.textContent = words.join(' ');
+                }, 999);
+            }
         }, 1000);
     </script>
 </body>
@@ -423,27 +562,83 @@ const char* html_bluetooth_jam = R"rawliteral(
             font-size: 24px;
             color: #007bff;
             border-radius: 8px;
+            margin-bottom: 15px;
+            display: inline-block;
         }
 
-        .dots {
-            font-size: 24px;
-            color: #007bff;
+        .circle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circle {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #00c3ff);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
+                        0 0 20px rgba(0, 195, 255, 0.3);
+            animation: pulse 1.2s infinite;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .circle:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .circle:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="text">Bluetooth jam</div>
-        <div class="dots" id="dots">.</div>
+        <div id="textElement" class="text">Bluetooth Jamming</div>
+        <div class="circle-container">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
     </div>
 
     <script>
-        const dotsElement = document.getElementById('dots');
-        let dots = 1;
+        const textElement = document.getElementById('textElement');
+        const originalText = textElement.textContent;
+        const specialChars = '*&^%$#@!)(_+-';
 
         setInterval(() => {
-            dots = (dots % 3) + 1;
-            dotsElement.innerText = '.'.repeat(dots);
+            const words = originalText.split(' ');
+            const randomWordIndex = Math.floor(Math.random() * words.length);
+            const randomWord = words[randomWordIndex];
+
+            if (randomWord) {
+                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
+
+                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+
+                const modifiedWord = randomWord.split('');
+                modifiedWord[randomCharIndex] = randomChar;
+                words[randomWordIndex] = modifiedWord.join('');
+
+                textElement.textContent = words.join(' ');
+
+                setTimeout(() => {
+                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
+                    words[randomWordIndex] = modifiedWord.join('');
+                    textElement.textContent = words.join(' ');
+                }, 999);
+            }
         }, 1000);
     </script>
 </body>
@@ -482,27 +677,83 @@ const char* html_drone_jam = R"rawliteral(
             font-size: 24px;
             color: #007bff;
             border-radius: 8px;
+            margin-bottom: 15px;
+            display: inline-block;
         }
 
-        .dots {
-            font-size: 24px;
-            color: #007bff;
+        .circle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circle {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #00c3ff);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
+                        0 0 20px rgba(0, 195, 255, 0.3);
+            animation: pulse 1.2s infinite;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .circle:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .circle:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="text">Drone jam</div>
-        <div class="dots" id="dots">.</div>
+        <div id="textElement" class="text">Drone Jamming</div>
+        <div class="circle-container">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
     </div>
 
     <script>
-        const dotsElement = document.getElementById('dots');
-        let dots = 1;
+        const textElement = document.getElementById('textElement');
+        const originalText = textElement.textContent;
+        const specialChars = '*&^%$#@!)(_+-';
 
         setInterval(() => {
-            dots = (dots % 3) + 1;
-            dotsElement.innerText = '.'.repeat(dots);
+            const words = originalText.split(' ');
+            const randomWordIndex = Math.floor(Math.random() * words.length);
+            const randomWord = words[randomWordIndex];
+
+            if (randomWord) {
+                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
+
+                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+
+                const modifiedWord = randomWord.split('');
+                modifiedWord[randomCharIndex] = randomChar;
+                words[randomWordIndex] = modifiedWord.join('');
+
+                textElement.textContent = words.join(' ');
+
+                setTimeout(() => {
+                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
+                    words[randomWordIndex] = modifiedWord.join('');
+                    textElement.textContent = words.join(' ');
+                }, 999);
+            }
         }, 1000);
     </script>
 </body>
@@ -541,27 +792,83 @@ const char* html_wifi_jam = R"rawliteral(
             font-size: 24px;
             color: #007bff;
             border-radius: 8px;
+            margin-bottom: 15px;
+            display: inline-block;
         }
 
-        .dots {
-            font-size: 24px;
-            color: #007bff;
+        .circle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circle {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #00c3ff);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
+                        0 0 20px rgba(0, 195, 255, 0.3);
+            animation: pulse 1.2s infinite;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .circle:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .circle:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="text">WiFi jam</div>
-        <div class="dots" id="dots">.</div>
+        <div id="textElement" class="text">WiFi Jamming</div>
+        <div class="circle-container">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
     </div>
 
     <script>
-        const dotsElement = document.getElementById('dots');
-        let dots = 1;
+        const textElement = document.getElementById('textElement');
+        const originalText = textElement.textContent;
+        const specialChars = '*&^%$#@!)(_+-';
 
         setInterval(() => {
-            dots = (dots % 3) + 1;
-            dotsElement.innerText = '.'.repeat(dots);
+            const words = originalText.split(' ');
+            const randomWordIndex = Math.floor(Math.random() * words.length);
+            const randomWord = words[randomWordIndex];
+
+            if (randomWord) {
+                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
+
+                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+
+                const modifiedWord = randomWord.split('');
+                modifiedWord[randomCharIndex] = randomChar;
+                words[randomWordIndex] = modifiedWord.join('');
+
+                textElement.textContent = words.join(' ');
+
+                setTimeout(() => {
+                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
+                    words[randomWordIndex] = modifiedWord.join('');
+                    textElement.textContent = words.join(' ');
+                }, 999);
+            }
         }, 1000);
     </script>
 </body>
@@ -600,27 +907,83 @@ const char* html_ble_jam = R"rawliteral(
             font-size: 24px;
             color: #007bff;
             border-radius: 8px;
+            margin-bottom: 15px;
+            display: inline-block;
         }
 
-        .dots {
-            font-size: 24px;
-            color: #007bff;
+        .circle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circle {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #00c3ff);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
+                        0 0 20px rgba(0, 195, 255, 0.3);
+            animation: pulse 1.2s infinite;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .circle:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .circle:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="text">BLE jam</div>
-        <div class="dots" id="dots">.</div>
+        <div id="textElement" class="text">BLE Jamming</div>
+        <div class="circle-container">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
     </div>
 
     <script>
-        const dotsElement = document.getElementById('dots');
-        let dots = 1;
+        const textElement = document.getElementById('textElement');
+        const originalText = textElement.textContent;
+        const specialChars = '*&^%$#@!)(_+-';
 
         setInterval(() => {
-            dots = (dots % 3) + 1;
-            dotsElement.innerText = '.'.repeat(dots);
+            const words = originalText.split(' ');
+            const randomWordIndex = Math.floor(Math.random() * words.length);
+            const randomWord = words[randomWordIndex];
+
+            if (randomWord) {
+                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
+
+                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+
+                const modifiedWord = randomWord.split('');
+                modifiedWord[randomCharIndex] = randomChar;
+                words[randomWordIndex] = modifiedWord.join('');
+
+                textElement.textContent = words.join(' ');
+
+                setTimeout(() => {
+                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
+                    words[randomWordIndex] = modifiedWord.join('');
+                    textElement.textContent = words.join(' ');
+                }, 999);
+            }
         }, 1000);
     </script>
 </body>
@@ -659,27 +1022,83 @@ const char* html_zigbee_jam = R"rawliteral(
             font-size: 24px;
             color: #007bff;
             border-radius: 8px;
+            margin-bottom: 15px;
+            display: inline-block;
         }
 
-        .dots {
-            font-size: 24px;
-            color: #007bff;
+        .circle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circle {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #00c3ff);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
+                        0 0 20px rgba(0, 195, 255, 0.3);
+            animation: pulse 1.2s infinite;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .circle:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .circle:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="text">Zigbee jam</div>
-        <div class="dots" id="dots">.</div>
+        <div id="textElement" class="text">Zigbee Jamming</div>
+        <div class="circle-container">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
     </div>
 
     <script>
-        const dotsElement = document.getElementById('dots');
-        let dots = 1;
+        const textElement = document.getElementById('textElement');
+        const originalText = textElement.textContent;
+        const specialChars = '*&^%$#@!)(_+-';
 
         setInterval(() => {
-            dots = (dots % 3) + 1;
-            dotsElement.innerText = '.'.repeat(dots);
+            const words = originalText.split(' ');
+            const randomWordIndex = Math.floor(Math.random() * words.length);
+            const randomWord = words[randomWordIndex];
+
+            if (randomWord) {
+                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
+
+                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+
+                const modifiedWord = randomWord.split('');
+                modifiedWord[randomCharIndex] = randomChar;
+                words[randomWordIndex] = modifiedWord.join('');
+
+                textElement.textContent = words.join(' ');
+
+                setTimeout(() => {
+                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
+                    words[randomWordIndex] = modifiedWord.join('');
+                    textElement.textContent = words.join(' ');
+                }, 999);
+            }
         }, 1000);
     </script>
 </body>
@@ -739,12 +1158,13 @@ const char* html_bluetooth_setings = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
             font-size: 16px;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .button:hover {
             background-color: #0056b3; 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .button:active {
@@ -783,10 +1203,13 @@ const char* html_bluetooth_setings = R"rawliteral(
             font-size: 16px;
             width: 100%;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .dropdown-button:hover {
             background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .dropdown-button:active {
@@ -807,7 +1230,7 @@ const char* html_bluetooth_setings = R"rawliteral(
 <body>
     <div class="container">
         <div class="header">
-            <h1>Select the channel scanning type:</h1>
+            <h1>Choose jamming type:</h1>
         </div>
 
         <div class="buttons">
@@ -873,12 +1296,13 @@ const char* html_drone_setings = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
             font-size: 16px;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .button:hover {
             background-color: #0056b3; 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .button:active {
@@ -917,10 +1341,13 @@ const char* html_drone_setings = R"rawliteral(
             font-size: 16px;
             width: 100%;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .dropdown-button:hover {
             background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .dropdown-button:active {
@@ -941,7 +1368,7 @@ const char* html_drone_setings = R"rawliteral(
 <body>
     <div class="container">
         <div class="header">
-            <h1>Select the channel scanning type:</h1>
+            <h1>Choose jamming type:</h1>
         </div>
 
         <div class="buttons">
@@ -1006,12 +1433,13 @@ const char* html_misc_setings = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
             font-size: 16px;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .button:hover {
             background-color: #0056b3; 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .button:active {
@@ -1050,10 +1478,13 @@ const char* html_misc_setings = R"rawliteral(
             font-size: 16px;
             width: 100%;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .dropdown-button:hover {
             background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .dropdown-button:active {
@@ -1074,9 +1505,8 @@ const char* html_misc_setings = R"rawliteral(
 <body>
     <div class="container">
         <div class="header">
-            <h1>Select the channel scanning type:</h1>
+            <h1>Choose jamming type:</h1>
         </div>
-
         <div class="buttons">
             <button class="button" onclick="location.href='/misc_method_0'">Channel Switching (fast mode; used in Bluetooth Jam)</button>
             <button class="button" onclick="location.href='/misc_method_1'">Packet Sending (slow mode; used in WiFi Jam)</button>
@@ -1139,12 +1569,13 @@ const char* html_separate_or_together = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
             font-size: 16px;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .button:hover {
             background-color: #0056b3; 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .button:active {
@@ -1183,10 +1614,13 @@ const char* html_separate_or_together = R"rawliteral(
             font-size: 16px;
             width: 100%;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .dropdown-button:hover {
             background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .dropdown-button:active {
@@ -1207,9 +1641,8 @@ const char* html_separate_or_together = R"rawliteral(
 <body>
     <div class="container">
         <div class="header">
-            <h1>Select the channel scanning type:</h1>
+            <h1>Choose jamming type:</h1>
         </div>
-
         <div class="buttons">
             <button class="button" onclick="location.href='/separate_or_together_method_0'">Modules on Different Channels</button>
             <button class="button" onclick="location.href='/separate_or_together_method_1'">Modules on Same Channel</button>
@@ -1272,12 +1705,13 @@ const char* html_wifi_select = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
             font-size: 16px;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .button:hover {
             background-color: #0056b3; 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .button:active {
@@ -1316,10 +1750,13 @@ const char* html_wifi_select = R"rawliteral(
             font-size: 16px;
             width: 100%;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .dropdown-button:hover {
             background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .dropdown-button:active {
@@ -1379,6 +1816,9 @@ const char* html_wifi_channel = R"rawliteral(
             width: 90%;
             max-width: 350px;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .input {
@@ -1391,6 +1831,13 @@ const char* html_wifi_channel = R"rawliteral(
             width: 100%;
             margin-bottom: 15px;
             text-align: center;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            background-color: #444444;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
         }
 
         .button {
@@ -1407,12 +1854,13 @@ const char* html_wifi_channel = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
             font-size: 16px;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .button:hover {
             background-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .button:active {
@@ -1464,6 +1912,9 @@ const char* html_misc_jammer = R"rawliteral(
         }
 
         .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
             padding: 30px;
             border-radius: 10px;
@@ -1484,6 +1935,13 @@ const char* html_misc_jammer = R"rawliteral(
             width: 100%;
             margin-bottom: 15px;
             text-align: center;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            background-color: #444444;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
         }
 
         .button {
@@ -1500,12 +1958,13 @@ const char* html_misc_jammer = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
             font-size: 16px;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .button:hover {
             background-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .button:active {
@@ -1529,13 +1988,17 @@ const char* html_misc_jammer = R"rawliteral(
                 alert('Stop value must be a number between 0 and 125.');
                 return;
             }
+            if (stopValue < startValue) {
+                alert('Stop value must not be less than Start value.');
+                return;
+            }
             location.href = `/misc_jam?start=${startValue}&stop=${stopValue}`;
         }
     </script>
 </head>
 <body>
     <div class="container">
-        <h1>Set Start and Stop Values:</h1>
+        <h1>Set Start/Stop Values:</h1>
         <input id="startInput" class="input" type="number" placeholder="Start (0-125)" max="125" min="0" />
         <input id="stopInput" class="input" type="number" placeholder="Stop (0-125)" max="125" min="0" />
         <button class="button" onclick="validateAndRedirect()">Jam</button>

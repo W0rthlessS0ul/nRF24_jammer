@@ -22,6 +22,7 @@ int zigbee_jam_method;
 int Separate_or_together;
 int misc_jam_method;
 int logo;
+int access_point;
 int channel1 = 0;
 int channel2 = 0;
 int flag = 0;

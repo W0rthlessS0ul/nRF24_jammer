@@ -18,6 +18,7 @@ void handleRoot() {
 
 void sendHtmlAndExecute(const char* htmlResponse, void (*action)() = nullptr) {
     server.send(200, "text/html", htmlResponse);
+    delay(500);
     if (action) action();
 }
 
@@ -84,7 +85,7 @@ void handleFileUpload() {
         if (Update.end(true)) {
             Serial.printf("Update Success: %u bytes\n", upload.totalSize);
             server.sendContent(String("<script>updateProgress(100); document.getElementById('status').innerHTML = 'Update Success';</script>"));
-            delay(2000);
+            delay(100);
             ESP.restart();
         } else {
             Update.printError(Serial);
@@ -196,12 +197,17 @@ void wifi_select(){
     }
 }
 
+void access_poin_off(){
+    settingsHandler(html_pls_reboot);
+    storeEEPROMAndSet(8, 1, logo);
+}
+
 void setup() {
     Serial.begin(115200);
     EEPROM.begin(EEPROM_SIZE);
 
     // Initialize EEPROM values if unset
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 9; ++i) {
         if (EEPROM.read(i) == 255) {
             EEPROM.write(i, 0);
             EEPROM.commit();
@@ -217,46 +223,50 @@ void setup() {
     zigbee_jam_method = EEPROM.read(5);
     misc_jam_method = EEPROM.read(6);
     logo = EEPROM.read(7);
+    access_point = EEPROM.read(8);
+    if (access_point == 0){
+        WiFi.softAP(ssid, password);
 
-    WiFi.softAP(ssid, password);
+        // Register routes
+        registerRoute("/", handleRoot);
+        registerRoute("/bluetooth_jam", []() { jamHandler(html_bluetooth_jam, bluetooth_jam); });
+        registerRoute("/drone_jam", []() { jamHandler(html_drone_jam, drone_jam); });
+        registerRoute("/wifi_jam", []() { jamHandler(html_wifi_jam, wifi_jam); });
+        registerRoute("/ble_jam", []() { jamHandler(html_ble_jam, ble_jam); });
+        registerRoute("/zigbee_jam", []() { jamHandler(html_zigbee_jam, zigbee_jam); });
+        registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
+        registerRoute("/misc_jam", miscChannelsHandler);
+        registerRoute("/wifi_selected_jam", wifiChannelsHandler);
 
-    // Register routes
-    registerRoute("/", handleRoot);
-    registerRoute("/bluetooth_jam", []() { jamHandler(html_bluetooth_jam, bluetooth_jam); });
-    registerRoute("/drone_jam", []() { jamHandler(html_drone_jam, drone_jam); });
-    registerRoute("/wifi_jam", []() { jamHandler(html_wifi_jam, wifi_jam); });
-    registerRoute("/ble_jam", []() { jamHandler(html_ble_jam, ble_jam); });
-    registerRoute("/zigbee_jam", []() { jamHandler(html_zigbee_jam, zigbee_jam); });
-    registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
-    registerRoute("/misc_jam", miscChannelsHandler);
-    registerRoute("/wifi_selected_jam", wifiChannelsHandler);
-
-    registerRoute("/setting_bluetooth_jam", []() { settingsHandler(html_bluetooth_setings); });
-    registerRoute("/setting_drone_jam", []() { settingsHandler(html_drone_setings); });
-    registerRoute("/setting_separate_together", []() { settingsHandler(html_separate_or_together); });
-    registerRoute("/setting_misc_jam", []() { settingsHandler(html_misc_setings); });
-    registerRoute("/setting_logo", []() { settingsHandler(html_logo_setings); });
-    registerRoute("/OTA", []() { settingsHandler(html_ota); });
-    registerRoute("/wifi_select", []() { settingsHandler(html_wifi_select); });
-    registerRoute("/wifi_channel", []() { settingsHandler(html_wifi_channel); });
+        registerRoute("/setting_bluetooth_jam", []() { settingsHandler(html_bluetooth_setings); });
+        registerRoute("/setting_drone_jam", []() { settingsHandler(html_drone_setings); });
+        registerRoute("/setting_separate_together", []() { settingsHandler(html_separate_or_together); });
+        registerRoute("/setting_misc_jam", []() { settingsHandler(html_misc_setings); });
+        registerRoute("/setting_logo", []() { settingsHandler(html_logo_setings); });
+        registerRoute("/OTA", []() { settingsHandler(html_ota); });
+        registerRoute("/wifi_select", []() { settingsHandler(html_wifi_select); });
+        registerRoute("/wifi_channel", []() { settingsHandler(html_wifi_channel); });
+        registerRoute("/html_access_point", []() { settingsHandler(html_access_point); });
     
-    server.on("/update", HTTP_POST, []() {
-        server.send(200, "text/plain", (Update.end() ? "Update Success" : "Update Failed"));
-    }, handleFileUpload);
+        server.on("/update", HTTP_POST, []() {
+            server.send(200, "text/plain", (Update.end() ? "Update Success" : "Update Failed"));
+        }, handleFileUpload);
 
-    registerRoute("/bluetooth_method_0", []() { storeEEPROMAndSet(0, 0, bluetooth_jam_method); });
-    registerRoute("/bluetooth_method_1", []() { storeEEPROMAndSet(0, 1, bluetooth_jam_method); });
-    registerRoute("/bluetooth_method_2", []() { storeEEPROMAndSet(0, 2, bluetooth_jam_method); });
-    registerRoute("/drone_method_0", []() { storeEEPROMAndSet(1, 0, drone_jam_method); });
-    registerRoute("/drone_method_1", []() { storeEEPROMAndSet(1, 1, drone_jam_method); });
-    registerRoute("/separate_or_together_method_0", []() { storeEEPROMAndSet(4, 0, Separate_or_together); });
-    registerRoute("/separate_or_together_method_1", []() { storeEEPROMAndSet(4, 1, Separate_or_together); });
-    registerRoute("/misc_method_0", []() { storeEEPROMAndSet(6, 0, misc_jam_method); });
-    registerRoute("/misc_method_1", []() { storeEEPROMAndSet(6, 1, misc_jam_method); });
-    registerRoute("/logo_on", []() { storeEEPROMAndSet(7, 0, logo); });
-    registerRoute("/logo_off", []() { storeEEPROMAndSet(7, 1, logo); });
+        registerRoute("/bluetooth_method_0", []() { storeEEPROMAndSet(0, 0, bluetooth_jam_method); });
+        registerRoute("/bluetooth_method_1", []() { storeEEPROMAndSet(0, 1, bluetooth_jam_method); });
+        registerRoute("/bluetooth_method_2", []() { storeEEPROMAndSet(0, 2, bluetooth_jam_method); });
+        registerRoute("/drone_method_0", []() { storeEEPROMAndSet(1, 0, drone_jam_method); });
+        registerRoute("/drone_method_1", []() { storeEEPROMAndSet(1, 1, drone_jam_method); });
+        registerRoute("/separate_or_together_method_0", []() { storeEEPROMAndSet(4, 0, Separate_or_together); });
+        registerRoute("/separate_or_together_method_1", []() { storeEEPROMAndSet(4, 1, Separate_or_together); });
+        registerRoute("/misc_method_0", []() { storeEEPROMAndSet(6, 0, misc_jam_method); });
+        registerRoute("/misc_method_1", []() { storeEEPROMAndSet(6, 1, misc_jam_method); });
+        registerRoute("/logo_on", []() { storeEEPROMAndSet(7, 0, logo); });
+        registerRoute("/logo_off", []() { storeEEPROMAndSet(7, 1, logo); });
+        registerRoute("/access_point_off", []() { access_poin_off(); });
 
-    server.begin();
+        server.begin();
+    }
     butt1.setTimeout(200);
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
     display.setTextColor(WHITE);
@@ -274,28 +284,30 @@ void setup() {
 
 void loop() {
     butt1.tick();
-    server.handleClient();
+    if (access_point == 0) server.handleClient();
     if (butt1.isSingle()) {
-        menu_number = (menu_number + 1) % 6;
+        menu_number = (menu_number + 1) % (access_point == 0 ? 6 : 7);
         display.clearDisplay();
         const uint8_t* bitmap = (menu_number == 0) ? bitmap_bluetooth_jammer :
                                 (menu_number == 1) ? bitmap_drone_jammer :
                                 (menu_number == 2) ? bitmap_wifi_jammer : 
                                 (menu_number == 3) ? bitmap_ble_jammer : 
-                                (menu_number == 4) ? bitmap_zigbee_jammer : bitmap_misc_jammer;
+                                (menu_number == 4) ? bitmap_zigbee_jammer : 
+                                (menu_number == 5) ? bitmap_misc_jammer : bitmap_access_point;
         display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
         display.display();
     }
     
     if (butt1.isHolded()) {
-        if (menu_number == 5){
-          misc();
-        }
+        if (menu_number == 5) misc();
+
         display.clearDisplay();
         const uint8_t* bitmap = (menu_number == 0) ? bitmap_bluetooth_jam :
                                 (menu_number == 1) ? bitmap_drone_jam :
                                 (menu_number == 2) ? bitmap_wifi_all : 
-                                (menu_number == 3) ? bitmap_ble_jam : bitmap_zigbee_jam;
+                                (menu_number == 3) ? bitmap_ble_jam :
+                                (menu_number == 4) ? bitmap_zigbee_jam :
+                                (menu_number == 6) ? bitmap_pls_reboot : NULL;
         display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
         display.display();
         
@@ -305,6 +317,7 @@ void loop() {
             case 2: wifi_select(); break;
             case 3: ble_jam(); break;
             case 4: zigbee_jam(); break;
+            case 6: storeEEPROMAndSet(8, 0, logo); break;
         }
     }
 }
