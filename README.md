@@ -6,6 +6,7 @@
 Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF interference with this unique project based on the ESP32 and NRF24 technology.
 
 ## 📚 Table of Contents
+- [🎯 Possible Additions](#-possible-additions)
 - [🚀 What Can You Do with This?](#-what-can-you-do-with-this)
 - [📋 List of Components](#-list-of-components)
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
@@ -15,9 +16,18 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [🎉 Final Outcome](#-final-outcome)
 - [🌟 Example of Work](#-example-of-work)
 - [🙏 Acknowledgments](#-acknowledgments)
-- [🗳️ Concept Change Vote](#-concept-change-vote)
-- [❤️ Thank You for Your Support!](#-thank-you-for-your-support)
+- [❤️ Support the project](#-support-the-project)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
+
+-----
+
+## 🎯 Possible Additions
+- **Deauthentication attack**
+- **BLE spam**
+- **Beacon spam**
+- **nRF24 mousejack**
+
+***`If you have the capability to assist with these features, please feel free to create pull requests!`***
 
 -----
 
@@ -232,24 +242,7 @@ Follow these steps to flash the firmware:
 
 -----
 
-## 🗳️ Concept Change Vote
-
-### **Important Announcement!**
-
-A concept change vote is currently underway for this repository, and we want to hear from you! 🗳️
-
-### **Repository Evolution**
-As the repository evolves, we're considering a significant change to its concept. If you have a stake in the repository's direction, we invite you to participate in this vote and share your thoughts on the proposed changes.
-
-### **How to Participate**
-To join the discussion and cast your vote, please visit: [**Concept Change Vote Discussion**](https://github.com/W0rthlessS0ul/nRF24_jammer/discussions/12)
-
-### **Your Input Matters**
-Your input will help us make informed decisions about the repository's future and ensure it stays aligned with your needs and expectations.
-
------
-
-## ❤️ Thank You for Your Support!
+## ❤️ Support the project
 If you would like to support this project, please consider starring the repository or following me! If you appreciate the hard work that went into this, buying me a cup of coffee would keep me fueled! ☕ 
 
 **BTC Address:** `bc1qvul4mlxxw5h2hnt8knnxdrxuwgpf4styyk20tm`
