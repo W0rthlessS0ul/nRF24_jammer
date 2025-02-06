@@ -11,10 +11,8 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [📋 List of Components](#-list-of-components)
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
 - [📦 Flash Firmware](#-flash-firmware)
-- [🤔 How to Use?](#-How-to-Use)
 - [🌐 Web Interface](#-Web-Interface)
 - [🎉 Final Outcome](#-final-outcome)
-- [🌟 Example of Work](#-example-of-work)
 - [🙏 Acknowledgments](#-acknowledgments)
 - [❤️ Support the project](#-support-the-project)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
@@ -43,17 +41,70 @@ This amazing jammer is built on the **ESP32** architecture integrated with **two
 
 ## 📋 List of Components
 To bring this project to life, you will need the following components:
-1. **Two NRF24L01+PA+LNA modules** 🛠️
+1. **Two NRF24L01+PA+LNA modules** *(or one for the "Compact" version)* 🛠️
 2. **ESP32 (30 pins)** ⚙️
 3. **Two 16V capacitors** rated at **100µF** 🔋
-4. **128x32 or 128x64 OLED display** 📺 *(Not required when using the "without OLED" version.)*
-5. **Tactile button** 🔘 *(Not required when using the "without OLED" version.)*
+4. **128x32 or 128x64 OLED display** 📺 *(Not required when using the "without OLED" version)*
+5. **Tactile button** 🔘 *(Not required when using the "without OLED" version)*
 
 -----
 
 ## 🧑‍🔧 Let's Get Started with Soldering!
 <details>
 <summary><strong>With OLED</strong></summary>
+
+<div style="margin-left: 20px;">
+
+## Differences between versions
+
+**Compact version** is equipped with one **NRF24** module, while the **Standard version** has **2 NRF24** modules.
+
+The **Compact version** does **not** block access to the display after **starting jamming.** 
+
+This will allow me to use features in the future that be added but are **not available** in the **Standard version**.
+
+**I recommend choosing the Compact version.** 
+
+---
+
+<details>
+<summary><strong>Compact</strong></summary>
+
+<div style="margin-left: 20px;">
+
+### HSPI Connection
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 16       |                      |
+| CSN          | GPIO 15       |                      |
+| SCK          | GPIO 14       |                      |
+| MOSI         | GPIO 13       |                      |
+| MISO         | GPIO 12       |                      |
+| IRQ          |                |                      |
+
+### OLED Connection
+| **Pin Name** | **ESP32 GPIO** |
+|--------------|----------------|
+| VCC          | 3.3V          |
+| GND          | GND           |
+| SCL          | GPIO 22       |
+| SDA          | GPIO 21       |
+
+### Button Connection
+| **Button Actions** | **ESP32 GPIO** |
+|--------------|----------------|
+| OK          | GPIO 25       |
+| NEXT (Optional)             | GPIO 26       |
+| PREVIOUS (Optional)            | GPIO 27       |
+
+
+</div>
+</details>
+
+<details>
+<summary><strong>Standard</strong></summary>
 
 <div style="margin-left: 20px;">
 
@@ -90,10 +141,15 @@ To bring this project to life, you will need the following components:
 | SDA          | GPIO 21       |
 
 ### Button Connection
-| **Pin Name** | **ESP32 GPIO** |
+| **Button Actions** | **ESP32 GPIO** |
 |--------------|----------------|
-| GND          | GND           |
-|              | GPIO 25       |
+| OK          | GPIO 25       |
+| NEXT (Optional)             | GPIO 26       |
+| PREVIOUS (Optional)            | GPIO 27       |
+
+
+</div>
+</details>
 
 </div>
 </details>
@@ -170,30 +226,6 @@ Follow these steps to flash the firmware:
 
 -----
 
-## 🤔 How to Use?
-<details>
-<summary><strong>General Control</strong></summary>
-
-<div style="margin-left: 20px;">
-
-- **Next Selection**: `Press` the button once to move to the next item.
-- **Select Menu Item**: `Press and hold` the button to activate the selected option.
-
-</div>
-</details>
-
-<details>
-<summary><strong>Misc Jammer Control</strong></summary>
-
-- **Increase by one channel**: `Press` the button once to increase by one channel.
-- **Increase channel**: `Hold` the button to increase the channel.
-- **Proceed to the next value**: `Double Press` the button to proceed to the next value.
-
-</div>
-</details>
-
------
-
 ## 🌐 Web Interface
 
 - To utilize the web interface, please follow the steps outlined below.
@@ -207,7 +239,11 @@ Follow these steps to flash the firmware:
 -----
 
 ## 🎉 Final Outcome
-![Final Outcome](img/nRF24_jammer.jpg)
+### Standard version 
+![Standard](img/Standard.jpg)
+
+### Compact version
+![Compact](img/Compact.jpg)
 
 ### Normal Spectrum
 ![Normal Spectrum](img/normal_spctr.jpg)
@@ -226,13 +262,6 @@ Follow these steps to flash the firmware:
 
 ### Zigbee Jam Spectrum
 ![Zigbee Jam Spectrum](img/zigbee_jam_spctr.jpg)
-
------
-
-## 🌟 Example of Work
-- Bluetooth jam
-
-![bluetooth jam](img/bluetooth_jam.mp4)
 
 -----
 
