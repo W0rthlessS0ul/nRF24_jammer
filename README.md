@@ -57,13 +57,13 @@ To bring this project to life, you will need the following components:
 
 ## Differences between versions
 
-**Compact version** is equipped with one **NRF24** module, while the **Standard version** has **2 NRF24** modules.
+The **Compact** version is equipped with a **single NRF24** module, while the **Standard** version features **two**.
+ 
+Notably, the Compact version allows **uninterrupted access to the display** even when jamming is started. 
 
-The **Compact version** does **not** block access to the display after **starting jamming.** 
+This will enable me to utilize features that may be added in the future but are currently **unavailable** in the **Standard version**. For instance, **one already implemented** feature is the a**bility to exit jamming mode** by simply pressing the "**OK**" button (*pin 25*). 
 
-This will allow me to use features in the future that be added but are **not available** in the **Standard version**.
-
-**I recommend choosing the Compact version.** 
+Given these advantages, **I highly recommend choosing the Compact version** for its versatility and potential for future enhancements.
 
 ---
 
