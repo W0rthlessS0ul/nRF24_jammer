@@ -153,6 +153,7 @@ void misc() {
                     else {
                         display_info("Jamming Started");
                         misc_jam(channel1, channel2);
+                        break;
                     }
                 }
             }
@@ -177,6 +178,7 @@ void misc() {
                     else {
                         display_info("Jamming Started");
                         misc_jam(channel1, channel2);
+                        break;
                     }
                 }
             }
@@ -208,6 +210,7 @@ void misc() {
                     else {
                         display_info("Jamming Started");
                         misc_jam(channel1, channel2);
+                        break;
                     }
                 }
             }
@@ -252,6 +255,7 @@ void wifi_select(){
                             display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
                             display.display();
                             wifi_channel(flag);
+                            break;
                         }
                     }
                 }
@@ -259,6 +263,7 @@ void wifi_select(){
                 display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
                 display.display();
                 wifi_jam();
+                break;
             }
         }
         if (buttons == 1){
@@ -288,6 +293,7 @@ void wifi_select(){
                             display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
                             display.display();
                             wifi_channel(flag);
+                            break;
                         }
                     }
                 }
@@ -295,6 +301,7 @@ void wifi_select(){
                 display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
                 display.display();
                 wifi_jam();
+                break;
             }
         }
         if (buttons == 2){
@@ -343,6 +350,7 @@ void wifi_select(){
                             display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
                             display.display();
                             wifi_channel(flag);
+                            break;
                         }
                     }
                 }
@@ -350,6 +358,7 @@ void wifi_select(){
                 display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
                 display.display();
                 wifi_jam();
+                break;
             }
         }
     }
@@ -515,4 +524,5 @@ void executeAction(int menuNum) {
         case 4: zigbee_jam(); break;
         case 6: storeEEPROMAndSet(8, 0, logo); break;
     }
+    if (menuNum != 6) updateDisplay(menuNum);
 }
