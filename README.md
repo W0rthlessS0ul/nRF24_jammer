@@ -234,7 +234,7 @@ Follow these steps to flash the firmware:
 3. open your web browser and navigate to the IP address `192.168.4.1`.
 4. Now you can control your nRF24 jammer through an web interface.
 
-![web_interface](img/web_interface_.jpg)
+![web_interface](img/git/web_interface_.gif)
 
 -----
 
@@ -246,22 +246,22 @@ Follow these steps to flash the firmware:
 ![Compact](img/Compact.jpg)
 
 ### Normal Spectrum
-![Normal Spectrum](img/normal_spctr.jpg)
+![Normal Spectrum](img/gif/normal_spctr.gif)
 
 ### Bluetooth Jam Spectrum
-![Bluetooth Jam Spectrum](img/bluetooth_jam_spctr.jpg)
+![Bluetooth Jam Spectrum](img/gif/bluetooth_jam_spctr.gif)
 
 ### Drone Jam Spectrum
-![Drone Jam Spectrum](img/drone_jam_spctr.jpg)
+![Drone Jam Spectrum](img/gif/drone_jam_spctr.gif)
 
 ### Wi-Fi Jam Spectrum
-![Wi-Fi Jam Spectrum](img/wifi_jam_spctr.jpg)
+![Wi-Fi Jam Spectrum](img/gif/wifi_jam_spctr.gif)
 
 ### BLE Jam Spectrum
-![BLE Jam Spectrum](img/ble_jam_spctr.jpg)
+![BLE Jam Spectrum](img/gif/ble_jam_spctr.gif)
 
 ### Zigbee Jam Spectrum
-![Zigbee Jam Spectrum](img/zigbee_jam_spctr.jpg)
+![Zigbee Jam Spectrum](img/gif/zigbee_jam_spctr.gif)
 
 -----
 
