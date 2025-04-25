@@ -4,8 +4,8 @@ RF24 radio1(22, 21, 16000000);
 GButton butt1(25);
 GButton buttNext(26);
 GButton buttPrevious(27);
-const char *ssid = "jammer";
-const char *password = "W0rthlessS0ul";
+const char *default_ssid = "jammer";
+const char *default_password = "W0rthlessS0ul";
 
 //  Unchangeable parameters
 #define SCREEN_WIDTH 128

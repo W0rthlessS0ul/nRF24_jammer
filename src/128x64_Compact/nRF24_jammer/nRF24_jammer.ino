@@ -1,3 +1,4 @@
+//NEW
 #include "SPI.h"
 #include "Update.h"
 #include "EEPROM.h"
@@ -52,6 +53,75 @@ void storeEEPROMAndSet(int index, int value, int& targetVar) {
 
 void registerRoute(const char* path, void (*handler)()) {
     server.on(path, handler);
+}
+
+void initWiFiSettings() {
+    if (EEPROM.read(10) == 255) {
+        saveWiFiSettings(default_ssid, default_password);
+    }
+}
+
+void saveWiFiSettings(const char* new_ssid, const char* new_password) {
+    for (int i = 0; i < 32; i++) {
+        if (i < strlen(new_ssid)) {
+            EEPROM.write(10 + i, new_ssid[i]);
+        } else {
+            EEPROM.write(10 + i, 0);
+        }
+    }
+    
+    for (int i = 0; i < 32; i++) {
+        if (i < strlen(new_password)) {
+            EEPROM.write(42 + i, new_password[i]);
+        } else {
+            EEPROM.write(42 + i, 0);
+        }
+    }
+    
+    EEPROM.commit();
+}
+
+String getSSIDFromEEPROM() {
+    char ssid[33] = {0};
+    for (int i = 0; i < 32; i++) {
+        ssid[i] = EEPROM.read(10 + i);
+        if (ssid[i] == 0) break;
+    }
+    return String(ssid);
+}
+
+String getPasswordFromEEPROM() {
+    char password[33] = {0};
+    for (int i = 0; i < 32; i++) {
+        password[i] = EEPROM.read(42 + i);
+        if (password[i] == 0) break;
+    }
+    return String(password);
+}
+
+void handleSaveWiFiSettings() {
+    String new_ssid = server.arg("ssid");
+    String new_password = server.arg("password");
+
+    if (new_ssid == "" && new_password == "") {
+        server.send(200, "text/html", html_pls_reboot);
+        storeEEPROMAndSet(8, 1, access_point);
+        return;
+    }
+
+    saveWiFiSettings(new_ssid.c_str(), new_password.c_str());
+
+    server.send(200, "text/html", html_pls_reboot);
+    delay(1000);
+    ESP.restart();
+}
+
+void handleResetWiFiSettings() {
+    saveWiFiSettings(default_ssid, default_password);
+
+    server.send(200, "text/html", html_pls_reboot);
+    delay(1000);
+    ESP.restart();
 }
 
 void handleFileUpload() {
@@ -363,22 +433,25 @@ void wifi_select(){
         }
     }
 }
+
 void access_poin_off(){
     settingsHandler(html_pls_reboot);
-    storeEEPROMAndSet(8, 1, logo);
+    storeEEPROMAndSet(8, 1, access_point);
+    delay(1000);
+    ESP.restart();
 }
 
 void setup() {
     Serial.begin(115200);
     EEPROM.begin(EEPROM_SIZE);
 
-    // Initialize EEPROM values if unset
     for (int i = 0; i < 10; ++i) {
         if (EEPROM.read(i) == 255) {
             EEPROM.write(i, 0);
-            EEPROM.commit();
         }
     }
+
+    initWiFiSettings();
 
     // Load settings
     bluetooth_jam_method = EEPROM.read(0);
@@ -390,8 +463,12 @@ void setup() {
     logo = EEPROM.read(7);
     access_point = EEPROM.read(8);
     buttons = EEPROM.read(9);
+    
     if (access_point == 0){
-        WiFi.softAP(ssid, password);
+        String current_ssid = getSSIDFromEEPROM();
+        String current_password = getPasswordFromEEPROM();
+        
+        WiFi.softAP(current_ssid.c_str(), current_password.c_str());
 
         // Register routes
         registerRoute("/", handleRoot);
@@ -412,11 +489,13 @@ void setup() {
         registerRoute("/OTA", []() { settingsHandler(html_ota); });
         registerRoute("/wifi_select", []() { settingsHandler(html_wifi_select); });
         registerRoute("/wifi_channel", []() { settingsHandler(html_wifi_channel); });
-        registerRoute("/html_access_point", []() { settingsHandler(html_access_point); });
+        registerRoute("/wifi_settings", []() { settingsHandler(html_wifi_settings); });
     
         server.on("/update", HTTP_POST, []() {
             server.send(200, "text/plain", (Update.end() ? "Update Success" : "Update Failed"));
         }, handleFileUpload);
+        server.on("/save_wifi_settings", handleSaveWiFiSettings);
+        server.on("/reset_wifi_settings", handleResetWiFiSettings);
 
         registerRoute("/bluetooth_method_0", []() { storeEEPROMAndSet(0, 0, bluetooth_jam_method); });
         registerRoute("/bluetooth_method_1", []() { storeEEPROMAndSet(0, 1, bluetooth_jam_method); });

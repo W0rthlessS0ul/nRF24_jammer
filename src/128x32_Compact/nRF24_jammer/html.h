@@ -203,7 +203,7 @@ const char* html = R"rawliteral(
                 <button onclick="location.href='/setting_misc_jam'" class="dropdown-button hidden">Misc Jam</button>
                 <button onclick="location.href='/setting_logo'" class="dropdown-button hidden">Logo</button>
                 <button onclick="location.href='/setting_buttons'" class="dropdown-button hidden">Buttons</button>
-                <button onclick="location.href='/html_access_point'" class="dropdown-button hidden">Access Point</button>
+                <button onclick="location.href='/wifi_settings'" class="dropdown-button hidden">WiFi Settings</button>
             </div>
         </div>
     </div>
@@ -1909,6 +1909,267 @@ const char* html_misc_setings = R"rawliteral(
             <button class="button" onclick="location.href='/misc_method_1'">Packet Sending (slow mode; used in WiFi Jam)</button>
         </div>
     </div>
+</body>
+</html>
+)rawliteral";
+
+const char* html_wifi_settings = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+            transform: translateY(20px);
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .input {
+            background-color: #333333;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0 auto 15px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            background-color: #444444;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #aaaaaa;
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 5px auto;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .button.reset {
+            background-color: #dc3545;
+        }
+
+        .button.reset:hover {
+            background-color: #c82333;
+        }
+
+        .warning {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ffcc00;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 204, 0, 0.1);
+        }
+
+        .notification {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 0 0 8px 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: top 0.5s ease-out;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            opacity: 0;
+            animation: notificationFadeIn 0.3s forwards;
+        }
+
+        @keyframes notificationFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .success {
+            background: linear-gradient(135deg, #28a745, #218838);
+        }
+
+        .error {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification" style="display: none;"></div>
+
+    <div class="container">
+        <h1>WiFi Settings</h1>
+        <form id="wifiForm">
+            <input type="text" id="ssid" name="ssid" placeholder="Enter SSID" class="input">
+            <input type="password" id="password" name="password" placeholder="Enter password" class="input">
+            <button type="button" onclick="validateAndSave()" class="button">Save Settings</button>
+            <button type="button" onclick="confirmReset()" class="button reset">Reset to Default</button>
+        </form>
+        <div class="warning">⚠️ Leave both fields empty to disable access point</div>
+    </div>
+
+    <script>
+        function showNotification(message, isSuccess) {
+            const notification = document.getElementById("notification");
+            notification.textContent = message;
+            notification.className = isSuccess ? "notification success" : "notification error";
+            notification.style.display = "block";
+
+            setTimeout(() => {
+                notification.style.top = "20px";
+            }, 10);
+
+            setTimeout(() => {
+                notification.style.top = "-100px";
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 500);
+            }, 3000);
+        }
+
+        function validateAndSave() {
+            const ssid = document.getElementById("ssid").value;
+            const password = document.getElementById("password").value;
+            
+            if (ssid === "" && password === "") {
+                if (confirm("Are you sure you want to disable the access point?")) {
+                    showNotification("Disabling access point...", true);
+                    setTimeout(() => {
+                        location.href = "/access_point_off";
+                    }, 1000);
+                }
+                return;
+            }
+
+            if (ssid.length > 0 && password.length === 0) {
+                showNotification("Password must be at least 8 characters long", false);
+                return;
+            }
+
+            if (password.length > 0 && password.length < 8) {
+                showNotification("Password must be at least 8 characters long", false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("ssid", ssid);
+            formData.append("password", password);
+
+            showNotification("Saving settings...", true);
+
+            fetch("/save_wifi_settings", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification("Settings saved successfully! Rebooting...", true);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showNotification("Error saving settings", false);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                showNotification("Connection error", false);
+            });
+        }
+
+        function confirmReset() {
+            if (confirm("Are you sure you want to reset to default settings?")) {
+                showNotification("Resetting to default settings...", true);
+                setTimeout(() => {
+                    location.href = "/reset_wifi_settings";
+                }, 1000);
+            }
+        }
+        
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                validateAndSave();
+            }
+        });
+    </script>
 </body>
 </html>
 )rawliteral";

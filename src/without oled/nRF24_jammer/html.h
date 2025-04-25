@@ -202,6 +202,7 @@ const char* html = R"rawliteral(
                 <button onclick="location.href='/setting_drone_jam'" class="dropdown-button hidden">Drone Jam</button>
                 <button onclick="location.href='/setting_separate_together'" class="dropdown-button hidden">Separate or Together</button>
                 <button onclick="location.href='/setting_misc_jam'" class="dropdown-button hidden">Misc Jam</button>
+                <button onclick="location.href='/wifi_settings'" class="dropdown-button hidden">WiFi Settings</button>
             </div>
         </div>
     </div>
@@ -410,6 +411,121 @@ const char* html_upload_progress = R"rawliteral(
             progressBar.style.width = percent + '%';
             progressBar.innerHTML = percent + '%';
         }
+    </script>
+</body>
+</html>
+)rawliteral";
+
+const char* html_pls_reboot = R"rawliteral(
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+        }
+
+        .text {
+            font-size: 24px;
+            color: #007bff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .circle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circle {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #00c3ff);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
+                        0 0 20px rgba(0, 195, 255, 0.3);
+            animation: pulse 1.2s infinite;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .circle:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .circle:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="textElement" class="text">Please reboot</div>
+        <div class="circle-container">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+    </div>
+
+    <script>
+        const textElement = document.getElementById('textElement');
+        const originalText = textElement.textContent;
+        const specialChars = '*&^%$#@!)(_+-';
+
+        setInterval(() => {
+            const words = originalText.split(' ');
+            const randomWordIndex = Math.floor(Math.random() * words.length);
+            const randomWord = words[randomWordIndex];
+
+            if (randomWord) {
+                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
+
+                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+
+                const modifiedWord = randomWord.split('');
+                modifiedWord[randomCharIndex] = randomChar;
+                words[randomWordIndex] = modifiedWord.join('');
+
+                textElement.textContent = words.join(' ');
+
+                setTimeout(() => {
+                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
+                    words[randomWordIndex] = modifiedWord.join('');
+                    textElement.textContent = words.join(' ');
+                }, 999);
+            }
+        }, 1000);
     </script>
 </body>
 </html>
@@ -1889,6 +2005,266 @@ const char* html_wifi_channel = R"rawliteral(
         <input id="channelInput" class="input" type="number" placeholder="Channel (0-12)" max="12" min="0" />
         <button class="button" onclick="validateAndRedirect()">Submit</button>
     </div>
+</body>
+</html>
+)rawliteral";
+
+const char* html_wifi_settings = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+            transform: translateY(20px);
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .input {
+            background-color: #333333;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0 auto 15px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            background-color: #444444;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #aaaaaa;
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 5px auto;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .button.reset {
+            background-color: #dc3545;
+        }
+
+        .button.reset:hover {
+            background-color: #c82333;
+        }
+
+        .warning {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ffcc00;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 204, 0, 0.1);
+        }
+
+        .notification {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 0 0 8px 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: top 0.5s ease-out;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            opacity: 0;
+            animation: notificationFadeIn 0.3s forwards;
+        }
+
+        @keyframes notificationFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .success {
+            background: linear-gradient(135deg, #28a745, #218838);
+        }
+
+        .error {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification" style="display: none;"></div>
+
+    <div class="container">
+        <h1>WiFi Settings</h1>
+        <form id="wifiForm">
+            <input type="text" id="ssid" name="ssid" placeholder="Enter SSID" class="input">
+            <input type="password" id="password" name="password" placeholder="Enter password" class="input">
+            <button type="button" onclick="validateAndSave()" class="button">Save Settings</button>
+            <button type="button" onclick="confirmReset()" class="button reset">Reset to Default</button>
+        </form>
+    </div>
+
+    <script>
+        function showNotification(message, isSuccess) {
+            const notification = document.getElementById("notification");
+            notification.textContent = message;
+            notification.className = isSuccess ? "notification success" : "notification error";
+            notification.style.display = "block";
+
+            setTimeout(() => {
+                notification.style.top = "20px";
+            }, 10);
+
+            setTimeout(() => {
+                notification.style.top = "-100px";
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 500);
+            }, 3000);
+        }
+
+        function validateAndSave() {
+            const ssid = document.getElementById("ssid").value;
+            const password = document.getElementById("password").value;
+            
+            if (ssid.length === 0 && password.length === 0) {
+                showNotification("SSID must contain at least 1 character and password must be at least 8 characters", false);
+                return;
+            }
+
+            if (ssid.length === 0) {
+                showNotification("SSID must contain at least 1 character", false);
+                return;
+            }
+
+            if (password.length === 0) {
+                showNotification("Password must be at least 8 characters", false);
+                return;
+            }
+
+            if (password.length < 8) {
+                showNotification("Password must be at least 8 characters", false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("ssid", ssid);
+            formData.append("password", password);
+
+            showNotification("Saving settings...", true);
+
+            fetch("/save_wifi_settings", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification("Settings saved successfully! Rebooting...", true);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showNotification("Error saving settings", false);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                showNotification("Connection error", false);
+            });
+        }
+
+        function confirmReset() {
+            if (confirm("Are you sure you want to reset to default settings?")) {
+                showNotification("Resetting to default settings...", true);
+                setTimeout(() => {
+                    location.href = "/reset_wifi_settings";
+                }, 1000);
+            }
+        }
+        
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                validateAndSave();
+            }
+        });
+    </script>
 </body>
 </html>
 )rawliteral";

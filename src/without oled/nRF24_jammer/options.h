@@ -1,8 +1,8 @@
 //  Changeable parameters  
 RF24 radio(16, 15, 16000000);
 RF24 radio1(22, 21, 16000000);
-const char *ssid = "jammer";
-const char *password = "W0rthlessS0ul";
+const char *default_ssid = "jammer";
+const char *default_password = "W0rthlessS0ul";
 
 //  Unchangeable parameters
 #define EEPROM_SIZE 512
