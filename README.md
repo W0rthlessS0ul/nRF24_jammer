@@ -42,7 +42,7 @@ This amazing jammer is built on the **ESP32** architecture integrated with **two
 ## 📋 List of Components
 To bring this project to life, you will need the following components:
 1. **Two NRF24L01+PA+LNA modules** *(or one for the "Compact" version)* 🛠️
-2. **ESP32 (30 pins)** ⚙️
+2. **ESP32-DevKitC** *(with Type-C)* **or**  **ESP32-DevKit V1** *(with Micro USB)*⚙️
 3. **Two 16V capacitors** rated at **100µF** 🔋
 4. **128x32 or 128x64 OLED display** 📺 *(Not required when using the "without OLED" version)*
 5. **Tactile button** 🔘 *(Not required when using the "without OLED" version)*
