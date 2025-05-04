@@ -194,7 +194,7 @@ Given these advantages, **I highly recommend choosing the Compact version** for 
 <div style="margin-left: 20px;">
 
 Follow these steps to flash the firmware:
-1. Download the firmware from the **releases** section that corresponds to your display.
+1. Download the firmware from the **[releases](https://github.com/W0rthlessS0ul/nRF24_jammer/releases)** section that corresponds to your display.
 2. Navigate to **ESPWebTool**: [ESPWebTool](https://esp.huhn.me/)
 3. Arrange the files as per the table below:
 
@@ -217,9 +217,10 @@ Follow these steps to flash the firmware:
 
 ### This method can only be used if you have firmware version 1.9 or higher installed.
 Follow these steps to flash the firmware:
-1. Turn on your device and open a web browser
-2. Navigate to the web interface at **192.168.4.1**
-3. Click on "**OTA**" and select the file "**nRF24_jammer.bin**" (`⚠️️ make sure not to choose the bootloader or partitions files`).
+1. Download the firmware from the **[releases](https://github.com/W0rthlessS0ul/nRF24_jammer/releases)** section that corresponds to your display.
+2. Turn on your device and open a web browser
+3. Navigate to the web interface at **192.168.4.1**
+4. Click on "**OTA**" and select the file "**nRF24_jammer.bin**" (`⚠️️ make sure not to choose the bootloader or partitions files`).
 
 </div>
 </details>
