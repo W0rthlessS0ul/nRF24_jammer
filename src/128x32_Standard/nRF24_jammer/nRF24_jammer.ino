@@ -22,20 +22,43 @@ void sendHtmlAndExecute(const char* htmlResponse, void (*action)() = nullptr) {
     if (action) action();
 }
 
-void jamHandler(const char* htmlResponse, void (*jamFunction)()) {
+void jamHandler(const char* htmlResponse, void (*jamFunction)(), const unsigned char* bitmap) {
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
+    display.display();
     sendHtmlAndExecute(htmlResponse, jamFunction);
+    updateDisplay(menu_number);
 }
 
 void miscChannelsHandler() {
     int channel1 = server.arg("start").toInt();
     int channel2 = server.arg("stop").toInt();
     sendHtmlAndExecute(html_misc_jam);
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("Start");
+    display.setCursor(96, 0);
+    display.println("Stop");
+    display.setCursor(52, 0);
+    display.println("Width");
+    display.setCursor(8, 10);
+    display.println(String(channel1));
+    display.setCursor(60, 10);
+    display.println(String(channel2 - channel1));
+    display.setCursor(100, 10);
+    display.println(String(channel2));
+    display.setCursor(0, 20);
+    display.println("Jamming Started");
+    display.display();
     misc_jam(channel1, channel2);
 }
 
 void wifiChannelsHandler() {
     int channel = server.arg("channel").toInt();
     sendHtmlAndExecute(html_wifi_jam);
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
+    display.display();
     wifi_channel(channel);
 }
 
@@ -154,7 +177,10 @@ void handleFileUpload() {
         if (Update.end(true)) {
             Serial.printf("Update Success: %u bytes\n", upload.totalSize);
             server.sendContent(String("<script>updateProgress(100); document.getElementById('status').innerHTML = 'Update Success';</script>"));
-            delay(100);
+            display.clearDisplay();
+            display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 32, WHITE);
+            display.display();
+            delay(1000);
             ESP.restart();
         } else {
             Update.printError(Serial);
@@ -426,6 +452,9 @@ void wifi_select(){
 void access_poin_off(){
     settingsHandler(html_pls_reboot);
     storeEEPROMAndSet(8, 1, access_point);
+    display.clearDisplay();
+    display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE);
+    display.display();
     delay(1000);
     ESP.restart();
 }
@@ -463,11 +492,11 @@ void setup() {
 
         // Register routes
         registerRoute("/", handleRoot);
-        registerRoute("/bluetooth_jam", []() { jamHandler(html_bluetooth_jam, bluetooth_jam); });
-        registerRoute("/drone_jam", []() { jamHandler(html_drone_jam, drone_jam); });
-        registerRoute("/wifi_jam", []() { jamHandler(html_wifi_jam, wifi_jam); });
-        registerRoute("/ble_jam", []() { jamHandler(html_ble_jam, ble_jam); });
-        registerRoute("/zigbee_jam", []() { jamHandler(html_zigbee_jam, zigbee_jam); });
+        registerRoute("/bluetooth_jam", []() { jamHandler(html_bluetooth_jam, bluetooth_jam, bitmap_bluetooth_jam); });
+        registerRoute("/drone_jam", []() { jamHandler(html_drone_jam, drone_jam, bitmap_drone_jam); });
+        registerRoute("/wifi_jam", []() { jamHandler(html_wifi_jam, wifi_jam, bitmap_wifi_jam); });
+        registerRoute("/ble_jam", []() { jamHandler(html_ble_jam, ble_jam, bitmap_ble_jam); });
+        registerRoute("/zigbee_jam", []() { jamHandler(html_zigbee_jam, zigbee_jam, bitmap_zigbee_jam); });
         registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
         registerRoute("/misc_jam", miscChannelsHandler);
         registerRoute("/wifi_selected_jam", wifiChannelsHandler);
