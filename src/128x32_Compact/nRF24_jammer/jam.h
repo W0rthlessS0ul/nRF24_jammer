@@ -1,18 +1,23 @@
 void HSPI_init() {
   hp = new SPIClass(HSPI);
   hp->begin();
+  hp->setFrequency(16000000);
+  hp->setBitOrder(MSBFIRST);
+  hp->setDataMode(SPI_MODE0);
   radio.begin(hp);
   radio.setAutoAck(false);
   radio.stopListening();
   radio.setRetries(0, 0);
+  radio.setPayloadSize(5);
+  radio.setAddressWidth(3);
   radio.setPALevel(RF24_PA_MAX, true);
   radio.setDataRate(RF24_2MBPS);
   radio.setCRCLength(RF24_CRC_DISABLED);
-  radio.startConstCarrier(RF24_PA_MAX, 40); 
   hspi = true;
 }
 void bluetooth_jam(){
   if (hspi == false) HSPI_init();
+  radio.startConstCarrier(RF24_PA_MAX, 40); 
   butt1.tick();
   while (!butt1.isSingle()){
     butt1.tick();
@@ -34,6 +39,7 @@ void bluetooth_jam(){
 }
 void drone_jam(){
   if (hspi == false) HSPI_init();
+  radio.startConstCarrier(RF24_PA_MAX, 40); 
   butt1.tick();
   while (!butt1.isSingle()){
     butt1.tick();
@@ -50,6 +56,7 @@ void drone_jam(){
 }
 void ble_jam(){
   if (hspi == false) HSPI_init();
+  radio.startConstCarrier(RF24_PA_MAX, 40); 
   butt1.tick();
   while (!butt1.isSingle()){
     butt1.tick();
@@ -102,6 +109,7 @@ void zigbee_jam(){
 }
 void misc_jam(int channel1, int channel2){
   if (hspi == false) HSPI_init();
+  if (misc_jam_method != 1) radio.startConstCarrier(RF24_PA_MAX, 40);
   butt1.tick();
   while (!butt1.isSingle()){
     butt1.tick();

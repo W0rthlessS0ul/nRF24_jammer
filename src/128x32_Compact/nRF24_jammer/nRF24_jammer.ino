@@ -633,5 +633,6 @@ void executeAction(int menuNum) {
         case 4: zigbee_jam(); break;
         case 6: storeEEPROMAndSet(8, 0, logo); break;
     }
+    radio.stopConstCarrier();
     if (menuNum != 6) updateDisplay(menuNum);
 }

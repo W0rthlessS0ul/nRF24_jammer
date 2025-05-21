@@ -1,30 +1,36 @@
-void VSPI_init() {
+void VSPI_init(bool FastMode) {
   sp = new SPIClass(VSPI);
   sp->begin();
   radio1.begin(sp);
+  sp->setFrequency(16000000);
+  sp->setBitOrder(MSBFIRST);
+  sp->setDataMode(SPI_MODE0);
   radio1.setAutoAck(false);
   radio1.stopListening();
   radio1.setRetries(0, 0);
   radio1.setPALevel(RF24_PA_MAX, true);
   radio1.setDataRate(RF24_2MBPS);
   radio1.setCRCLength(RF24_CRC_DISABLED);
-  radio1.startConstCarrier(RF24_PA_MAX, 80);
+  if (FastMode) radio1.startConstCarrier(RF24_PA_MAX, 80);
 }
-void HSPI_init() {
+void HSPI_init(bool FastMode) {
   hp = new SPIClass(HSPI);
   hp->begin();
   radio.begin(hp);
+  hp->setFrequency(16000000);
+  hp->setBitOrder(MSBFIRST);
+  hp->setDataMode(SPI_MODE0);
   radio.setAutoAck(false);
   radio.stopListening();
   radio.setRetries(0, 0);
   radio.setPALevel(RF24_PA_MAX, true);
   radio.setDataRate(RF24_2MBPS);
   radio.setCRCLength(RF24_CRC_DISABLED);
-  radio.startConstCarrier(RF24_PA_MAX, 40); 
+  if (FastMode) radio.startConstCarrier(RF24_PA_MAX, 40); 
 }
 void bluetooth_jam(){
-  HSPI_init();
-  VSPI_init();
+  HSPI_init(true);
+  VSPI_init(true);
   while (true){
     if (Separate_or_together == 0){
       if (bluetooth_jam_method == 0){
@@ -66,8 +72,8 @@ void bluetooth_jam(){
   }
 }
 void drone_jam(){
-  HSPI_init();
-  VSPI_init();
+  HSPI_init(true);
+  VSPI_init(true);
   while (true){
     if (Separate_or_together == 0){
       if (drone_jam_method == 0){
@@ -97,8 +103,8 @@ void drone_jam(){
   }
 }
 void ble_jam(){
-  HSPI_init();
-  VSPI_init();
+  HSPI_init(true);
+  VSPI_init(true);
   while (true){
     if (Separate_or_together == 0){
       for (int i = 0; i < 3; i++){
@@ -115,8 +121,8 @@ void ble_jam(){
   }
 }
 void wifi_jam(){
-  HSPI_init();
-  VSPI_init();
+  HSPI_init(false);
+  VSPI_init(false);
   while (true){
     if (Separate_or_together == 0){
       for (int channel = 0; channel < 13; channel++) {
@@ -141,8 +147,8 @@ void wifi_jam(){
   }
 }
 void wifi_channel(int channel){
-  HSPI_init();
-  VSPI_init();
+  HSPI_init(false);
+  VSPI_init(false);
   while (true){
     if (Separate_or_together == 0){
       for (int i = (channel * 5) + 1; i < (channel * 5) + 23; i++) {
@@ -163,8 +169,8 @@ void wifi_channel(int channel){
   }
 }
 void zigbee_jam(){
-  HSPI_init();
-  VSPI_init();
+  HSPI_init(false);
+  VSPI_init(false);
   while (true){
     if (Separate_or_together == 0){
       for (int channel = 11; channel < 27; channel++){
@@ -190,8 +196,14 @@ void zigbee_jam(){
   }
 }
 void misc_jam(int channel1, int channel2){
-  HSPI_init();
-  VSPI_init();
+  if (misc_jam_method == 1){
+      HSPI_init(false);
+      VSPI_init(false);
+  }
+  else{
+      HSPI_init(true);
+      VSPI_init(true);
+  }
   while (true) {
     for (int i = 0; i <= channel2 - channel1; i++) {
       if (Separate_or_together == 0) {
