@@ -103,19 +103,23 @@ void drone_jam(){
   }
 }
 void ble_jam(){
-  HSPI_init(true);
-  VSPI_init(true);
+  HSPI_init(false);
+  VSPI_init(false);
   while (true){
     if (Separate_or_together == 0){
       for (int i = 0; i < 3; i++){
         radio.setChannel(ble_channels[i]);
         radio1.setChannel(ble_channels_reversed[i]);
+        radio.writeFast(&jam_text, sizeof(jam_text));
+        radio1.writeFast(&jam_text, sizeof(jam_text));
       }
     }
     if (Separate_or_together == 1){
       for (int i = 0; i < 3; i++){
         radio.setChannel(ble_channels[i]);
         radio1.setChannel(ble_channels[i]);
+        radio.writeFast(&jam_text, sizeof(jam_text));
+        radio1.writeFast(&jam_text, sizeof(jam_text));
       }
     }
   }

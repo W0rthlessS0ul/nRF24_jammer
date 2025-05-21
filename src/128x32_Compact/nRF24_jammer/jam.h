@@ -56,12 +56,12 @@ void drone_jam(){
 }
 void ble_jam(){
   if (hspi == false) HSPI_init();
-  radio.startConstCarrier(RF24_PA_MAX, 40); 
   butt1.tick();
   while (!butt1.isSingle()){
     butt1.tick();
     for (int i = 0; i < 3; i++){
       radio.setChannel(ble_channels[i]);
+      radio.writeFast(&jam_text, sizeof(jam_text));
     }
   }
 }
