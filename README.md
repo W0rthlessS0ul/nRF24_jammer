@@ -225,6 +225,8 @@ Follow these steps to flash the firmware:
 </div>
 </details>
 
+###### ⚠️ Important for source builds: Since v2.5.0, this project uses a modified RF24 library (see /lib).
+
 -----
 
 ## 🌐 Web Interface
