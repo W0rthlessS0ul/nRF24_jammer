@@ -543,9 +543,12 @@ void setup() {
 
         server.begin();
     }
-    butt1.setTimeout(200);
-    buttNext.setTimeout(200);
-    buttPrevious.setTimeout(200);
+    butt1.setClickTimeout(200);
+    buttNext.setClickTimeout(200);
+    buttPrevious.setClickTimeout(200);
+    butt1.setTimeout(600);
+    buttNext.setTimeout(600);
+    buttPrevious.setTimeout(600);
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
     display.setTextColor(WHITE);
     display.setTextSize(1);
@@ -633,6 +636,5 @@ void executeAction(int menuNum) {
         case 4: zigbee_jam(); break;
         case 6: storeEEPROMAndSet(8, 0, logo); break;
     }
-    radio.stopConstCarrier();
     if (menuNum != 6) updateDisplay(menuNum);
 }

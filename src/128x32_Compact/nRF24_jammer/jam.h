@@ -17,7 +17,7 @@ void HSPI_init() {
 }
 void bluetooth_jam(){
   if (hspi == false) HSPI_init();
-  radio.startConstCarrier(RF24_PA_MAX, 40); 
+  radio.startConstCarrier(RF24_PA_MAX, 80);
   butt1.tick();
   while (!butt1.isSingle()){
     butt1.tick();
@@ -36,10 +36,11 @@ void bluetooth_jam(){
       }
     }
   }
+  radio.stopConstCarrier();
 }
 void drone_jam(){
   if (hspi == false) HSPI_init();
-  radio.startConstCarrier(RF24_PA_MAX, 40); 
+  radio.startConstCarrier(RF24_PA_MAX, 125);
   butt1.tick();
   while (!butt1.isSingle()){
     butt1.tick();
@@ -53,6 +54,7 @@ void drone_jam(){
       }
     }
   }
+  radio.stopConstCarrier();
 }
 void ble_jam(){
   if (hspi == false) HSPI_init();
@@ -120,4 +122,5 @@ void misc_jam(int channel1, int channel2){
       }
     }
   }
+  if (misc_jam_method != 1) radio.stopConstCarrier();
 }
