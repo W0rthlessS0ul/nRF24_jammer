@@ -229,6 +229,63 @@ Follow these steps to flash the firmware:
 
 -----
 
+## 🎮 Device Control 
+
+<details>
+<summary><strong>🟢 1-Button Configuration</strong></summary>
+<div style="margin-left: 20px;">
+
+#### 📋 Menu Navigation
+- **Short press** → Next menu item
+- **Long press** → Select menu item
+
+#### 📡 Misc Jammer
+- **Short press** → Channel +1
+- **Long press** → Continuous channel +1 (every 100ms)
+- **Double press** → Select channel
+
+</div>
+</details>
+
+<details>
+<summary><strong>🔵 2-Button Configuration</strong></summary>
+<div style="margin-left: 20px;">
+
+#### 📋 Menu Navigation
+- **Next button** short press → Next menu item
+- **OK button** short press → Select menu item
+
+#### 📡 Misc Jammer
+- **Next button** short press → Channel +1
+- **Next button** long press → Continuous channel +1 (every 100ms)
+- **OK button** short press → Select channel
+
+</div>
+</details>
+
+<details>
+<summary><strong>🟣 3-Button Configuration</strong></summary>
+<div style="margin-left: 20px;">
+
+#### 📋 Menu Navigation
+- **Next button** short press → Next menu item
+- **Previous button** short press → Previous menu item
+- **OK button** short press → Select menu item
+
+#### 📡 Misc Jammer
+- **Next button** short press → Channel +1
+- **Next button** long press → Continuous channel +1 (every 100ms)
+- **Previous button** short press → Channel -1
+- **Previous button** long press → Continuous channel -1 (every 100ms)
+- **OK button** short press → Select channel
+
+</div>
+</details>
+
+> **Single press** stops active attacks (not supported on "Standard" versions)
+
+-----
+
 ## 🌐 Web Interface
 
 - To utilize the web interface, please follow the steps outlined below.
