@@ -11,6 +11,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [📋 List of Components](#-list-of-components)
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
 - [📦 Flash Firmware](#-flash-firmware)
+- [🎮 Device Control](#-device-control)
 - [🌐 Web Interface](#-Web-Interface)
 - [🎉 Final Outcome](#-final-outcome)
 - [🙏 Acknowledgments](#-acknowledgments)
@@ -226,6 +227,63 @@ Follow these steps to flash the firmware:
 </details>
 
 ###### ⚠️ Important for source builds: Since v2.5.0, this project uses a modified RF24 library (see /lib).
+
+-----
+
+## 🎮 Device Control 
+
+<details>
+<summary><strong>🟢 1-Button Configuration</strong></summary>
+<div style="margin-left: 20px;">
+
+#### 📋 Menu Navigation
+- **Short press** → Next menu item
+- **Long press** → Select menu item
+
+#### 📡 Misc Jammer
+- **Short press** → Channel +1
+- **Long press** → Continuous channel +1 (every 100ms)
+- **Double press** → Select channel
+
+</div>
+</details>
+
+<details>
+<summary><strong>🔵 2-Button Configuration</strong></summary>
+<div style="margin-left: 20px;">
+
+#### 📋 Menu Navigation
+- **Next button** short press → Next menu item
+- **OK button** short press → Select menu item
+
+#### 📡 Misc Jammer
+- **Next button** short press → Channel +1
+- **Next button** long press → Continuous channel +1 (every 100ms)
+- **OK button** short press → Select channel
+
+</div>
+</details>
+
+<details>
+<summary><strong>🟣 3-Button Configuration</strong></summary>
+<div style="margin-left: 20px;">
+
+#### 📋 Menu Navigation
+- **Next button** short press → Next menu item
+- **Previous button** short press → Previous menu item
+- **OK button** short press → Select menu item
+
+#### 📡 Misc Jammer
+- **Next button** short press → Channel +1
+- **Next button** long press → Continuous channel +1 (every 100ms)
+- **Previous button** short press → Channel -1
+- **Previous button** long press → Continuous channel -1 (every 100ms)
+- **OK button** short press → Select channel
+
+</div>
+</details>
+
+> **Single press** stops active attacks (not supported on "Standard" versions)
 
 -----
 
