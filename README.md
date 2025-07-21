@@ -100,6 +100,7 @@ Given these advantages, **I highly recommend choosing the Compact version** for 
 | NEXT (Optional)             | GPIO 26       |
 | PREVIOUS (Optional)            | GPIO 27       |
 
+![Compact](schemes/Compact/scheme.png)
 
 </div>
 </details>
@@ -148,6 +149,7 @@ Given these advantages, **I highly recommend choosing the Compact version** for 
 | NEXT (Optional)             | GPIO 26       |
 | PREVIOUS (Optional)            | GPIO 27       |
 
+![Standard](schemes/Standard/scheme.png)
 
 </div>
 </details>
@@ -182,6 +184,8 @@ Given these advantages, **I highly recommend choosing the Compact version** for 
 | MOSI         | GPIO 23       |                      |
 | MISO         | GPIO 19       |                      |
 | IRQ          |                |                      |
+
+![Without_OLED](schemes/Without_OLED/scheme.png)
 
 </div>
 </details>
