@@ -1,0 +1,8 @@
+"Reference","Qty","Value","DNP","Exclude from BOM","Exclude from Board","Footprint","Datasheet","Description"
+"Brd1","1","SSD1306","","","","","","SSD1306 OLED"
+"C1","1","C_Polarized_US","","","","","~","100uF/16V"
+"SW1","1","OK","","","","","~","OK Button"
+"SW2","1","NEXT","","","","","~","NEXT Button"
+"SW3","1","PREVIOUS","","","","","~","PREVIOUS Button"
+"U1","1","NRF24L01","","","","RF_Module:nRF24L01_Breakout","http://www.nordicsemi.com/eng/content/download/2730/34105/file/nRF24L01_Product_Specification_v2_0.pdf","HSPI"
+"U3","1","ESP32-WROOM-32","","","","RF_Module:ESP32-WROOM-32","https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf","RF Module, ESP32-D0WDQ6 SoC, Wi-Fi 802.11b/g/n, Bluetooth, BLE, 32-bit, 2.7-3.6V, onboard antenna, SMD"
