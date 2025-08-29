@@ -42,11 +42,11 @@ This amazing jammer is built on the **ESP32** architecture integrated with **two
 
 ## 📋 List of Components
 To bring this project to life, you will need the following components:
-1. **Two NRF24L01+PA+LNA modules** *(or one for the "Compact" version)* 🛠️
-2. **ESP32-DevKitC** *(with Type-C)* **or**  **ESP32-DevKit V1** *(with Micro USB)*⚙️
-3. **Two 16V capacitors** rated at **100µF** 🔋
-4. **128x32 or 128x64 OLED display** 📺 *(Not required when using the "without OLED" version)*
-5. **Tactile button** 🔘 *(Not required when using the "without OLED" version)*
+1. **NRF24L01+PA+LNA modules** 🛠️
+2. **ESP-WROOM-32** ⚙️
+3. **16V capacitors** rated at **100µF** 🔋
+4. **128x32 or 128x64 OLED display** 📺 *(optional)*
+5. **Tactile button** 🔘 *(optional)*
 
 -----
 
@@ -58,15 +58,120 @@ To bring this project to life, you will need the following components:
 
 ## Differences between versions
 
-The **Compact** version is equipped with a **single NRF24** module, while the **Standard** version features **two**.
- 
-Notably, the Compact version allows **uninterrupted access to the display** even when jamming is started. 
+**Flexible version**
 
-This will enable me to utilize features that may be added in the future but are currently **unavailable** in the **Standard version**. For instance, **one already implemented** feature is the a**bility to exit jamming mode** by simply pressing the "**OK**" button (*pin 25*). 
+<ul><li>Number of modules: Supports up to 30 nRF24 modules (a software limit). In practice, the maximum number depends on the number of available GPIO pins on the microcontroller</li></ul>
 
-Given these advantages, **I highly recommend choosing the Compact version** for its versatility and potential for future enhancements.
+<ul><li>Advantage: All modules share common MOSI, MISO, and SCK lines, which saves pins and simplifies wiring. This also ensures that access to the display remains available during operation</li></ul>
+
+<ul><li>Flexibility: You can choose any number of modules within the limit, optimizing the device for your specific tasks</li></ul>
+
+<ul><li>Disadvantage: Before first use, you must define the CE and CSN pins for each nRF24 module in the settings</li></ul>
+
+**Compact version**
+
+<ul><li>Number of modules: Uses only 1 nRF24 module, which significantly reduces the device's size</li></ul>
+
+<ul><li>Disadvantage: Smaller jamming range and lower effectiveness compared to other versions</li></ul>
+
+<ul><li>Compatibility: It is possible to flash the Flexible version firmware onto a Compact hardware device. If you do this, you will need to manually configure the CE and CSN pins for the single module in the settings</li></ul>
+
+**Standard version (outdated)**
+
+<ul><li>Number of modules: Used 2 nRF24 modules, which provided sufficient jamming power</li></ul>
+
+<ul><li>Critical Flaw: Due to a pin conflict between the nRF24 modules and the display, the user interface became unresponsive after jamming was started. This made it impossible to stop the device via the display, requiring a full power cycle to shut it down</li></ul>
+
+<ul><li>Status: Starting from version V2.6.0, this version is no longer supported or updated. It is highly recommended to switch to the Flexible version</li></ul>
 
 ---
+
+<details>
+<summary><strong>Flexible</strong></summary>
+
+<div style="margin-left: 20px;">
+
+### Connecting First nRF24 module (**optional**)
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 16       |                      |
+| CSN          | GPIO 15       |                      |
+| SCK          | GPIO 14       |                      |
+| MOSI         | GPIO 13       |                      |
+| MISO         | GPIO 12       |                      |
+| IRQ          |                |                      |
+
+### Connecting Second nRF24 module (**optional**)
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 18       |                      |
+| CSN          | GPIO 17       |                      |
+| SCK          | GPIO 14       |                      |
+| MOSI         | GPIO 13       |                      |
+| MISO         | GPIO 12       |                      |
+| IRQ          |                |                      |
+
+### Connecting Third nRF24 module (**optional**)
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 23       |                      |
+| CSN          | GPIO 19       |                      |
+| SCK          | GPIO 14       |                      |
+| MOSI         | GPIO 13       |                      |
+| MISO         | GPIO 12       |                      |
+| IRQ          |                |                      |
+
+### Connecting Fourth nRF24 module (**optional**)
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 5        |                      |
+| CSN          | GPIO 4        |                      |
+| SCK          | GPIO 14       |                      |
+| MOSI         | GPIO 13       |                      |
+| MISO         | GPIO 12       |                      |
+| IRQ          |                |                      |
+
+### Connecting Fifth nRF24 module (**optional**)
+| **Pin Name** | **ESP32 GPIO** | **Connection**       |
+|--------------|----------------|----------------------|
+| VCC          | 3.3V          | (+) capacitor        |
+| GND          | GND           | (-) capacitor        |
+| CE           | GPIO 33       |                      |
+| CSN          | GPIO 32       |                      |
+| SCK          | GPIO 14       |                      |
+| MOSI         | GPIO 13       |                      |
+| MISO         | GPIO 12       |                      |
+| IRQ          |                |                      |
+
+### OLED Connection
+| **Pin Name** | **ESP32 GPIO** |
+|--------------|----------------|
+| VCC          | 3.3V          |
+| GND          | GND           |
+| SCL          | GPIO 22       |
+| SDA          | GPIO 21       |
+
+### Button Connection
+| **Button Actions** | **ESP32 GPIO** |
+|--------------|----------------|
+| OK          | GPIO 25       |
+| NEXT (Optional)             | GPIO 26       |
+| PREVIOUS (Optional)            | GPIO 27       |
+
+![Flexible](schemes/Flexible/scheme.png)
+
+###### In all configurations the same SCK, MOSI, and MISO pins are used. This is not a mistake—SPI interfaces can share clock and data lines, while proper operation is ensured by separate control signals (CSN and CE)
+
+</div>
+</details>
 
 <details>
 <summary><strong>Compact</strong></summary>
@@ -106,7 +211,7 @@ Given these advantages, **I highly recommend choosing the Compact version** for 
 </details>
 
 <details>
-<summary><strong>Standard</strong></summary>
+<summary><strong>Standard (outdated)</strong></summary>
 
 <div style="margin-left: 20px;">
 
