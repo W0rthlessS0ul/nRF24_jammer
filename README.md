@@ -31,7 +31,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 -----
 
 ## 🚀 What Can You Do with This?
-This amazing jammer is built on the **ESP32** architecture integrated with **two NRF24** modules. With its extraordinary capabilities, you can effectively disrupt signals across different technologies including:
+This amazing jammer is built on the **ESP32** architecture integrated with **configurable numbers of NRF24** modules. With its extraordinary capabilities, you can effectively disrupt signals across different technologies including:
 - **Bluetooth** 🔊
 - **BLE** 📱
 - **Drones** 🚁
