@@ -13,6 +13,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [📦 Flash Firmware](#-flash-firmware)
 - [🎮 Device Control](#-device-control)
 - [🌐 Web Interface](#-Web-Interface)
+- [🔌 Serial Interface](#-Serial-Interface)
 - [🎉 Final Outcome](#-final-outcome)
 - [🙏 Acknowledgments](#-acknowledgments)
 - [❤️ Support the project](#-support-the-project)
@@ -304,7 +305,7 @@ To bring this project to life, you will need the following components:
 <div style="margin-left: 20px;">
 
 Follow these steps to flash the firmware:
-1. Download the firmware from the **[releases](https://github.com/W0rthlessS0ul/nRF24_jammer/releases)** section that corresponds to your display.
+1. Download the firmware from the **[releases](https://github.com/W0rthlessS0ul/nRF24_jammer/releases)** section that corresponds to your display
 2. Navigate to **ESPWebTool**: [ESPWebTool](https://esp.huhn.me/)
 3. Arrange the files as per the table below:
 
@@ -327,10 +328,10 @@ Follow these steps to flash the firmware:
 
 ### This method can only be used if you have firmware version 1.9 or higher installed.
 Follow these steps to flash the firmware:
-1. Download the firmware from the **[releases](https://github.com/W0rthlessS0ul/nRF24_jammer/releases)** section that corresponds to your display.
+1. Download the firmware from the **[releases](https://github.com/W0rthlessS0ul/nRF24_jammer/releases)** section that corresponds to your display
 2. Turn on your device and open a web browser
 3. Navigate to the web interface at **192.168.4.1**
-4. Click on "**OTA**" and select the file "**nRF24_jammer.bin**" (`⚠️️ make sure not to choose the bootloader or partitions files`).
+4. Click on "**OTA**" and select the file "**nRF24_jammer.bin**" (`⚠️️ make sure not to choose the bootloader or partitions files`)
 
 </div>
 </details>
@@ -398,13 +399,25 @@ Follow these steps to flash the firmware:
 
 ## 🌐 Web Interface
 
-- To utilize the web interface, please follow the steps outlined below.
-1. activate the **nRF24 jammer**.
-2. Connect to the Wi-Fi network named `jammer` using the password `W0rthlessS0ul`.
-3. open your web browser and navigate to the IP address `192.168.4.1`.
-4. Now you can control your nRF24 jammer through an web interface.
+- To utilize the web interface, please follow the steps outlined below
+1. activate the **nRF24 jammer**
+2. Connect to the Wi-Fi network named `jammer` using the password `W0rthlessS0ul`
+3. open your web browser and navigate to the IP address `192.168.4.1`
+4. Now you can control your nRF24 jammer through an web interface
 
 ![web_interface](img/gif/web_interface_.gif)
+
+-----
+
+## 🔌 Serial Interface
+
+- To utilize the serial interface, please follow the steps outlined below
+1. Activate the **nRF24 jammer**
+2. Connect the device to a PC or phone via USB
+3. You can use any serial terminals for control, for example: [spacehuhn terminal](https://terminal.spacehuhn.com/)
+4. Now write **help** to get a list of commands
+
+![serial_interface](img/gif/serial_interface.gif)
 
 -----
 
