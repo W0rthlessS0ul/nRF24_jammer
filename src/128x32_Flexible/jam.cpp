@@ -7,6 +7,19 @@ void InitRadios()
     radios[i] = new RF24(ce_pins[i], csn_pins[i]);
   }
 }
+void DeinitRadios(bool stopConstCarrier)
+{
+  for (int i = 0; i < nrf24_count; i++){
+    if (radios[i] != nullptr){
+      if (stopConstCarrier){
+        radios[i]->stopConstCarrier();
+      }
+      radios[i]->powerDown();
+      delete radios[i];
+      radios[i] = nullptr;
+    }
+  }
+}
 void HSPI_init()
 {
   hp = new SPIClass(HSPI);
@@ -27,6 +40,14 @@ void HSPI_init()
     radios[i]->setCRCLength(RF24_CRC_DISABLED);
   }
 }
+void HSPI_deinit()
+{
+  if (hp != nullptr) {
+    hp->end();
+    delete hp;
+    hp = nullptr;
+  }
+}
 void bluetooth_jam()
 {
   InitRadios();
@@ -36,9 +57,11 @@ void bluetooth_jam()
     radios[j]->startConstCarrier(RF24_PA_MAX, 45);
   }
   butt1.tick();
-  while (!butt1.isSingle())
+  bool SerialStop = true;
+  while (!butt1.isSingle() && SerialStop)
   {
     butt1.tick();
+    SerialStop = SerialCommands();
     if (Separate_or_together == 0)
     {
       if (bluetooth_jam_method == 0)
@@ -108,10 +131,8 @@ void bluetooth_jam()
       }
     }
   }
-  for (int j = 0; j < nrf24_count; j++)
-  {
-    radios[j]->stopConstCarrier();
-  }
+  DeinitRadios(true);
+  HSPI_deinit();
 }
 void drone_jam()
 {
@@ -122,9 +143,11 @@ void drone_jam()
     radios[j]->startConstCarrier(RF24_PA_MAX, 45);
   }
   butt1.tick();
-  while (!butt1.isSingle())
+  bool SerialStop = true;
+  while (!butt1.isSingle() && SerialStop)
   {
     butt1.tick();
+    SerialStop = SerialCommands();
     if (Separate_or_together == 0)
     {
       if (drone_jam_method == 0)
@@ -171,19 +194,19 @@ void drone_jam()
       }
     }
   }
-  for (int j = 0; j < nrf24_count; j++)
-  {
-    radios[j]->stopConstCarrier();
-  }
+  DeinitRadios(true);
+  HSPI_deinit();
 }
 void ble_jam()
 {
   InitRadios();
   HSPI_init();
   butt1.tick();
-  while (!butt1.isSingle())
+  bool SerialStop = true;
+  while (!butt1.isSingle() && SerialStop)
   {
     butt1.tick();
+    SerialStop = SerialCommands();
     if (Separate_or_together == 0)
     {
       int total_channels = 3;
@@ -210,13 +233,16 @@ void ble_jam()
       }
     }
   }
+  DeinitRadios(false);
+  HSPI_deinit();
 }
 void wifi_jam()
 {
   InitRadios();
   HSPI_init();
   butt1.tick();
-  while (!butt1.isSingle())
+  bool SerialStop = true;
+  while (!butt1.isSingle() && SerialStop)
   {
     for (int channel = 0; channel < 13; channel++)
     {
@@ -230,7 +256,8 @@ void wifi_jam()
           int count = base + (j < rem ? 1 : 0);
           for (int i = 0; i < count; i++, ch++) {
             butt1.tick();
-            if (butt1.isSingle())
+            SerialStop = SerialCommands();
+            if (butt1.isSingle() || !SerialStop)
               break;
             radios[j]->setChannel(ch);
             radios[j]->writeFast(&jam_text, sizeof(jam_text));
@@ -244,24 +271,28 @@ void wifi_jam()
           for (int j = 0; j < nrf24_count; j++)
           {
             butt1.tick();
-            if (butt1.isSingle())
+            SerialStop = SerialCommands();
+            if (butt1.isSingle() || !SerialStop)
               break;
             radios[j]->setChannel(ch);
             radios[j]->writeFast(&jam_text, sizeof(jam_text));
           }
         }
       }
-      if (butt1.isSingle())
+      if (butt1.isSingle() || !SerialStop)
         break;
     }
   }
+  DeinitRadios(false);
+  HSPI_deinit();
 }
 void wifi_channel(int channel)
 {
   InitRadios();
   HSPI_init();
   butt1.tick();
-  while (!butt1.isSingle())
+  bool SerialStop = true;
+  while (!butt1.isSingle() && SerialStop)
   {
     if (Separate_or_together == 0)
     {
@@ -273,7 +304,8 @@ void wifi_channel(int channel)
         int count = base + (j < rem ? 1 : 0);
         for (int i = 0; i < count; i++, ch++) {
           butt1.tick();
-          if (butt1.isSingle())
+          SerialStop = SerialCommands();
+          if (butt1.isSingle() || !SerialStop)
             break;
           radios[j]->setChannel(ch);
           radios[j]->writeFast(&jam_text, sizeof(jam_text));
@@ -287,7 +319,8 @@ void wifi_channel(int channel)
         for (int j = 0; j < nrf24_count; j++)
         {
           butt1.tick();
-          if (butt1.isSingle())
+          SerialStop = SerialCommands();
+          if (butt1.isSingle() || !SerialStop)
             break;
           radios[j]->setChannel(ch);
           radios[j]->writeFast(&jam_text, sizeof(jam_text));
@@ -295,13 +328,16 @@ void wifi_channel(int channel)
       }
     }
   }
+  DeinitRadios(false);
+  HSPI_deinit();
 }
 void zigbee_jam()
 {
   InitRadios();
   HSPI_init();
   butt1.tick();
-  while (!butt1.isSingle())
+  bool SerialStop = true;
+  while (!butt1.isSingle() && SerialStop)
   {
     for (int channel = 11; channel < 27; channel++)
     {
@@ -315,7 +351,8 @@ void zigbee_jam()
           int count = base + (j < rem ? 1 : 0);
           for (int i = 0; i < count; i++, ch++) {
             butt1.tick();
-            if (butt1.isSingle())
+            SerialStop = SerialCommands();
+            if (butt1.isSingle() || !SerialStop)
               break;
             radios[j]->setChannel(ch);
             radios[j]->writeFast(&jam_text, sizeof(jam_text));
@@ -329,17 +366,20 @@ void zigbee_jam()
           for (int j = 0; j < nrf24_count; j++)
           {
             butt1.tick();
-            if (butt1.isSingle())
+            SerialStop = SerialCommands();
+            if (butt1.isSingle() || !SerialStop)
               break;
             radios[j]->setChannel(ch);
             radios[j]->writeFast(&jam_text, sizeof(jam_text));
           }
         }
       }
-      if (butt1.isSingle())
+      if (butt1.isSingle() || !SerialStop)
         break;
     }
   }
+  DeinitRadios(false);
+  HSPI_deinit();
 }
 void misc_jam(int channel1, int channel2)
 {
@@ -352,9 +392,11 @@ void misc_jam(int channel1, int channel2)
     }
   }
   butt1.tick();
-  while (!butt1.isSingle())
+  bool SerialStop = true;
+  while (!butt1.isSingle() && SerialStop)
   {
     butt1.tick();
+    SerialStop = SerialCommands();
     if (Separate_or_together == 0)
     {
       int total_channels = channel2 - channel1 + 1;
@@ -389,9 +431,11 @@ void misc_jam(int channel1, int channel2)
   }
   if (misc_jam_method != 1)
   {
-    for (int j = 0; j < nrf24_count; j++)
-    {
-      radios[j]->stopConstCarrier();
-    }
+    DeinitRadios(true);
   }
+  else
+  {
+    DeinitRadios(false);
+  }
+  HSPI_deinit();
 }

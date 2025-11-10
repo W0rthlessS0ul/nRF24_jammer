@@ -2,6 +2,7 @@
 #define JAM_H
 
 #include "options.h"
+#include "serial.h"
 
 void HSPI_init();
 void bluetooth_jam();

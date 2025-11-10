@@ -1,6 +1,7 @@
 #include "html.h"
 #include "options.h"
 #include "jam.h"
+#include "serial.h"
 
 void handleRoot() {
     server.send(200, "text/html", html);
@@ -212,8 +213,12 @@ void setup() {
     registerRoute("/misc_method_1", []() { storeEEPROMAndSet(6, 1, misc_jam_method); });
 
     server.begin();
+
+    Serial.println(logotype+"\n\n");
+    Serial.println("help ==> Displays a list of available commands\n");
 }
 
 void loop() {
     server.handleClient();
+    SerialCommands();
 }
