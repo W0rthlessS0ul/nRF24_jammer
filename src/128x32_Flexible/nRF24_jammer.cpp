@@ -2,6 +2,7 @@
 #include "html.h"
 #include "jam.h"
 #include "options.h"
+#include "serial.h"
 
 void updateDisplay(int menuNum) {
   display.clearDisplay();
@@ -634,6 +635,10 @@ void setup() {
 
     server.begin();
   }
+
+  Serial.println(logotype+"\n\n");
+  Serial.println("help ==> Displays a list of available commands\n");
+
   butt1.setClickTimeout(200);
   buttNext.setClickTimeout(200);
   buttPrevious.setClickTimeout(200);
@@ -715,6 +720,8 @@ void loop() {
   butt1.tick();
   buttNext.tick();
   buttPrevious.tick();
+
+  SerialCommands();
 
   if (access_point == 0)
     server.handleClient();

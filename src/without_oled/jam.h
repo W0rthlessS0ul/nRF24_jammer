@@ -2,6 +2,7 @@
 #define JAM_H
 
 #include "options.h"
+#include "serial.h"
 
 void VSPI_init();
 void HSPI_init();
