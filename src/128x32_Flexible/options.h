@@ -15,6 +15,8 @@ extern GButton buttNext;
 extern GButton buttPrevious;
 extern const char *default_ssid;
 extern const char *default_password;
+extern String Version_Number;
+extern String Version_Name;
 
 extern uint8_t SCREEN_WIDTH;
 extern uint8_t SCREEN_HEIGHT;
@@ -25,7 +27,7 @@ extern SPIClass *hp;
 extern int menu_number;
 extern int bluetooth_jam_method;
 extern int drone_jam_method;
-extern int ble_jam_method;
+extern int display_setting;
 extern int wifi_jam_method;
 extern int zigbee_jam_method;
 extern int Separate_or_together;

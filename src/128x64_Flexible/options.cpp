@@ -6,6 +6,8 @@ GButton buttNext(26);
 GButton buttPrevious(27);
 const char *default_ssid = "jammer";
 const char *default_password = "W0rthlessS0ul";
+String Version_Number = "V2.8.0";
+String Version_Name = "Flexible";
 
 //  Unchangeable parameters
 uint8_t SCREEN_WIDTH = 128;
@@ -17,7 +19,7 @@ SPIClass *hp = nullptr;
 int menu_number = 0;
 int bluetooth_jam_method;
 int drone_jam_method;
-int ble_jam_method;
+int display_setting;
 int wifi_jam_method;
 int zigbee_jam_method;
 int Separate_or_together;
