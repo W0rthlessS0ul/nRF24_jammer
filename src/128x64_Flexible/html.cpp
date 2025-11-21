@@ -1,6 +1,103 @@
 #include "html.h"
 
-const char *html_nrf24_settings = R"rawliteral(
+String html_display_settings = String(R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+
+        .button,
+        .button_installed {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .button_installed {
+            background-color: #28a745;
+        }
+        
+        .button:hover,
+        .button_installed:hover {
+            background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .button_installed:hover {
+            background-color: #1e7e34;
+        }
+        
+        .button:active,
+        .button_installed:active {
+            transform: translateY(1px);
+        }
+        
+        .button:focus,
+        .button_installed:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Control Display:</h1>
+        </div>
+
+        <div class="buttons">
+            <!-- 1 --><button class="button" onclick="location.href='/disable_display'">Disable display</button>
+            <!-- 0 --><button class="button" onclick="location.href='/enable_display'">Enable display</button>
+        </div>
+    </div>
+</body>
+</html>
+)rawliteral");
+String html_nrf24_settings = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -134,28 +231,42 @@ const char *html_nrf24_settings = R"rawliteral(
     <div class="container">
         <h1>Set NRF24 Pins</h1>
         <div id="inputs-container">
-            <div class="input-group">
-                <div class="input-wrapper">
-                    <input class="input ce" type="number" placeholder="CE Pin" min="0" max="99" />
-                </div>
-                <div class="input-wrapper">
-                    <input class="input csn" type="number" placeholder="CSN Pin" min="0" max="99" />
-                </div>
-                <button class="button delete-button" onclick="removeInputField(this)" disabled>×</button>
-            </div>
         </div>
         <button class="button add-button" onclick="addInputField()">Add Module</button>
         <button class="button jam-button" onclick="validateAndRedirect()">Set</button>
     </div>
 
     <script>
-        function addInputField() {
+        document.addEventListener('DOMContentLoaded', function() {
+            populateCurrentModules();
+        });
+
+        function populateCurrentModules() {
+            const container = document.getElementById('inputs-container');
+            const currentModules = getCurrentModulesFromServer();
+
+            currentModules.forEach((module, index) => {
+                addInputField(module.ce, module.csn);
+            });
+
+            if (currentModules.length < 30) {
+                addInputField();
+            }
+        }
+
+        function getCurrentModulesFromServer() {
+
+            return window.currentModules || [];
+        }
+
+        function addInputField(ceValue = '', csnValue = '') {
             const container = document.getElementById('inputs-container');
             const currentCount = container.querySelectorAll('.input-group').length;
             if (currentCount >= 30) {
                 alert('Maximum 30 Modules');
                 return;
             }
+            
             const inputGroup = document.createElement('div');
             inputGroup.className = 'input-group';
             
@@ -167,6 +278,9 @@ const char *html_nrf24_settings = R"rawliteral(
             ceInput.placeholder = 'CE Pin';
             ceInput.min = '0';
             ceInput.max = '99';
+            if (ceValue !== '') {
+                ceInput.value = ceValue;
+            }
             ceWrapper.appendChild(ceInput);
 
             const csnWrapper = document.createElement('div');
@@ -177,6 +291,9 @@ const char *html_nrf24_settings = R"rawliteral(
             csnInput.placeholder = 'CSN Pin';
             csnInput.min = '0';
             csnInput.max = '99';
+            if (csnValue !== '') {
+                csnInput.value = csnValue;
+            }
             csnWrapper.appendChild(csnInput);
 
             const deleteButton = document.createElement('button');
@@ -190,7 +307,7 @@ const char *html_nrf24_settings = R"rawliteral(
             container.appendChild(inputGroup);
 
             const allDeleteButtons = document.querySelectorAll('.delete-button');
-            allDeleteButtons.forEach(btn => btn.disabled = false);
+            allDeleteButtons.forEach(btn => btn.disabled = allDeleteButtons.length === 1);
         }
 
         function removeInputField(button) {
@@ -213,6 +330,7 @@ const char *html_nrf24_settings = R"rawliteral(
             for (let i = 0; i < ceInputs.length; i++) {
                 const ceVal = parseInt(ceInputs[i].value);
                 const csnVal = parseInt(csnInputs[i].value);
+                
                 if (isNaN(ceVal) || ceVal < 0 || ceVal > 99) {
                     isValid = false;
                     ceInputs[i].style.boxShadow = '0 0 8px rgba(255, 0, 0, 0.5)';
@@ -220,6 +338,7 @@ const char *html_nrf24_settings = R"rawliteral(
                     ceInputs[i].style.boxShadow = '';
                     ceList.push(ceVal);
                 }
+                
                 if (isNaN(csnVal) || csnVal < 0 || csnVal > 99) {
                     isValid = false;
                     csnInputs[i].style.boxShadow = '0 0 8px rgba(255, 0, 0, 0.5)';
@@ -242,7 +361,7 @@ const char *html_nrf24_settings = R"rawliteral(
     </script>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
 const char *html = R"rawliteral(
 <!DOCTYPE html>
@@ -452,6 +571,7 @@ const char *html = R"rawliteral(
                 <button onclick="location.href='/setting_buttons'" class="dropdown-button hidden">Buttons</button>
                 <button onclick="location.href='/wifi_settings'" class="dropdown-button hidden">WiFi Settings</button>
                 <button onclick="location.href='/nrf24_settings'" class="dropdown-button hidden">nRF24 Settings</button>
+                <button onclick="location.href='/setting_display'" class="dropdown-button hidden">Display Settings</button>
             </div>
         </div>
     </div>
@@ -459,9 +579,9 @@ const char *html = R"rawliteral(
 </html>
 )rawliteral";
 
-const char *html_ota = R"rawliteral(
-<!DOCTYPE html>
+String html_ota = String(R"rawliteral(
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -479,7 +599,7 @@ const char *html_ota = R"rawliteral(
             opacity: 0;
             animation: fadeIn 1s forwards;
         }
-
+        
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -488,7 +608,7 @@ const char *html_ota = R"rawliteral(
                 opacity: 1;
             }
         }
-
+        
         .container {
             text-align: center;
             padding: 30px;
@@ -501,7 +621,7 @@ const char *html_ota = R"rawliteral(
             transform: translateY(20px);
             animation: slideIn 0.5s forwards;
         }
-
+        
         @keyframes slideIn {
             from {
                 transform: translateY(20px);
@@ -512,20 +632,41 @@ const char *html_ota = R"rawliteral(
                 opacity: 1;
             }
         }
-
+        
+        .version-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+            color: #888;
+            background-color: #2a2a2a;
+            padding: 5px 10px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            font-weight: normal;
+            transition: all 0.3s ease;
+        }
+        
+        .version-badge:hover {
+            color: #cccccc;
+            background-color: #333;
+            border-color: #555;
+            transform: scale(1.05);
+        }
+        
         h2 {
             margin-bottom: 20px;
         }
-
+        
         .file-upload {
             position: relative;
             margin-top: 10px;
         }
-
+        
         .file-upload input[type="file"] {
             display: none;
         }
-
+        
         .file-upload label {
             display: inline-block;
             background-color: #007bff;
@@ -535,13 +676,13 @@ const char *html_ota = R"rawliteral(
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
         }
-
+        
         .file-upload label:hover {
             background-color: #0056b3;
             transform: translateY(-4px) scale(1.05);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
-
+        
         .button {
             background-color: #28a745;
             border: none;
@@ -556,23 +697,23 @@ const char *html_ota = R"rawliteral(
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
         }
-
+        
         .button:hover {
             background-color: #218838;
             transform: translateY(-4px) scale(1.05);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
-
+        
         .button:active {
             transform: translateY(2px);
         }
-
+        
         .hint {
             margin-top: 10px;
             font-size: 14px;
             color: #cccccc;
         }
-
+        
         .warning {
             margin-top: 15px;
             font-size: 14px;
@@ -580,8 +721,11 @@ const char *html_ota = R"rawliteral(
         }
     </style>
 </head>
+
 <body>
     <div class="container">
+        <div class="version-badge">version</div>
+
         <h2>Firmware Update</h2>
         <form enctype='multipart/form-data' action='/update' method='POST'>
             <div class="file-upload">
@@ -594,8 +738,9 @@ const char *html_ota = R"rawliteral(
         </form>
     </div>
 </body>
+
 </html>
-)rawliteral";
+)rawliteral");
 
 const char *html_upload_progress = R"rawliteral(
 <!DOCTYPE html>
@@ -665,7 +810,7 @@ const char *html_upload_progress = R"rawliteral(
 </html>
 )rawliteral";
 
-const char *html_pls_reboot = R"rawliteral(
+String html_pls_reboot = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -778,9 +923,9 @@ const char *html_pls_reboot = R"rawliteral(
     </script>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
-const char *html_misc_jam = R"rawliteral(
+String html_jam = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -854,7 +999,7 @@ const char *html_misc_jam = R"rawliteral(
 </head>
 <body>
     <div class="container">
-        <div id="textElement" class="text">Jamming of selected channels</div>
+        <div id="textElement" class="text">[||]EdItAbLe TeXt[||]</div>
         <div class="circle-container">
             <div class="circle"></div>
             <div class="circle"></div>
@@ -893,582 +1038,7 @@ const char *html_misc_jam = R"rawliteral(
     </script>
 </body>
 </html>
-)rawliteral";
-
-const char *html_bluetooth_jam = R"rawliteral(
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #121212;
-            color: #ffffff;
-        }
-
-        .container {
-            text-align: center;
-            padding: 30px;
-            border-radius: 10px;
-            background: #1e1e1e;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 350px;
-        }
-
-        .text {
-            font-size: 24px;
-            color: #007bff;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: inline-block;
-        }
-
-        .circle-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .circle {
-            width: 10px;
-            height: 10px;
-            margin: 0 5px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #007bff, #00c3ff);
-            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
-                        0 0 20px rgba(0, 195, 255, 0.3);
-            animation: pulse 1.2s infinite;
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .circle:nth-child(2) {
-            animation-delay: 0.4s;
-        }
-
-        .circle:nth-child(3) {
-            animation-delay: 0.8s;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.5);
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div id="textElement" class="text">Bluetooth Jamming</div>
-        <div class="circle-container">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-    </div>
-
-    <script>
-        const textElement = document.getElementById('textElement');
-        const originalText = textElement.textContent;
-        const specialChars = '*&^%$#@!)(_+-';
-
-        setInterval(() => {
-            const words = originalText.split(' ');
-            const randomWordIndex = Math.floor(Math.random() * words.length);
-            const randomWord = words[randomWordIndex];
-
-            if (randomWord) {
-                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
-
-                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
-
-                const modifiedWord = randomWord.split('');
-                modifiedWord[randomCharIndex] = randomChar;
-                words[randomWordIndex] = modifiedWord.join('');
-
-                textElement.textContent = words.join(' ');
-
-                setTimeout(() => {
-                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
-                    words[randomWordIndex] = modifiedWord.join('');
-                    textElement.textContent = words.join(' ');
-                }, 999);
-            }
-        }, 1000);
-    </script>
-</body>
-</html>
-)rawliteral";
-
-const char *html_drone_jam = R"rawliteral(
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #121212;
-            color: #ffffff;
-        }
-
-        .container {
-            text-align: center;
-            padding: 30px;
-            border-radius: 10px;
-            background: #1e1e1e;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 350px;
-        }
-
-        .text {
-            font-size: 24px;
-            color: #007bff;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: inline-block;
-        }
-
-        .circle-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .circle {
-            width: 10px;
-            height: 10px;
-            margin: 0 5px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #007bff, #00c3ff);
-            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
-                        0 0 20px rgba(0, 195, 255, 0.3);
-            animation: pulse 1.2s infinite;
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .circle:nth-child(2) {
-            animation-delay: 0.4s;
-        }
-
-        .circle:nth-child(3) {
-            animation-delay: 0.8s;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.5);
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div id="textElement" class="text">Drone Jamming</div>
-        <div class="circle-container">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-    </div>
-
-    <script>
-        const textElement = document.getElementById('textElement');
-        const originalText = textElement.textContent;
-        const specialChars = '*&^%$#@!)(_+-';
-
-        setInterval(() => {
-            const words = originalText.split(' ');
-            const randomWordIndex = Math.floor(Math.random() * words.length);
-            const randomWord = words[randomWordIndex];
-
-            if (randomWord) {
-                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
-
-                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
-
-                const modifiedWord = randomWord.split('');
-                modifiedWord[randomCharIndex] = randomChar;
-                words[randomWordIndex] = modifiedWord.join('');
-
-                textElement.textContent = words.join(' ');
-
-                setTimeout(() => {
-                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
-                    words[randomWordIndex] = modifiedWord.join('');
-                    textElement.textContent = words.join(' ');
-                }, 999);
-            }
-        }, 1000);
-    </script>
-</body>
-</html>
-)rawliteral";
-
-const char *html_wifi_jam = R"rawliteral(
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #121212;
-            color: #ffffff;
-        }
-
-        .container {
-            text-align: center;
-            padding: 30px;
-            border-radius: 10px;
-            background: #1e1e1e;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 350px;
-        }
-
-        .text {
-            font-size: 24px;
-            color: #007bff;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: inline-block;
-        }
-
-        .circle-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .circle {
-            width: 10px;
-            height: 10px;
-            margin: 0 5px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #007bff, #00c3ff);
-            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
-                        0 0 20px rgba(0, 195, 255, 0.3);
-            animation: pulse 1.2s infinite;
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .circle:nth-child(2) {
-            animation-delay: 0.4s;
-        }
-
-        .circle:nth-child(3) {
-            animation-delay: 0.8s;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.5);
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div id="textElement" class="text">WiFi Jamming</div>
-        <div class="circle-container">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-    </div>
-
-    <script>
-        const textElement = document.getElementById('textElement');
-        const originalText = textElement.textContent;
-        const specialChars = '*&^%$#@!)(_+-';
-
-        setInterval(() => {
-            const words = originalText.split(' ');
-            const randomWordIndex = Math.floor(Math.random() * words.length);
-            const randomWord = words[randomWordIndex];
-
-            if (randomWord) {
-                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
-
-                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
-
-                const modifiedWord = randomWord.split('');
-                modifiedWord[randomCharIndex] = randomChar;
-                words[randomWordIndex] = modifiedWord.join('');
-
-                textElement.textContent = words.join(' ');
-
-                setTimeout(() => {
-                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
-                    words[randomWordIndex] = modifiedWord.join('');
-                    textElement.textContent = words.join(' ');
-                }, 999);
-            }
-        }, 1000);
-    </script>
-</body>
-</html>
-)rawliteral";
-
-const char *html_ble_jam = R"rawliteral(
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #121212;
-            color: #ffffff;
-        }
-
-        .container {
-            text-align: center;
-            padding: 30px;
-            border-radius: 10px;
-            background: #1e1e1e;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 350px;
-        }
-
-        .text {
-            font-size: 24px;
-            color: #007bff;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: inline-block;
-        }
-
-        .circle-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .circle {
-            width: 10px;
-            height: 10px;
-            margin: 0 5px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #007bff, #00c3ff);
-            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
-                        0 0 20px rgba(0, 195, 255, 0.3);
-            animation: pulse 1.2s infinite;
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .circle:nth-child(2) {
-            animation-delay: 0.4s;
-        }
-
-        .circle:nth-child(3) {
-            animation-delay: 0.8s;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.5);
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div id="textElement" class="text">BLE Jamming</div>
-        <div class="circle-container">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-    </div>
-
-    <script>
-        const textElement = document.getElementById('textElement');
-        const originalText = textElement.textContent;
-        const specialChars = '*&^%$#@!)(_+-';
-
-        setInterval(() => {
-            const words = originalText.split(' ');
-            const randomWordIndex = Math.floor(Math.random() * words.length);
-            const randomWord = words[randomWordIndex];
-
-            if (randomWord) {
-                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
-
-                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
-
-                const modifiedWord = randomWord.split('');
-                modifiedWord[randomCharIndex] = randomChar;
-                words[randomWordIndex] = modifiedWord.join('');
-
-                textElement.textContent = words.join(' ');
-
-                setTimeout(() => {
-                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
-                    words[randomWordIndex] = modifiedWord.join('');
-                    textElement.textContent = words.join(' ');
-                }, 999);
-            }
-        }, 1000);
-    </script>
-</body>
-</html>
-)rawliteral";
-
-const char *html_zigbee_jam = R"rawliteral(
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #121212;
-            color: #ffffff;
-        }
-
-        .container {
-            text-align: center;
-            padding: 30px;
-            border-radius: 10px;
-            background: #1e1e1e;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 350px;
-        }
-
-        .text {
-            font-size: 24px;
-            color: #007bff;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: inline-block;
-        }
-
-        .circle-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .circle {
-            width: 10px;
-            height: 10px;
-            margin: 0 5px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #007bff, #00c3ff);
-            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5),
-                        0 0 20px rgba(0, 195, 255, 0.3);
-            animation: pulse 1.2s infinite;
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .circle:nth-child(2) {
-            animation-delay: 0.4s;
-        }
-
-        .circle:nth-child(3) {
-            animation-delay: 0.8s;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.5);
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div id="textElement" class="text">Zigbee Jamming</div>
-        <div class="circle-container">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-    </div>
-
-    <script>
-        const textElement = document.getElementById('textElement');
-        const originalText = textElement.textContent;
-        const specialChars = '*&^%$#@!)(_+-';
-
-        setInterval(() => {
-            const words = originalText.split(' ');
-            const randomWordIndex = Math.floor(Math.random() * words.length);
-            const randomWord = words[randomWordIndex];
-
-            if (randomWord) {
-                const randomCharIndex = Math.floor(Math.random() * randomWord.length);
-
-                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
-
-                const modifiedWord = randomWord.split('');
-                modifiedWord[randomCharIndex] = randomChar;
-                words[randomWordIndex] = modifiedWord.join('');
-
-                textElement.textContent = words.join(' ');
-
-                setTimeout(() => {
-                    modifiedWord[randomCharIndex] = randomWord[randomCharIndex];
-                    words[randomWordIndex] = modifiedWord.join('');
-                    textElement.textContent = words.join(' ');
-                }, 999);
-            }
-        }, 1000);
-    </script>
-</body>
-</html>
-)rawliteral";
+)rawliteral");
 
 const char *html_access_point = R"rawliteral(
 <!DOCTYPE html>
@@ -1612,7 +1182,7 @@ const char *html_access_point = R"rawliteral(
 </html>
 )rawliteral";
 
-const char *html_bluetooth_setings = R"rawliteral(
+String html_bluetooth_setings = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1651,51 +1221,8 @@ const char *html_bluetooth_setings = R"rawliteral(
             gap: 15px; 
         }
 
-        .button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
-            font-size: 16px;
-            width: 100%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .button:hover {
-            background-color: #0056b3; 
-            transform: translateY(-4px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .button:active {
-            transform: translateY(1px); 
-        }
-
-        .button:focus {
-            outline: none; 
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background-color: rgba(30, 30, 30, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .dropdown-button {
+        .button,
+        .button_installed {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1709,30 +1236,34 @@ const char *html_bluetooth_setings = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
             font-size: 16px;
             width: 100%;
-            text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-
-        .dropdown-button:hover {
+        
+        .button_installed {
+            background-color: #28a745;
+        }
+        
+        .button:hover,
+        .button_installed:hover {
             background-color: #0056b3;
             transform: translateY(-4px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
-
-        .dropdown-button:active {
-            transform: translateY(1px); 
+        
+        .button_installed:hover {
+            background-color: #1e7e34;
         }
-
-        .dropdown-button:focus {
+        
+        .button:active,
+        .button_installed:active {
+            transform: translateY(1px);
+        }
+        
+        .button:focus,
+        .button_installed:focus {
             outline: none;
         }
     </style>
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('settingsDropdown');
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-        }
-    </script>
 </head>
 <body>
     <div class="container">
@@ -1741,16 +1272,16 @@ const char *html_bluetooth_setings = R"rawliteral(
         </div>
 
         <div class="buttons">
-            <button class="button" onclick="location.href='/bluetooth_method_0'">Brute Force By List (List 21)</button>
-            <button class="button" onclick="location.href='/bluetooth_method_1'">Randomize Values (0-79)</button>
-            <button class="button" onclick="location.href='/bluetooth_method_2'">Brute Force By Values (0-79)</button>
+            <!-- 0 --><button class="button" onclick="location.href='/bluetooth_method_0'">Brute Force By List (List 21)</button>
+            <!-- 1 --><button class="button" onclick="location.href='/bluetooth_method_1'">Randomize Values (0-79)</button>
+            <!-- 2 --><button class="button" onclick="location.href='/bluetooth_method_2'">Brute Force By Values (0-79)</button>
         </div>
     </div>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
-const char *html_buttons_settings = R"rawliteral(
+String html_buttons_settings = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1789,51 +1320,8 @@ const char *html_buttons_settings = R"rawliteral(
             gap: 15px; 
         }
 
-        .button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
-            font-size: 16px;
-            width: 100%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .button:hover {
-            background-color: #0056b3; 
-            transform: translateY(-4px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .button:active {
-            transform: translateY(1px); 
-        }
-
-        .button:focus {
-            outline: none; 
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background-color: rgba(30, 30, 30, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .dropdown-button {
+        .button,
+        .button_installed {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1847,30 +1335,34 @@ const char *html_buttons_settings = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
             font-size: 16px;
             width: 100%;
-            text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-
-        .dropdown-button:hover {
+        
+        .button_installed {
+            background-color: #28a745;
+        }
+        
+        .button:hover,
+        .button_installed:hover {
             background-color: #0056b3;
             transform: translateY(-4px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
-
-        .dropdown-button:active {
-            transform: translateY(1px); 
+        
+        .button_installed:hover {
+            background-color: #1e7e34;
         }
-
-        .dropdown-button:focus {
+        
+        .button:active,
+        .button_installed:active {
+            transform: translateY(1px);
+        }
+        
+        .button:focus,
+        .button_installed:focus {
             outline: none;
         }
     </style>
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('settingsDropdown');
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-        }
-    </script>
 </head>
 <body>
     <div class="container">
@@ -1879,16 +1371,16 @@ const char *html_buttons_settings = R"rawliteral(
         </div>
 
         <div class="buttons">
-            <button class="button" onclick="location.href='/button_method_0'">Single-button control (25 pin)</button>
-            <button class="button" onclick="location.href='/button_method_1'">Two-button control (25, 26 pin)</button>
-            <button class="button" onclick="location.href='/button_method_2'">Three-button control (25, 26, 27 pin)</button>
+            <!-- 0 --><button class="button" onclick="location.href='/button_method_0'">Single-button control (25 pin)</button>
+            <!-- 1 --><button class="button" onclick="location.href='/button_method_1'">Two-button control (25, 26 pin)</button>
+            <!-- 2 --><button class="button" onclick="location.href='/button_method_2'">Three-button control (25, 26, 27 pin)</button>
         </div>
     </div>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
-const char *html_drone_setings = R"rawliteral(
+String html_drone_setings = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1927,51 +1419,8 @@ const char *html_drone_setings = R"rawliteral(
             gap: 15px; 
         }
 
-        .button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
-            font-size: 16px;
-            width: 100%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .button:hover {
-            background-color: #0056b3; 
-            transform: translateY(-4px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .button:active {
-            transform: translateY(1px); 
-        }
-
-        .button:focus {
-            outline: none; 
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background-color: rgba(30, 30, 30, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .dropdown-button {
+        .button,
+        .button_installed {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1985,30 +1434,34 @@ const char *html_drone_setings = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
             font-size: 16px;
             width: 100%;
-            text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-
-        .dropdown-button:hover {
+        
+        .button_installed {
+            background-color: #28a745;
+        }
+        
+        .button:hover,
+        .button_installed:hover {
             background-color: #0056b3;
             transform: translateY(-4px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
-
-        .dropdown-button:active {
-            transform: translateY(1px); 
+        
+        .button_installed:hover {
+            background-color: #1e7e34;
         }
-
-        .dropdown-button:focus {
+        
+        .button:active,
+        .button_installed:active {
+            transform: translateY(1px);
+        }
+        
+        .button:focus,
+        .button_installed:focus {
             outline: none;
         }
     </style>
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('settingsDropdown');
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-        }
-    </script>
 </head>
 <body>
     <div class="container">
@@ -2017,15 +1470,15 @@ const char *html_drone_setings = R"rawliteral(
         </div>
 
         <div class="buttons">
-            <button class="button" onclick="location.href='/drone_method_0'">Randomize Values (0-125)</button>
-            <button class="button" onclick="location.href='/drone_method_1'">Brute Force By Values (0-125)</button>
+            <!-- 0 --><button class="button" onclick="location.href='/drone_method_0'">Randomize Values (0-125)</button>
+            <!-- 1 --><button class="button" onclick="location.href='/drone_method_1'">Brute Force By Values (0-125)</button>
         </div>
     </div>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
-const char *html_misc_setings = R"rawliteral(
+String html_misc_setings = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2064,51 +1517,8 @@ const char *html_misc_setings = R"rawliteral(
             gap: 15px; 
         }
 
-        .button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
-            font-size: 16px;
-            width: 100%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .button:hover {
-            background-color: #0056b3; 
-            transform: translateY(-4px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .button:active {
-            transform: translateY(1px); 
-        }
-
-        .button:focus {
-            outline: none; 
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background-color: rgba(30, 30, 30, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .dropdown-button {
+        .button,
+        .button_installed {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -2122,30 +1532,34 @@ const char *html_misc_setings = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
             font-size: 16px;
             width: 100%;
-            text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-
-        .dropdown-button:hover {
+        
+        .button_installed {
+            background-color: #28a745;
+        }
+        
+        .button:hover,
+        .button_installed:hover {
             background-color: #0056b3;
             transform: translateY(-4px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
-
-        .dropdown-button:active {
-            transform: translateY(1px); 
+        
+        .button_installed:hover {
+            background-color: #1e7e34;
         }
-
-        .dropdown-button:focus {
+        
+        .button:active,
+        .button_installed:active {
+            transform: translateY(1px);
+        }
+        
+        .button:focus,
+        .button_installed:focus {
             outline: none;
         }
     </style>
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('settingsDropdown');
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-        }
-    </script>
 </head>
 <body>
     <div class="container">
@@ -2153,15 +1567,15 @@ const char *html_misc_setings = R"rawliteral(
             <h1>Choose jamming type:</h1>
         </div>
         <div class="buttons">
-            <button class="button" onclick="location.href='/misc_method_0'">Channel Switching (fast mode; used in Bluetooth Jam)</button>
-            <button class="button" onclick="location.href='/misc_method_1'">Packet Sending (slow mode; used in WiFi Jam)</button>
+            <!-- 0 --><button class="button" onclick="location.href='/misc_method_0'">Channel Switching (fast mode; used in Bluetooth Jam)</button>
+            <!-- 1 --><button class="button" onclick="location.href='/misc_method_1'">Packet Sending (slow mode; used in WiFi Jam)</button>
         </div>
     </div>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
-const char *html_wifi_settings = R"rawliteral(
+String html_wifi_settings = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2420,9 +1834,9 @@ const char *html_wifi_settings = R"rawliteral(
     </script>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
-const char *html_logo_setings = R"rawliteral(
+String html_logo_setings = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2461,51 +1875,8 @@ const char *html_logo_setings = R"rawliteral(
             gap: 15px; 
         }
 
-        .button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
-            font-size: 16px;
-            width: 100%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .button:hover {
-            background-color: #0056b3; 
-            transform: translateY(-4px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .button:active {
-            transform: translateY(1px); 
-        }
-
-        .button:focus {
-            outline: none; 
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background-color: rgba(30, 30, 30, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .dropdown-button {
+        .button,
+        .button_installed {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -2519,30 +1890,34 @@ const char *html_logo_setings = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
             font-size: 16px;
             width: 100%;
-            text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-
-        .dropdown-button:hover {
+        
+        .button_installed {
+            background-color: #28a745;
+        }
+        
+        .button:hover,
+        .button_installed:hover {
             background-color: #0056b3;
             transform: translateY(-4px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
-
-        .dropdown-button:active {
-            transform: translateY(1px); 
+        
+        .button_installed:hover {
+            background-color: #1e7e34;
         }
-
-        .dropdown-button:focus {
+        
+        .button:active,
+        .button_installed:active {
+            transform: translateY(1px);
+        }
+        
+        .button:focus,
+        .button_installed:focus {
             outline: none;
         }
     </style>
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('settingsDropdown');
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-        }
-    </script>
 </head>
 <body>
     <div class="container">
@@ -2550,15 +1925,15 @@ const char *html_logo_setings = R"rawliteral(
             <h1>Choose logo settings:</h1>
         </div>
         <div class="buttons">
-            <button class="button" onclick="location.href='/logo_on'">Show logo on startup</button>
-            <button class="button" onclick="location.href='/logo_off'">Hide logo on startup</button>
+            <!-- 0 --><button class="button" onclick="location.href='/logo_on'">Show logo on startup</button>
+            <!-- 1 --><button class="button" onclick="location.href='/logo_off'">Hide logo on startup</button>
         </div>
     </div>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
-const char *html_separate_or_together = R"rawliteral(
+String html_separate_or_together = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2597,51 +1972,8 @@ const char *html_separate_or_together = R"rawliteral(
             gap: 15px; 
         }
 
-        .button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
-            font-size: 16px;
-            width: 100%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .button:hover {
-            background-color: #0056b3; 
-            transform: translateY(-4px); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .button:active {
-            transform: translateY(1px); 
-        }
-
-        .button:focus {
-            outline: none; 
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background-color: rgba(30, 30, 30, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .dropdown-button {
+        .button,
+        .button_installed {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -2655,30 +1987,34 @@ const char *html_separate_or_together = R"rawliteral(
             transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
             font-size: 16px;
             width: 100%;
-            text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-
-        .dropdown-button:hover {
+        
+        .button_installed {
+            background-color: #28a745;
+        }
+        
+        .button:hover,
+        .button_installed:hover {
             background-color: #0056b3;
             transform: translateY(-4px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
-
-        .dropdown-button:active {
-            transform: translateY(1px); 
+        
+        .button_installed:hover {
+            background-color: #1e7e34;
         }
-
-        .dropdown-button:focus {
+        
+        .button:active,
+        .button_installed:active {
+            transform: translateY(1px);
+        }
+        
+        .button:focus,
+        .button_installed:focus {
             outline: none;
         }
     </style>
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('settingsDropdown');
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-        }
-    </script>
 </head>
 <body>
     <div class="container">
@@ -2686,15 +2022,15 @@ const char *html_separate_or_together = R"rawliteral(
             <h1>Choose jamming type:</h1>
         </div>
         <div class="buttons">
-            <button class="button" onclick="location.href='/separate_or_together_method_0'">Modules on Different Channels</button>
-            <button class="button" onclick="location.href='/separate_or_together_method_1'">Modules on Same Channel</button>
+            <!-- 0 --><button class="button" onclick="location.href='/separate_or_together_method_0'">Modules on Different Channels</button>
+            <!-- 1 --><button class="button" onclick="location.href='/separate_or_together_method_1'">Modules on Same Channel</button>
         </div>
     </div>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
-const char *html_wifi_select = R"rawliteral(
+String html_wifi_select = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2829,9 +2165,9 @@ const char *html_wifi_select = R"rawliteral(
     </div>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
-const char *html_wifi_channel = R"rawliteral(
+String html_wifi_channel = String(R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2933,7 +2269,7 @@ const char *html_wifi_channel = R"rawliteral(
     </div>
 </body>
 </html>
-)rawliteral";
+)rawliteral");
 
 const char *html_misc_jammer = R"rawliteral(
 <!DOCTYPE html>

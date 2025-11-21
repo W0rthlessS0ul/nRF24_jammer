@@ -9,9 +9,11 @@
 extern String logotype;
 
 bool SerialCommands();
-void jamHandler(const char* html, void (*jamFunc)(), const uint8_t* bitmap);
+void jamHandler(String htmlResponse, void (*jamFunc)(), const uint8_t* bitmap);
 void storeEEPROMAndSet(int index, int value, int &targetVar);
 void access_poin_off();
 void updateDisplay(int menuNum);
+void storeEEPROMAndReset(int index, int value, int &targetVar);
+void sendHtmlAndExecute(const char *htmlResponse, void (*action)());
 
 #endif
