@@ -3,7 +3,7 @@
   <h1> 🌟 nRF24 Jammer 🌟 </h1>
 </div>
 
-Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF interference with this unique project based on the ESP32 and NRF24 technology.
+Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF interference with this unique project based on the ESP32 and nRF24 technology.
 
 ## 📚 Table of Contents
 - [🎯 Possible Additions](#-possible-additions)
@@ -32,7 +32,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 -----
 
 ## 🚀 What Can You Do with This?
-This amazing jammer is built on the **ESP32** architecture integrated with **configurable numbers of NRF24** modules. With its extraordinary capabilities, you can effectively disrupt signals across different technologies including:
+This amazing jammer is built on the **ESP32** architecture integrated with **configurable numbers of nRF24** modules. With its extraordinary capabilities, you can effectively disrupt signals across different technologies including:
 - **Bluetooth** 🔊
 - **BLE** 📱
 - **Drones** 🚁
@@ -43,7 +43,7 @@ This amazing jammer is built on the **ESP32** architecture integrated with **con
 
 ## 📋 List of Components
 To bring this project to life, you will need the following components:
-1. **NRF24L01+PA+LNA modules** 🛠️
+1. **nRF24L01+PA+LNA modules** 🛠️
 2. **ESP-WROOM-32** ⚙️
 3. **16V capacitors** rated at **100µF** 🔋
 4. **128x32 or 128x64 OLED display** 📺 *(optional)*
@@ -69,7 +69,15 @@ To bring this project to life, you will need the following components:
 
 <ul><li>Disadvantage: Before first use, you must define the CE and CSN pins for each nRF24 module in the settings</li></ul>
 
-**Compact version**
+**Compact version (outdated)**
+
+    To migrate from Compact to Flexible:
+
+    1. Erase the device's memory 
+    2. Install the Flexible version firmware
+    3. In the Web interface configure the pins:
+    - CE: 16
+    - CSN: 15
 
 <ul><li>Number of modules: Uses only 1 nRF24 module, which significantly reduces the device's size</li></ul>
 
@@ -78,6 +86,15 @@ To bring this project to life, you will need the following components:
 <ul><li>Compatibility: It is possible to flash the Flexible version firmware onto a Compact hardware device. If you do this, you will need to manually configure the CE and CSN pins for the single module in the settings</li></ul>
 
 **Standard version (outdated)**
+
+    To migrate from Standard to Flexible:
+
+    1. Erase the device's memory 
+    2. Install the Flexible version firmware
+    3. Disconnect or reconnect the VSPI module according to the new Flexible wiring diagram
+    4. In the Web interface configure the pins:
+    - For the HSPI module: set CE to 16 and CSN to 15
+    - For the VSPI module: set CE and CSN according to the pinout table in the Flexible documentation (if reconnected to new pins)
 
 <ul><li>Number of modules: Used 2 nRF24 modules, which provided sufficient jamming power</li></ul>
 
@@ -175,9 +192,17 @@ To bring this project to life, you will need the following components:
 </details>
 
 <details>
-<summary><strong>Compact</strong></summary>
+<summary><strong>Compact (outdated)</strong></summary>
 
 <div style="margin-left: 20px;">
+
+    To migrate from Compact to Flexible:
+
+    1. Erase the device's memory 
+    2. Install the Flexible version firmware
+    3. In the Web interface configure the pins:
+    - CE: 16
+    - CSN: 15
 
 ### HSPI Connection
 | **Pin Name** | **ESP32 GPIO** | **Connection**       |
@@ -215,6 +240,15 @@ To bring this project to life, you will need the following components:
 <summary><strong>Standard (outdated)</strong></summary>
 
 <div style="margin-left: 20px;">
+
+    To migrate from Standard to Flexible:
+
+    1. Erase the device's memory 
+    2. Install the Flexible version firmware
+    3. Disconnect or reconnect the VSPI module according to the new Flexible wiring diagram
+    4. In the Web interface configure the pins:
+    - For the HSPI module: set CE to 16 and CSN to 15
+    - For the VSPI module: set CE and CSN according to the pinout table in the Flexible documentation (if reconnected to new pins)
 
 ### HSPI Connection
 | **Pin Name** | **ESP32 GPIO** | **Connection**       |
@@ -263,9 +297,19 @@ To bring this project to life, you will need the following components:
 </div>
 </details>
 <details>
-<summary><strong>Without OLED</strong></summary>
+<summary><strong>Without OLED (outdated)</strong></summary>
 
 <div style="margin-left: 20px;">
+
+    To migrate from Without OLED to Flexible:
+
+    1. Erase the device's memory 
+    2. Install the Flexible version firmware
+    3. Disconnect or reconnect the VSPI module according to the new Flexible wiring diagram
+    4. In the Web interface configure the pins:
+    - For the HSPI module: set CE to 16 and CSN to 15
+    - For the VSPI module: set CE and CSN according to the pinout table in the Flexible documentation (if reconnected to new pins)
+    5. Go to the Web interface and turn off the display in the settings
 
 ### HSPI Connection
 | **Pin Name** | **ESP32 GPIO** | **Connection**       |
