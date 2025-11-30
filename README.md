@@ -169,7 +169,7 @@ To bring this project to life, you will need the following components:
 | MISO         | GPIO 12       |                      |
 | IRQ          |                |                      |
 
-### OLED Connection
+### OLED Connection (**optional**)
 | **Pin Name** | **ESP32 GPIO** |
 |--------------|----------------|
 | VCC          | 3.3V          |
@@ -177,7 +177,7 @@ To bring this project to life, you will need the following components:
 | SCL          | GPIO 22       |
 | SDA          | GPIO 21       |
 
-### Button Connection
+### Button Connection (**optional**)
 | **Button Actions** | **ESP32 GPIO** |
 |--------------|----------------|
 | OK          | GPIO 25       |
