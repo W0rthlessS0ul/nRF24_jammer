@@ -21,6 +21,12 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 
 -----
 
+## 🗳️ Voting
+
+I would be extremely grateful if you vote for or against the new web interface [here](https://github.com/W0rthlessS0ul/nRF24_jammer/discussions/59)
+
+-----
+
 ## 🎯 Possible Additions
 - **Deauthentication attack**
 - **BLE spam**
