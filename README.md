@@ -355,9 +355,9 @@ Follow these steps to flash the firmware:
 
 | **Address** | **File Name**                             |
 |-------------|-------------------------------------------|
-| 0x1000      | nRF24_jammer_bootloader.bin              |
-| 0x8000      | nRF24_jammer_partitions.bin              |
-| 0x10000     | nRF24_jammer.bin                          |
+| 0x1000      | bootloader.bin              |
+| 0x8000      | partitions.bin              |
+| 0x10000     | firmware.bin                          |
 
 4. Click "Flash," and once the installation is complete, **restart your board** and enjoy using your jammer!
 
@@ -375,7 +375,7 @@ Follow these steps to flash the firmware:
 1. Download the firmware from the **[releases](https://github.com/W0rthlessS0ul/nRF24_jammer/releases)** section that corresponds to your display
 2. Turn on your device and open a web browser
 3. Navigate to the web interface at **192.168.4.1**
-4. Click on "**OTA**" and select the file "**nRF24_jammer.bin**" (`⚠️️ make sure not to choose the bootloader or partitions files`)
+4. Click on "**OTA**" and select the file "**firmware.bin**" (`⚠️️ make sure not to choose the bootloader or partitions files`)
 
 ![web_interface](img/gif/OTA.gif)
 
