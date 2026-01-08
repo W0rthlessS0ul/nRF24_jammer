@@ -35,7 +35,18 @@ void HSPI_init()
     radios[i]->setRetries(0, 0);
     radios[i]->setPayloadSize(5);
     radios[i]->setAddressWidth(3);
-    radios[i]->setPALevel(RF24_PA_MAX, true);
+    int nrf_pa_level;
+    switch (nrf_pa){
+      case 0:
+        nrf_pa_level = 3; break;
+      case 1:
+        nrf_pa_level = 2; break;
+      case 2:
+        nrf_pa_level = 1; break;
+      case 3:
+        nrf_pa_level = 0; break;
+    }
+    radios[i]->setPALevel(nrf_pa_level, true);
     radios[i]->setDataRate(RF24_2MBPS);
     radios[i]->setCRCLength(RF24_CRC_DISABLED);
   }
@@ -343,10 +354,10 @@ void zigbee_jam()
     {
       if (Separate_or_together == 0)
       {
-        int total_channels = 6;
+        int total_channels = 3;
         int base = total_channels / nrf24_count;
         int rem = total_channels % nrf24_count;
-        int ch = 5 + 5 * (channel - 11);
+        int ch = 4 + 5 * (channel - 11);
         for (int j = 0; j < nrf24_count; j++) {
           int count = base + (j < rem ? 1 : 0);
           for (int i = 0; i < count; i++, ch++) {

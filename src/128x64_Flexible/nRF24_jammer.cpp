@@ -4,6 +4,38 @@
 #include "options.h"
 #include "serial.h"
 
+void handleRoot() {
+  String main_html = FPSTR(html);
+  switch (bluetooth_jam_method)
+  {
+    case 0: main_html.replace("[||]EdItAbLe TeXt[||]", "21 channels"); break;
+    case 1: main_html.replace("[||]EdItAbLe TeXt[||]", "80 channels"); break;
+    case 2: main_html.replace("[||]EdItAbLe TeXt[||]", "80 channels"); break;
+  }
+  if (nrf24_count <= 0) {
+    main_html.replace("if (false) { //IsModulesConfigured", "if (true) { //IsModulesConfigured");
+  }
+
+  server.send(200, "text/html", main_html.c_str());
+
+  if (nrf24_count <= 0) {
+    main_html.replace("if (true) { //IsModulesConfigured", "if (false) { //IsModulesConfigured");
+  }
+  switch (bluetooth_jam_method)
+  {
+    case 0: main_html.replace("21 channels", "[||]EdItAbLe TeXt[||]"); break;
+    case 1: main_html.replace("80 channels", "[||]EdItAbLe TeXt[||]"); break;
+    case 2: main_html.replace("80 channels", "[||]EdItAbLe TeXt[||]"); break;
+  }
+}
+
+void HandleWebCommand(){
+  String command = server.arg("command");
+  command.trim();
+  command.toLowerCase();
+  CommandsHandler(command, true);
+}
+
 void updateDisplay(int menuNum) {
   display.clearDisplay();
   const uint8_t *bitmap = (menu_number == 0)   ? bitmap_bluetooth_jammer
@@ -43,7 +75,7 @@ void handlernRF24Pins() {
   }
   EEPROM.write(134, nrf24_count);
   EEPROM.commit();
-  server.send(200, "text/html", html);
+  handleRoot();
 }
 
 void handlenRF24Init() {
@@ -58,14 +90,6 @@ void handlenRF24Init() {
   }
 }
 
-void handleRoot() {
-  if (nrf24_count <= 0) {
-    server.send(200, "text/html", html_nrf24_settings);
-  } else {
-    server.send(200, "text/html", html);
-  }
-}
-
 void sendHtmlAndExecute(const char *htmlResponse, void (*action)() = nullptr) {
   server.send(200, "text/html", htmlResponse);
   delay(500);
@@ -75,20 +99,22 @@ void sendHtmlAndExecute(const char *htmlResponse, void (*action)() = nullptr) {
 
 void jamHandler(String htmlResponse, void (*jamFunction)(),
                 const unsigned char *bitmap) {
+  String main_html = FPSTR(html);
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
   display.display();
-  html_jam.replace("[||]EdItAbLe TeXt[||]", htmlResponse);
-  sendHtmlAndExecute(html_jam.c_str(), jamFunction);
-  html_jam.replace(htmlResponse, "[||]EdItAbLe TeXt[||]");
+  main_html.replace("[||]EdItAbLe TeXt[||]", htmlResponse);
+  sendHtmlAndExecute(main_html.c_str(), jamFunction);
+  main_html.replace(htmlResponse, "[||]EdItAbLe TeXt[||]");
   updateDisplay(menu_number);
 }
 
 void miscChannelsHandler() {
   int channel1 = server.arg("start").toInt();
   int channel2 = server.arg("stop").toInt();
-  html_jam.replace("[||]EdItAbLe TeXt[||]", "Jamming from "+String(channel1)+" to "+String(channel2));
-  sendHtmlAndExecute(html_jam.c_str()); 
+  String html = FPSTR(html_jam);
+  html.replace("[||]EdItAbLe TeXt[||]", "Jamming from "+String(channel1)+" to "+String(channel2));
+  sendHtmlAndExecute(html.c_str()); 
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println("Start");
@@ -106,7 +132,7 @@ void miscChannelsHandler() {
   display.println("Jamming Started");
   display.display();
   misc_jam(channel1, channel2);
-  html_jam.replace("Jamming from "+String(channel1)+" to "+String(channel2), "[||]EdItAbLe TeXt[||]");
+  html.replace("Jamming from "+String(channel1)+" to "+String(channel2), "[||]EdItAbLe TeXt[||]");
   updateDisplay(menu_number);
 }
 
@@ -116,14 +142,16 @@ void wifiChannelsHandler() {
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
   display.display();
-  html_jam.replace("[||]EdItAbLe TeXt[||]", "Jamming "+String(channel)+" WiFi Channel");
-  sendHtmlAndExecute(html_jam.c_str());
+  String html = FPSTR(html_jam);
+  html.replace("[||]EdItAbLe TeXt[||]", "Jamming "+String(channel)+" WiFi Channel");
+  sendHtmlAndExecute(html.c_str());
   wifi_channel(channel);
-  html_jam.replace("Jamming "+String(channel)+" WiFi Channel", "[||]EdItAbLe TeXt[||]");
+  html.replace("Jamming "+String(channel)+" WiFi Channel", "[||]EdItAbLe TeXt[||]");
   updateDisplay(menu_number);
 }
 
-void nRF24SettingsHandler(String htmlResponse){
+void nRF24SettingsHandler(){
+  String html = FPSTR(html_nrf24_settings);
   String modulesScript = "<script>window.currentModules = [";
   for (int i = 0; i < nrf24_count; i++) {
       modulesScript += "{ce: " + String(ce_pins[i]) + ", csn: " + String(csn_pins[i]) + "}";
@@ -132,33 +160,59 @@ void nRF24SettingsHandler(String htmlResponse){
       }
   }
   modulesScript += "];</script>";
-  htmlResponse.replace("</body>", modulesScript + "</body>");
-  sendHtmlAndExecute(htmlResponse.c_str());
+  html.replace("</body>", modulesScript + "</body>");
+  sendHtmlAndExecute(html.c_str());
 }
 
-void settingsHandler(String htmlResponse, int index, bool editable) {
+void settingsHandler(String htmlResponse, int index, bool editable, int SettingNumber) {
+  switch (SettingNumber)
+  {
+    case 0: break;
+    case 1: htmlResponse.replace("[||]EdItAbLe TeXt[||]", html_buttons_settings); break;
+    case 2: htmlResponse.replace("[||]EdItAbLe TeXt[||]", html_logo_settings); break;
+    case 3: htmlResponse.replace("[||]EdItAbLe TeXt[||]", html_misc_settings); break;
+    case 4: htmlResponse.replace("[||]EdItAbLe TeXt[||]", html_display_settings); break;
+    case 5: htmlResponse.replace("[||]EdItAbLe TeXt[||]", html_bluetooth_settings); break;
+    case 6: htmlResponse.replace("[||]EdItAbLe TeXt[||]", html_drone_settings); break;
+    case 7: htmlResponse.replace("[||]EdItAbLe TeXt[||]", html_separate_or_together); break;
+    case 8: htmlResponse.replace("[||]EdItAbLe TeXt[||]", html_nrf_pa_settings); break;
+  }
   if (index == 1010110){
     htmlResponse.replace("<div class=\"version-badge\">version</div>", "<div class=\"version-badge\">"+Version_Number+"</div>");
   }
   else if (editable)
-    htmlResponse.replace("<!-- "+String(index)+" --><button class=\"button\"", "<!-- "+String(index)+" --><button class=\"button_installed\"");
+    htmlResponse.replace("<!-- "+String(index)+" --><button class=\"btn\"", "<!-- "+String(index)+" --><button class=\"btn btn_installed\"");
+
   sendHtmlAndExecute(htmlResponse.c_str());
+
+  switch (SettingNumber)
+  {
+    case 0: break;
+    case 1: htmlResponse.replace(html_buttons_settings, "[||]EdItAbLe TeXt[||]"); break;
+    case 2: htmlResponse.replace(html_logo_settings, "[||]EdItAbLe TeXt[||]"); break;
+    case 3: htmlResponse.replace(html_misc_settings, "[||]EdItAbLe TeXt[||]"); break;
+    case 4: htmlResponse.replace(html_display_settings, "[||]EdItAbLe TeXt[||]"); break;
+    case 5: htmlResponse.replace(html_bluetooth_settings, "[||]EdItAbLe TeXt[||]"); break;
+    case 6: htmlResponse.replace(html_drone_settings, "[||]EdItAbLe TeXt[||]"); break;
+    case 7: htmlResponse.replace(html_separate_or_together, "[||]EdItAbLe TeXt[||]"); break;
+    case 8: htmlResponse.replace(html_nrf_pa_settings, "[||]EdItAbLe TeXt[||]"); break;
+  }
   if (index == 1010110){
     htmlResponse.replace("<div class=\"version-badge\">"+Version_Number+"</div>", "<div class=\"version-badge\">version</div>");
   }
   else if (editable)
-    htmlResponse.replace("<!-- "+String(index)+" --><button class=\"button_installed\"", "<!-- "+String(index)+" --><button class=\"button\"");
+    htmlResponse.replace("<!-- "+String(index)+" --><button class=\"btn btn_installed\"", "<!-- "+String(index)+" --><button class=\"btn\"");
 }
 
 void storeEEPROMAndReset(int index, int value, int &targetVar){
-  settingsHandler(html_pls_reboot, 0, false);
+  settingsHandler(html_pls_reboot, 0, false, 0);
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE);
   display.display();
   EEPROM.write(index, value);
   EEPROM.commit();
   targetVar = value;
-  sendHtmlAndExecute(html);
+  handleRoot();
   ESP.restart();
 }
 
@@ -166,7 +220,7 @@ void storeEEPROMAndSet(int index, int value, int &targetVar) {
   EEPROM.write(index, value);
   EEPROM.commit();
   targetVar = value;
-  sendHtmlAndExecute(html);
+  handleRoot();
 }
 
 void registerRoute(const char *path, void (*handler)()) {
@@ -247,16 +301,16 @@ void handleResetWiFiSettings() {
 void handleFileUpload() {
   HTTPUpload &upload = server.upload();
   static unsigned long lastUpdate = 0;
-  const unsigned long updateInterval = 100;
+  const unsigned long updateInterval = 10;
 
   if (upload.status == UPLOAD_FILE_START) {
     Serial.printf("Update: %s\n", upload.filename.c_str());
     if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
       Update.printError(Serial);
-      server.send(200, "text/plain", "Update Failed");
       return;
     } else {
-      server.sendContent(html_upload_progress);
+      server.sendHeader("Connection", "close");
+      server.sendHeader("Access-Control-Allow-Origin", "*");
       lastUpdate = millis();
     }
   } else if (upload.status == UPLOAD_FILE_WRITE) {
@@ -266,26 +320,11 @@ void handleFileUpload() {
 
     if (millis() - lastUpdate >= updateInterval) {
       lastUpdate = millis();
-      int progress = (100.0 * Update.progress() / Update.size());
-      server.sendContent(String("<script>updateProgress(") + progress +
-                         ");</script>");
     }
   } else if (upload.status == UPLOAD_FILE_END) {
-    if (Update.end(true)) {
-      Serial.printf("Update Success: %u bytes\n", upload.totalSize);
-      server.sendContent(String("<script>updateProgress(100); "
-                                "document.getElementById('status').innerHTML = "
-                                "'Update Success';</script>"));
-      display.clearDisplay();
-      display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE);
-      display.display();
-      delay(1000);
-      ESP.restart();
-    } else {
-      Update.printError(Serial);
-      server.sendContent("<script>document.getElementById('status').innerHTML "
-                         "= 'Update Failed';</script>");
-    }
+  } else if (upload.status == UPLOAD_FILE_ABORTED) {
+    Update.abort();
+    Serial.println("Update aborted");
   }
 }
 
@@ -555,7 +594,7 @@ void wifi_select() {
 }
 
 void access_poin_off() {
-  settingsHandler(html_pls_reboot, 0, false);
+  settingsHandler(html_pls_reboot, 0, false, 0);
   storeEEPROMAndSet(8, 1, access_point);
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE);
@@ -578,12 +617,11 @@ void setup() {
 
   initWiFiSettings();
 
-  // Load settings
   bluetooth_jam_method = EEPROM.read(0);
   drone_jam_method = EEPROM.read(1);
   display_setting = EEPROM.read(2);
   wifi_jam_method = EEPROM.read(3);
-  zigbee_jam_method = EEPROM.read(5);
+  nrf_pa = EEPROM.read(5);
   misc_jam_method = EEPROM.read(6);
   logo = EEPROM.read(7);
   access_point = EEPROM.read(8);
@@ -596,88 +634,76 @@ void setup() {
 
     WiFi.softAP(current_ssid.c_str(), current_password.c_str());
 
-    // Register routes
     registerRoute("/", handleRoot);
-    registerRoute("/bluetooth_jam", []() {
-      jamHandler(String("Bluetooth Jamming"), bluetooth_jam, bitmap_bluetooth_jam);
-    });
-    registerRoute("/drone_jam", []() {
-      jamHandler(String("Drone Jamming"), drone_jam, bitmap_drone_jam);
-    });
-    registerRoute("/wifi_jam", []() {
-      jamHandler(String("WiFi Jamming"), wifi_jam, bitmap_wifi_jam);
-    });
-    registerRoute("/ble_jam",
-                  []() { jamHandler(String("BLE Jamming"), ble_jam, bitmap_ble_jam); });
-    registerRoute("/zigbee_jam", []() {
-      jamHandler(String("Zigbee Jamming"), zigbee_jam, bitmap_zigbee_jam);
-    });
-    registerRoute("/misc_jammer",
-                  []() { sendHtmlAndExecute(html_misc_jammer); });
+    registerRoute("/bluetooth_jam", []() { jamHandler(String("Bluetooth Jamming"), bluetooth_jam, bitmap_bluetooth_jam); });
+    registerRoute("/drone_jam", []() { jamHandler(String("Drone Jamming"), drone_jam, bitmap_drone_jam); });
+    registerRoute("/wifi_jam", []() { jamHandler(String("WiFi Jamming"), wifi_jam, bitmap_wifi_jam); });
+    registerRoute("/ble_jam", []() { jamHandler(String("BLE Jamming"), ble_jam, bitmap_ble_jam); });
+    registerRoute("/zigbee_jam", []() { jamHandler(String("Zigbee Jamming"), zigbee_jam, bitmap_zigbee_jam); });
+    registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
+    registerRoute("/web_serial", []() { sendHtmlAndExecute(html_webserial); });
     registerRoute("/misc_jam", miscChannelsHandler);
     registerRoute("/wifi_selected_jam", wifiChannelsHandler);
 
-    registerRoute("/setting_display",
-                  []() { settingsHandler(html_display_settings, display_setting, true); });
-    registerRoute("/setting_bluetooth_jam",
-                  []() { settingsHandler(html_bluetooth_setings, bluetooth_jam_method, true); });
-    registerRoute("/setting_drone_jam",
-                  []() { settingsHandler(html_drone_setings, drone_jam_method, true); });
-    registerRoute("/setting_separate_together",
-                  []() { settingsHandler(html_separate_or_together, Separate_or_together, true); });
-    registerRoute("/setting_misc_jam",
-                  []() { settingsHandler(html_misc_setings, misc_jam_method, true); });
-    registerRoute("/setting_logo",
-                  []() { settingsHandler(html_logo_setings, logo, true); });
-    registerRoute("/setting_buttons",
-                  []() { settingsHandler(html_buttons_settings, buttons, true); });
-    registerRoute("/OTA", []() { settingsHandler(html_ota, 1010110, false); });
-    registerRoute("/wifi_select", []() { settingsHandler(html_wifi_select, 0, false); });
-    registerRoute("/wifi_channel",
-                  []() { settingsHandler(html_wifi_channel, 0, false); });
-    registerRoute("/wifi_settings",
-                  []() { settingsHandler(html_wifi_settings, wifi_jam_method, true); });
-    registerRoute("/nrf24_settings",
-                  []() { nRF24SettingsHandler(html_nrf24_settings); });
+    registerRoute("/setting_display", []() { settingsHandler(html_settings, display_setting, true, 4); });
+    registerRoute("/setting_bluetooth_jam", []() { settingsHandler(html_settings, bluetooth_jam_method, true, 5); });
+    registerRoute("/setting_drone_jam", []() { settingsHandler(html_settings, drone_jam_method, true, 6); });
+    registerRoute("/setting_separate_together", []() { settingsHandler(html_settings, Separate_or_together, true, 7); });
+    registerRoute("/setting_misc_jam", []() { settingsHandler(html_settings, misc_jam_method, true, 3); });
+    registerRoute("/setting_logo", []() { settingsHandler(html_settings, logo, true, 2); });
+    registerRoute("/setting_buttons", []() { settingsHandler(html_settings, buttons, true, 1); });
+    registerRoute("/setting_nrf_pa", []() { settingsHandler(html_settings, nrf_pa, true, 8); });
+    
+    registerRoute("/OTA", []() { settingsHandler(html_ota, 1010110, false, 0); });
+    registerRoute("/wifi_select", []() { settingsHandler(html_wifi_select, 0, false, 0); });
+    registerRoute("/wifi_channel", []() { settingsHandler(html_wifi_channel, 0, false, 0); });
+    registerRoute("/wifi_settings", []() { settingsHandler(html_wifi_settings, wifi_jam_method, true, 0); });
+    registerRoute("/nrf24_settings", []() { nRF24SettingsHandler(); });
+
+    registerRoute("/WebCommand", HandleWebCommand);
 
     server.on(
-        "/update", HTTP_POST,
-        []() {
-          server.send(200, "text/plain",
-                      (Update.end() ? "Update Success" : "Update Failed"));
-        },
-        handleFileUpload);
+          "/update", HTTP_POST,
+          []() {
+            if (Update.end(true)) {
+              Serial.printf("Update Success: %u bytes\n", Update.size());
+              server.send(200, "text/plain", "Update Success");
+              delay(100);
+              display.clearDisplay();
+              display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE);
+              display.display();
+              delay(2000);
+              ESP.restart();
+            } else {
+              Update.printError(Serial);
+              server.send(500, "text/plain", "Update Failed");
+            }
+          },
+          handleFileUpload);
+    
     server.on("/save_wifi_settings", handleSaveWiFiSettings);
     server.on("/reset_wifi_settings", handleResetWiFiSettings);
 
-    registerRoute("/bluetooth_method_0",
-                  []() { storeEEPROMAndSet(0, 0, bluetooth_jam_method); });
-    registerRoute("/bluetooth_method_1",
-                  []() { storeEEPROMAndSet(0, 1, bluetooth_jam_method); });
-    registerRoute("/bluetooth_method_2",
-                  []() { storeEEPROMAndSet(0, 2, bluetooth_jam_method); });
-    registerRoute("/drone_method_0",
-                  []() { storeEEPROMAndSet(1, 0, drone_jam_method); });
-    registerRoute("/drone_method_1",
-                  []() { storeEEPROMAndSet(1, 1, drone_jam_method); });
-    registerRoute("/separate_or_together_method_0",
-                  []() { storeEEPROMAndSet(4, 0, Separate_or_together); });
-    registerRoute("/separate_or_together_method_1",
-                  []() { storeEEPROMAndSet(4, 1, Separate_or_together); });
-    registerRoute("/misc_method_0",
-                  []() { storeEEPROMAndSet(6, 0, misc_jam_method); });
-    registerRoute("/misc_method_1",
-                  []() { storeEEPROMAndSet(6, 1, misc_jam_method); });
+    registerRoute("/bluetooth_method_0", []() { storeEEPROMAndSet(0, 0, bluetooth_jam_method); });
+    registerRoute("/bluetooth_method_1", []() { storeEEPROMAndSet(0, 1, bluetooth_jam_method); });
+    registerRoute("/bluetooth_method_2", []() { storeEEPROMAndSet(0, 2, bluetooth_jam_method); });
+    registerRoute("/drone_method_0", []() { storeEEPROMAndSet(1, 0, drone_jam_method); });
+    registerRoute("/drone_method_1", []() { storeEEPROMAndSet(1, 1, drone_jam_method); });
+    registerRoute("/separate_or_together_method_0", []() { storeEEPROMAndSet(4, 0, Separate_or_together); });
+    registerRoute("/separate_or_together_method_1", []() { storeEEPROMAndSet(4, 1, Separate_or_together); });
+    registerRoute("/misc_method_0", []() { storeEEPROMAndSet(6, 0, misc_jam_method); });
+    registerRoute("/misc_method_1", []() { storeEEPROMAndSet(6, 1, misc_jam_method); });
     registerRoute("/logo_on", []() { storeEEPROMAndSet(7, 0, logo); });
     registerRoute("/logo_off", []() { storeEEPROMAndSet(7, 1, logo); });
     registerRoute("/enable_display", []() { storeEEPROMAndReset(2, 0, display_setting); });
     registerRoute("/disable_display", []() { storeEEPROMAndReset(2, 1, display_setting); });
-    registerRoute("/button_method_0",
-                  []() { storeEEPROMAndSet(9, 0, buttons); });
-    registerRoute("/button_method_1",
-                  []() { storeEEPROMAndSet(9, 1, buttons); });
-    registerRoute("/button_method_2",
-                  []() { storeEEPROMAndSet(9, 2, buttons); });
+    registerRoute("/button_method_0", []() { storeEEPROMAndSet(9, 0, buttons); });
+    registerRoute("/button_method_1", []() { storeEEPROMAndSet(9, 1, buttons); });
+    registerRoute("/button_method_2", []() { storeEEPROMAndSet(9, 2, buttons); });
+    registerRoute("/nrf_pa_0", []() { storeEEPROMAndSet(5, 0, nrf_pa); });
+    registerRoute("/nrf_pa_1", []() { storeEEPROMAndSet(5, 1, nrf_pa); });
+    registerRoute("/nrf_pa_2", []() { storeEEPROMAndSet(5, 2, nrf_pa); });
+    registerRoute("/nrf_pa_3", []() { storeEEPROMAndSet(5, 3, nrf_pa); });
     registerRoute("/access_point_off", []() { access_poin_off(); });
     registerRoute("/set_nrf24_pins", []() { handlernRF24Pins(); });
 
@@ -731,8 +757,12 @@ void executeAction(int menuNum) {
       delay(100);
     }
   }
-  if (menuNum == 5)
+  if (menuNum == 5) {
     misc();
+    updateDisplay(menu_number);
+    return;
+  } 
+
   display.clearDisplay();
   const uint8_t *bitmap = (menu_number == 0)   ? bitmap_bluetooth_jam
                           : (menu_number == 1) ? bitmap_drone_jam
@@ -745,24 +775,24 @@ void executeAction(int menuNum) {
   display.display();
 
   switch (menu_number) {
-  case 0:
-    bluetooth_jam();
-    break;
-  case 1:
-    drone_jam();
-    break;
-  case 2:
-    wifi_select();
-    break;
-  case 3:
-    ble_jam();
-    break;
-  case 4:
-    zigbee_jam();
-    break;
-  case 6:
-    storeEEPROMAndSet(8, 0, logo);
-    break;
+    case 0:
+      bluetooth_jam();
+      break;
+    case 1:
+      drone_jam();
+      break;
+    case 2:
+      wifi_select();
+      break;
+    case 3:
+      ble_jam();
+      break;
+    case 4:
+      zigbee_jam();
+      break;
+    case 6:
+      storeEEPROMAndSet(8, 0, logo);
+      break;
   }
   if (menuNum != 6)
     updateDisplay(menuNum);

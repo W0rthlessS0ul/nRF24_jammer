@@ -8,7 +8,9 @@
 
 extern String logotype;
 
-bool SerialCommands();
+extern bool CommandsHandler(String command, bool web_command); 
+extern bool SerialCommands();
+
 void jamHandler(String htmlResponse, void (*jamFunc)(), const uint8_t* bitmap);
 void storeEEPROMAndSet(int index, int value, int &targetVar);
 void access_poin_off();
