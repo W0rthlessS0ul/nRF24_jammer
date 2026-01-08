@@ -372,7 +372,7 @@ void zigbee_jam()
       }
       else
       {
-        for (int ch = 5 + 5 * (channel - 11); ch < (5 + 5 * (channel - 11)) + 6; ch++)
+        for (int ch = 4 + 5 * (channel - 11); ch <= (5 + 5 * (channel - 11)) + 2; ch++)
         {
           for (int j = 0; j < nrf24_count; j++)
           {
