@@ -21,12 +21,6 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 
 -----
 
-## 🗳️ Voting
-
-I would be extremely grateful if you vote for or against the new web interface [here](https://github.com/W0rthlessS0ul/nRF24_jammer/discussions/59)
-
------
-
 ## 🎯 Possible Additions
 - **Deauthentication attack**
 - **BLE spam**
@@ -383,6 +377,8 @@ Follow these steps to flash the firmware:
 3. Navigate to the web interface at **192.168.4.1**
 4. Click on "**OTA**" and select the file "**nRF24_jammer.bin**" (`⚠️️ make sure not to choose the bootloader or partitions files`)
 
+![web_interface](img/gif/OTA.gif)
+
 </div>
 </details>
 
@@ -495,6 +491,9 @@ Follow these steps to flash the firmware:
 
 ### Zigbee Jam Spectrum
 ![Zigbee Jam Spectrum](img/gif/zigbee_jam_spctr.gif)
+
+### Misc Jam Spectrum
+![Misc Jam Spectrum](img/gif/misc_jam_spctr.gif)
 
 -----
 
