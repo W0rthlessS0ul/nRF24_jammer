@@ -6,7 +6,7 @@ GButton buttNext(26);
 GButton buttPrevious(27);
 const char *default_ssid = "jammer";
 const char *default_password = "W0rthlessS0ul";
-String Version_Number = "V2.8.0";
+String Version_Number = "V2.9.0";
 String Version_Name = "Flexible";
 
 //  Unchangeable parameters
@@ -21,7 +21,7 @@ int bluetooth_jam_method;
 int drone_jam_method;
 int display_setting;
 int wifi_jam_method;
-int zigbee_jam_method;
+int nrf_pa;
 int Separate_or_together;
 int misc_jam_method;
 int logo;

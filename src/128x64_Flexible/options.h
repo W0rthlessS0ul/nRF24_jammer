@@ -29,7 +29,7 @@ extern int bluetooth_jam_method;
 extern int drone_jam_method;
 extern int display_setting;
 extern int wifi_jam_method;
-extern int zigbee_jam_method;
+extern int nrf_pa;
 extern int Separate_or_together;
 extern int misc_jam_method;
 extern int logo;
