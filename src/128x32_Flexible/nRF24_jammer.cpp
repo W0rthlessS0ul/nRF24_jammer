@@ -99,13 +99,13 @@ void sendHtmlAndExecute(const char *htmlResponse, void (*action)() = nullptr) {
 
 void jamHandler(String htmlResponse, void (*jamFunction)(),
                 const unsigned char *bitmap) {
-  String main_html = FPSTR(html);
+  String html = FPSTR(html_jam);
   display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
+  display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
   display.display();
-  main_html.replace("[||]EdItAbLe TeXt[||]", htmlResponse);
-  sendHtmlAndExecute(main_html.c_str(), jamFunction);
-  main_html.replace(htmlResponse, "[||]EdItAbLe TeXt[||]");
+  html.replace("[||]EdItAbLe TeXt[||]", htmlResponse);
+  sendHtmlAndExecute(html.c_str(), jamFunction);
+  html.replace(htmlResponse, "[||]EdItAbLe TeXt[||]");
   updateDisplay(menu_number);
 }
 
