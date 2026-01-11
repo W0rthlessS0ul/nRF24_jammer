@@ -10,7 +10,7 @@
 #define BUSIO_HAS_HW_SPI
 #else
 // SW SPI ONLY
-enum { SPI_MODE0, SPI_MODE1, SPI_MODE2, _SPI_MODE4 };
+enum { SPI_MODE0, SPI_MODE1, SPI_MODE2, SPI_MODE3 };
 typedef uint8_t SPIClass;
 #endif
 

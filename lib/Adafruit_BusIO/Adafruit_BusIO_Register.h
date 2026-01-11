@@ -77,8 +77,13 @@ public:
   void setAddress(uint16_t address);
   void setAddressWidth(uint16_t address_width);
 
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_SERIAL)
   void print(Stream *s = &Serial);
   void println(Stream *s = &Serial);
+#else
+  void print(Stream *s);
+  void println(Stream *s);
+#endif
 
 private:
   Adafruit_I2CDevice *_i2cdevice;

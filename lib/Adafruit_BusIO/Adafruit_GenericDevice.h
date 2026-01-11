@@ -27,6 +27,7 @@ public:
       busio_genericdevice_writereg_t writereg_func = nullptr);
 
   bool begin(void);
+  void end(void);
 
   bool read(uint8_t *buffer, size_t len);
   bool write(const uint8_t *buffer, size_t len);

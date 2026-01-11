@@ -2,6 +2,24 @@
 
 // #define DEBUG_SERIAL Serial
 
+#ifdef BUSIO_USE_FAST_PINIO
+#define BUSIO_SET_CLOCK_LOW() (*clkPort = *clkPort & ~clkPinMask)
+#define BUSIO_SET_CLOCK_HIGH() (*clkPort = *clkPort | clkPinMask)
+#define BUSIO_READ_MISO() (*misoPort & misoPinMask)
+#define BUSIO_WRITE_MOSI(value)                                                \
+  do {                                                                         \
+    if (value)                                                                 \
+      *mosiPort = *mosiPort | mosiPinMask;                                     \
+    else                                                                       \
+      *mosiPort = *mosiPort & ~mosiPinMask;                                    \
+  } while (0)
+#else
+#define BUSIO_SET_CLOCK_LOW() digitalWrite(_sck, LOW)
+#define BUSIO_SET_CLOCK_HIGH() digitalWrite(_sck, HIGH)
+#define BUSIO_READ_MISO() digitalRead(_miso)
+#define BUSIO_WRITE_MOSI(value) digitalWrite(_mosi, value)
+#endif
+
 /*!
  *    @brief  Create an SPI device with the given CS pin and settings
  *    @param  cspin The arduino pin number to use for chip select
@@ -181,84 +199,70 @@ void Adafruit_SPIDevice::transfer(uint8_t *buffer, size_t len) {
       if (_dataMode == SPI_MODE0 || _dataMode == SPI_MODE2) {
         towrite = send & b;
         if ((_mosi != -1) && (lastmosi != towrite)) {
-#ifdef BUSIO_USE_FAST_PINIO
-          if (towrite)
-            *mosiPort = *mosiPort | mosiPinMask;
-          else
-            *mosiPort = *mosiPort & ~mosiPinMask;
-#else
-          digitalWrite(_mosi, towrite);
-#endif
+          BUSIO_WRITE_MOSI(towrite);
           lastmosi = towrite;
         }
 
-#ifdef BUSIO_USE_FAST_PINIO
-        *clkPort = *clkPort | clkPinMask; // Clock high
-#else
-        digitalWrite(_sck, HIGH);
-#endif
+        BUSIO_SET_CLOCK_HIGH();
 
         if (bitdelay_us) {
           delayMicroseconds(bitdelay_us);
         }
 
         if (_miso != -1) {
-#ifdef BUSIO_USE_FAST_PINIO
-          if (*misoPort & misoPinMask) {
-#else
-          if (digitalRead(_miso)) {
-#endif
+          if (BUSIO_READ_MISO())
+            reply |= b;
+        }
+
+        BUSIO_SET_CLOCK_LOW();
+
+      } else if (_dataMode == SPI_MODE3) {
+
+        if (_mosi != -1) { // transmit on falling edge
+          BUSIO_WRITE_MOSI(send & b);
+        }
+
+        BUSIO_SET_CLOCK_LOW();
+
+        if (bitdelay_us) {
+          delayMicroseconds(bitdelay_us);
+        }
+
+        BUSIO_SET_CLOCK_HIGH();
+
+        if (bitdelay_us) {
+          delayMicroseconds(bitdelay_us);
+        }
+
+        if (_miso != -1) { // read on rising edge
+          if (BUSIO_READ_MISO()) {
             reply |= b;
           }
         }
 
-#ifdef BUSIO_USE_FAST_PINIO
-        *clkPort = *clkPort & ~clkPinMask; // Clock low
-#else
-        digitalWrite(_sck, LOW);
-#endif
-      } else { // if (_dataMode == SPI_MODE1 || _dataMode == SPI_MODE3)
+      } else { // || _dataMode == SPI_MODE1)
 
-#ifdef BUSIO_USE_FAST_PINIO
-        *clkPort = *clkPort | clkPinMask; // Clock high
-#else
-        digitalWrite(_sck, HIGH);
-#endif
+        BUSIO_SET_CLOCK_HIGH();
 
         if (bitdelay_us) {
           delayMicroseconds(bitdelay_us);
         }
 
         if (_mosi != -1) {
-#ifdef BUSIO_USE_FAST_PINIO
-          if (send & b)
-            *mosiPort = *mosiPort | mosiPinMask;
-          else
-            *mosiPort = *mosiPort & ~mosiPinMask;
-#else
-          digitalWrite(_mosi, send & b);
-#endif
+          BUSIO_WRITE_MOSI(send & b);
         }
 
-#ifdef BUSIO_USE_FAST_PINIO
-        *clkPort = *clkPort & ~clkPinMask; // Clock low
-#else
-        digitalWrite(_sck, LOW);
-#endif
+        BUSIO_SET_CLOCK_LOW();
 
         if (_miso != -1) {
-#ifdef BUSIO_USE_FAST_PINIO
-          if (*misoPort & misoPinMask) {
-#else
-          if (digitalRead(_miso)) {
-#endif
+          if (BUSIO_READ_MISO()) {
             reply |= b;
           }
         }
       }
-      if (_miso != -1) {
-        buffer[i] = reply;
-      }
+    }
+    if (_miso != -1) {
+      buffer[i] = reply;
     }
   }
   return;
