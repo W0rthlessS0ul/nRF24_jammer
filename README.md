@@ -16,6 +16,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [🔌 Serial Interface](#-Serial-Interface)
 - [🎉 Final Outcome](#-final-outcome)
 - [🙏 Acknowledgments](#-acknowledgments)
+- [🤝 Project Supporters](#-project-supporters)
 - [❤️ Support the project](#-support-the-project)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
 
@@ -500,6 +501,14 @@ Follow these steps to flash the firmware:
 ## 🙏 Acknowledgments
 - [smoochiee](https://github.com/smoochiee) - **for the main logic of the jammer.**
 - [samukas81](https://github.com/samukas81) - **for suggesting ideas.**
+
+-----
+
+## 🤝 Project Supporters
+
+| **Supporter**                                  | **Contribution**|
+|------------------------------------------------|-----------------|
+|  [@sergey2735](https://github.com/sergey2735)  |    40.7 ADA     |
 
 -----
 
