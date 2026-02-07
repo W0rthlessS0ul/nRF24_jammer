@@ -11,7 +11,7 @@ String Version_Name = "Flexible";
 
 //  Unchangeable parameters
 uint8_t SCREEN_WIDTH = 128;
-uint8_t SCREEN_HEIGHT = 32;
+uint8_t SCREEN_HEIGHT = 64;
 int8_t OLED_RESET = -1;
 size_t EEPROM_SIZE = 512;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -38,5 +38,7 @@ const char jam_text[] = "xxxxxxxxxxxxxxxx";
 RF24 *radios[30];
 int ce_pins[30];
 int csn_pins[30];
+int WiFiScanChannels[14];
 int nrf24_count;
 WebServer server(80);
+DNSServer dnsServer;

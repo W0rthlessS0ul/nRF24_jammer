@@ -7,6 +7,7 @@
 #include "Adafruit_SSD1306.h"
 #include "GyverButton.h"
 #include "WiFi.h"
+#include "DNSServer.h"
 #include "WebServer.h"
 #include "RF24.h"
 
@@ -45,7 +46,9 @@ extern const char jam_text[17];
 extern RF24 *radios[30];
 extern int ce_pins[30];
 extern int csn_pins[30];
+extern int WiFiScanChannels[14];
 extern int nrf24_count;
 extern WebServer server;
+extern DNSServer dnsServer;
 
 #endif

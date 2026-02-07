@@ -53,62 +53,6 @@ To bring this project to life, you will need the following components:
 -----
 
 ## 🧑‍🔧 Let's Get Started with Soldering!
-<details>
-<summary><strong>With OLED</strong></summary>
-
-<div style="margin-left: 20px;">
-
-## Differences between versions
-
-**Flexible version**
-
-<ul><li>Number of modules: Supports up to 30 nRF24 modules (a software limit). In practice, the maximum number depends on the number of available GPIO pins on the microcontroller</li></ul>
-
-<ul><li>Advantage: All modules share common MOSI, MISO, and SCK lines, which saves pins and simplifies wiring. This also ensures that access to the display remains available during operation</li></ul>
-
-<ul><li>Flexibility: You can choose any number of modules within the limit, optimizing the device for your specific tasks</li></ul>
-
-<ul><li>Disadvantage: Before first use, you must define the CE and CSN pins for each nRF24 module in the settings</li></ul>
-
-**Compact version (outdated)**
-
-    To migrate from Compact to Flexible:
-
-    1. Erase the device's memory 
-    2. Install the Flexible version firmware
-    3. In the Web interface configure the pins:
-    - CE: 16
-    - CSN: 15
-
-<ul><li>Number of modules: Uses only 1 nRF24 module, which significantly reduces the device's size</li></ul>
-
-<ul><li>Disadvantage: Smaller jamming range and lower effectiveness compared to other versions</li></ul>
-
-<ul><li>Compatibility: It is possible to flash the Flexible version firmware onto a Compact hardware device. If you do this, you will need to manually configure the CE and CSN pins for the single module in the settings</li></ul>
-
-**Standard version (outdated)**
-
-    To migrate from Standard to Flexible:
-
-    1. Erase the device's memory 
-    2. Install the Flexible version firmware
-    3. Disconnect or reconnect the VSPI module according to the new Flexible wiring diagram
-    4. In the Web interface configure the pins:
-    - For the HSPI module: set CE to 16 and CSN to 15
-    - For the VSPI module: set CE and CSN according to the pinout table in the Flexible documentation (if reconnected to new pins)
-
-<ul><li>Number of modules: Used 2 nRF24 modules, which provided sufficient jamming power</li></ul>
-
-<ul><li>Critical Flaw: Due to a pin conflict between the nRF24 modules and the display, the user interface became unresponsive after jamming was started. This made it impossible to stop the device via the display, requiring a full power cycle to shut it down</li></ul>
-
-<ul><li>Status: Starting from version V2.6.0, this version is no longer supported or updated. It is highly recommended to switch to the Flexible version</li></ul>
-
----
-
-<details>
-<summary><strong>Flexible</strong></summary>
-
-<div style="margin-left: 20px;">
 
 ### Connecting First nRF24 module (**optional**)
 | **Pin Name** | **ESP32 GPIO** | **Connection**       |
@@ -189,158 +133,6 @@ To bring this project to life, you will need the following components:
 
 ###### In all configurations the same SCK, MOSI, and MISO pins are used. This is not a mistake—SPI interfaces can share clock and data lines, while proper operation is ensured by separate control signals (CSN and CE)
 
-</div>
-</details>
-
-<details>
-<summary><strong>Compact (outdated)</strong></summary>
-
-<div style="margin-left: 20px;">
-
-    To migrate from Compact to Flexible:
-
-    1. Erase the device's memory 
-    2. Install the Flexible version firmware
-    3. In the Web interface configure the pins:
-    - CE: 16
-    - CSN: 15
-
-### HSPI Connection
-| **Pin Name** | **ESP32 GPIO** | **Connection**       |
-|--------------|----------------|----------------------|
-| VCC          | 3.3V          | (+) capacitor        |
-| GND          | GND           | (-) capacitor        |
-| CE           | GPIO 16       |                      |
-| CSN          | GPIO 15       |                      |
-| SCK          | GPIO 14       |                      |
-| MOSI         | GPIO 13       |                      |
-| MISO         | GPIO 12       |                      |
-| IRQ          |                |                      |
-
-### OLED Connection
-| **Pin Name** | **ESP32 GPIO** |
-|--------------|----------------|
-| VCC          | 3.3V          |
-| GND          | GND           |
-| SCL          | GPIO 22       |
-| SDA          | GPIO 21       |
-
-### Button Connection
-| **Button Actions** | **ESP32 GPIO** |
-|--------------|----------------|
-| OK          | GPIO 25       |
-| NEXT (Optional)             | GPIO 26       |
-| PREVIOUS (Optional)            | GPIO 27       |
-
-![Compact](schemes/Compact/scheme.png)
-
-</div>
-</details>
-
-<details>
-<summary><strong>Standard (outdated)</strong></summary>
-
-<div style="margin-left: 20px;">
-
-    To migrate from Standard to Flexible:
-
-    1. Erase the device's memory 
-    2. Install the Flexible version firmware
-    3. Disconnect or reconnect the VSPI module according to the new Flexible wiring diagram
-    4. In the Web interface configure the pins:
-    - For the HSPI module: set CE to 16 and CSN to 15
-    - For the VSPI module: set CE and CSN according to the pinout table in the Flexible documentation (if reconnected to new pins)
-
-### HSPI Connection
-| **Pin Name** | **ESP32 GPIO** | **Connection**       |
-|--------------|----------------|----------------------|
-| VCC          | 3.3V          | (+) capacitor        |
-| GND          | GND           | (-) capacitor        |
-| CE           | GPIO 16       |                      |
-| CSN          | GPIO 15       |                      |
-| SCK          | GPIO 14       |                      |
-| MOSI         | GPIO 13       |                      |
-| MISO         | GPIO 12       |                      |
-| IRQ          |                |                      |
-
-### VSPI Connection
-| **Pin Name** | **ESP32 GPIO** | **Connection**       |
-|--------------|----------------|----------------------|
-| VCC          | 3.3V          | (+) capacitor        |
-| GND          | GND           | (-) capacitor        |
-| CE           | GPIO 22       |                      |
-| CSN          | GPIO 21       |                      |
-| SCK          | GPIO 18       |                      |
-| MOSI         | GPIO 23       |                      |
-| MISO         | GPIO 19       |                      |
-| IRQ          |                |                      |
-
-### OLED Connection
-| **Pin Name** | **ESP32 GPIO** |
-|--------------|----------------|
-| VCC          | 3.3V          |
-| GND          | GND           |
-| SCL          | GPIO 22       |
-| SDA          | GPIO 21       |
-
-### Button Connection
-| **Button Actions** | **ESP32 GPIO** |
-|--------------|----------------|
-| OK          | GPIO 25       |
-| NEXT (Optional)             | GPIO 26       |
-| PREVIOUS (Optional)            | GPIO 27       |
-
-![Standard](schemes/Standard/scheme.png)
-
-</div>
-</details>
-
-</div>
-</details>
-<details>
-<summary><strong>Without OLED (outdated)</strong></summary>
-
-<div style="margin-left: 20px;">
-
-    To migrate from Without OLED to Flexible:
-
-    1. Erase the device's memory 
-    2. Install the Flexible version firmware
-    3. Disconnect or reconnect the VSPI module according to the new Flexible wiring diagram
-    4. In the Web interface configure the pins:
-    - For the HSPI module: set CE to 16 and CSN to 15
-    - For the VSPI module: set CE and CSN according to the pinout table in the Flexible documentation (if reconnected to new pins)
-    5. Go to the Web interface and turn off the display in the settings
-
-### HSPI Connection
-| **Pin Name** | **ESP32 GPIO** | **Connection**       |
-|--------------|----------------|----------------------|
-| VCC          | 3.3V          | (+) capacitor        |
-| GND          | GND           | (-) capacitor        |
-| CE           | GPIO 16       |                      |
-| CSN          | GPIO 15       |                      |
-| SCK          | GPIO 14       |                      |
-| MOSI         | GPIO 13       |                      |
-| MISO         | GPIO 12       |                      |
-| IRQ          |                |                      |
-
-### VSPI Connection
-| **Pin Name** | **ESP32 GPIO** | **Connection**       |
-|--------------|----------------|----------------------|
-| VCC          | 3.3V          | (+) capacitor        |
-| GND          | GND           | (-) capacitor        |
-| CE           | GPIO 22       |                      |
-| CSN          | GPIO 21       |                      |
-| SCK          | GPIO 18       |                      |
-| MOSI         | GPIO 23       |                      |
-| MISO         | GPIO 19       |                      |
-| IRQ          |                |                      |
-
-![Without_OLED](schemes/Without_OLED/scheme.png)
-
-</div>
-</details>
-
 -----
 
 ## 📦 Flash Firmware
@@ -367,7 +159,7 @@ Follow these steps to flash the firmware:
 </div>
 </details>
 <details>
-<summary><strong>OTA upgrade</strong></summary>
+<summary><strong>OTA Update</strong></summary>
 
 <div style="margin-left: 20px;">
 
@@ -440,8 +232,6 @@ Follow these steps to flash the firmware:
 </div>
 </details>
 
-> **Single press** stops active attacks (not supported on "Standard" versions)
-
 -----
 
 ## 🌐 Web Interface
@@ -469,10 +259,7 @@ Follow these steps to flash the firmware:
 -----
 
 ## 🎉 Final Outcome
-### Standard version 
-![Standard](img/Standard.jpg)
 
-### Compact version
 ![Compact](img/Compact.jpg)
 
 ### Normal Spectrum

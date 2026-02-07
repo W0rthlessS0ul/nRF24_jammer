@@ -90,6 +90,22 @@ void handlenRF24Init() {
   }
 }
 
+void WiFiChannelHandler() {
+  String html = FPSTR(html_wifi_channel);
+  for (int channel = 1; channel <= 13; channel++) {
+    html.replace("let ch"+String(channel)+" = 0;", "let ch"+String(channel)+" = "+String(WiFiScanChannels[channel-1])+";");
+  }
+  server.send(200, "text/html", html.c_str());
+  for (int channel = 1; channel <= 13; channel++) {
+    html.replace("let ch"+String(channel)+" = "+String(WiFiScanChannels[channel-1])+";", "let ch"+String(channel)+" = 0;");
+  }
+}
+
+void RescanHandler(){
+  scan_wifi_channels(WiFiScanChannels, false);
+  handleRoot();
+}
+
 void sendHtmlAndExecute(const char *htmlResponse, void (*action)() = nullptr) {
   server.send(200, "text/html", htmlResponse);
   delay(500);
@@ -329,6 +345,7 @@ void handleFileUpload() {
 }
 
 void misc() {
+  int flag = 0;
   auto display_info = [&](String info) {
     display.clearDisplay();
     display.setCursor(0, 0);
@@ -444,150 +461,215 @@ void misc() {
 }
 
 void wifi_select() {
-  auto display_info = [&](int flag) {
+  auto display_info = [&](int flag, int wifi_points) -> void {
     display.clearDisplay();
     display.setCursor(0, 0);
     display.println("channel: " + String(flag));
+    display.setCursor(0, 10);
+    display.println("Wi-Fi APs: " + String(wifi_points));
     display.display();
   };
+  auto scan_wifi = [&](int &channelCount, int *WiFi_channels) -> void {
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("Scanning Wi-Fi APs");
+    display.display();
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+    delay(100);
+    int networks = scan_wifi_channels(WiFiScanChannels, false);
+    display.setCursor(0, 10);
+    display.println("Finded " + String(networks) + " APs");
+    display.display();
+    String current_ssid = getSSIDFromEEPROM();
+    String current_password = getPasswordFromEEPROM();
+    WiFi.softAP(current_ssid.c_str(), current_password.c_str());
+    delay(1000);
+  };
+  int channelCount = 0;
+  int menu_number = 0;
+
   while (true) {
     butt1.tick();
     buttNext.tick();
     buttPrevious.tick();
     if (buttons == 0) {
       if (butt1.isSingle()) {
-        menu_number = (menu_number + 1) % 2;
+        menu_number = (menu_number + 1) % 3;
         display.clearDisplay();
         const uint8_t *bitmap =
-            (menu_number == 0) ? bitmap_wifi_all : bitmap_wifi_select;
+            (menu_number == 0) ? bitmap_wifi_all :
+            (menu_number == 1) ? bitmap_wifi_select : bitmap_smart_jammer;
         display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
         display.display();
       }
       if (butt1.isHolded()) {
-        if (menu_number == 1) {
-          flag = 0;
-          display_info(flag);
+        if (menu_number == 0) {
+          display.clearDisplay();
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.display();
+          wifi_jam();
+          return;
+        }
+        else if (menu_number == 1) {
+          
+          scan_wifi(channelCount, WiFiScanChannels);
+
+          flag = 1;
+          display_info(flag, WiFiScanChannels[flag - 1]);
           while (true) {
             butt1.tick();
+            buttNext.tick();
+            buttPrevious.tick();
             if (butt1.isSingle()) {
-              flag = flag + 1;
-              if (flag > 13) {
-                flag = 0;
+              flag++;
+              if (flag > 14) {
+                flag = 1;
               }
-              display_info(flag);
+              display_info(flag, WiFiScanChannels[flag - 1]);
             }
             if (butt1.isHolded()) {
               display.clearDisplay();
               display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
               display.display();
               wifi_channel(flag);
-              break;
+              return;
             }
           }
         }
-        display.clearDisplay();
-        display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
-        display.display();
-        wifi_jam();
-        break;
+        else if (menu_number == 2){
+          display.clearDisplay();
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.display();
+          wifi_scan_jam();
+          return;
+        }
       }
     }
     if (buttons == 1) {
       if (buttNext.isSingle()) {
-        menu_number = (menu_number + 1) % 2;
+        menu_number = (menu_number + 1) % 3;
         display.clearDisplay();
         const uint8_t *bitmap =
-            (menu_number == 0) ? bitmap_wifi_all : bitmap_wifi_select;
+            (menu_number == 0) ? bitmap_wifi_all :
+            (menu_number == 1) ? bitmap_wifi_select : bitmap_smart_jammer;
         display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
         display.display();
       }
       if (butt1.isSingle()) {
-        if (menu_number == 1) {
-          flag = 0;
-          display_info(flag);
-          while (true) {
-            butt1.tick();
-            buttNext.tick();
-            if (buttNext.isSingle()) {
-              flag = flag + 1;
-              if (flag > 13) {
-                flag = 0;
-              }
-              display_info(flag);
-            }
-            if (butt1.isSingle()) {
-              display.clearDisplay();
-              display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
-              display.display();
-              wifi_channel(flag);
-              break;
-            }
-          }
+        if (menu_number == 0) {
+          display.clearDisplay();
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.display();
+          wifi_jam();
+          return;
         }
-        display.clearDisplay();
-        display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
-        display.display();
-        wifi_jam();
-        break;
-      }
-    }
-    if (buttons == 2) {
-      if (buttNext.isSingle()) {
-        menu_number = (menu_number + 1) % 2;
-        display.clearDisplay();
-        const uint8_t *bitmap =
-            (menu_number == 0) ? bitmap_wifi_all : bitmap_wifi_select;
-        display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
-        display.display();
-      }
-      if (buttPrevious.isSingle()) {
-        menu_number = (menu_number + 1) % 2;
-        display.clearDisplay();
-        const uint8_t *bitmap =
-            (menu_number == 0) ? bitmap_wifi_all : bitmap_wifi_select;
-        display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
-        display.display();
-      }
+        else if (menu_number == 1) {
+          
+          scan_wifi(channelCount, WiFiScanChannels);
 
-      if (butt1.isSingle()) {
-        if (menu_number == 1) {
-          flag = 0;
-          display_info(flag);
+          flag = 1;
+          display_info(flag, WiFiScanChannels[flag - 1]);
           while (true) {
             butt1.tick();
             buttNext.tick();
             buttPrevious.tick();
             if (buttNext.isSingle()) {
-              flag = flag + 1;
-              if (flag > 13) {
-                flag = 0;
+              flag++;
+              if (flag > 14) {
+                flag = 1;
               }
-              display_info(flag);
-            }
-            if (buttPrevious.isSingle()) {
-              flag = flag - 1;
-              if (flag < 0) {
-                flag = 13;
-              }
-              if (flag > 13) {
-                flag = 0;
-              }
-              display_info(flag);
+              display_info(flag, WiFiScanChannels[flag - 1]);
             }
             if (butt1.isSingle()) {
               display.clearDisplay();
               display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
               display.display();
               wifi_channel(flag);
-              break;
+              return;
             }
           }
         }
+        else if (menu_number == 2){
+          display.clearDisplay();
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.display();
+          wifi_scan_jam();
+          return;
+        }
+      }
+    }
+    if (buttons == 2) {
+      if (buttNext.isSingle()) {
+        menu_number = (menu_number + 1) % 3;
         display.clearDisplay();
-        display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+        const uint8_t *bitmap =
+            (menu_number == 0) ? bitmap_wifi_all :
+            (menu_number == 1) ? bitmap_wifi_select : bitmap_smart_jammer;
+        display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
         display.display();
-        wifi_jam();
-        break;
+      }
+      if (buttPrevious.isSingle()) {
+        menu_number = (menu_number - 1 + 3) % 3;
+        display.clearDisplay();
+        const uint8_t *bitmap =
+            (menu_number == 0) ? bitmap_wifi_all :
+            (menu_number == 1) ? bitmap_wifi_select : bitmap_smart_jammer;
+        display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
+        display.display();
+      }
+
+      if (butt1.isSingle()) {
+        if (menu_number == 0) {
+          display.clearDisplay();
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.display();
+          wifi_jam();
+          return;
+        }
+        else if (menu_number == 1) {
+          
+          scan_wifi(channelCount, WiFiScanChannels);
+
+          flag = 1;
+          display_info(flag, WiFiScanChannels[flag - 1]);
+          while (true) {
+            butt1.tick();
+            buttNext.tick();
+            buttPrevious.tick();
+            if (buttNext.isSingle()) {
+              flag++;
+              if (flag > 14) {
+                flag = 1;
+              }
+              display_info(flag, WiFiScanChannels[flag - 1]);
+            }
+            if (buttPrevious.isSingle()) {
+              flag = flag - 1;
+              if (flag < 1) {
+                flag = 14;
+              }
+              if (flag > 14) {
+                flag = 1;
+              }
+              display_info(flag, WiFiScanChannels[flag - 1]);
+            }
+            if (butt1.isSingle()) {
+              display.clearDisplay();
+              display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+              display.display();
+              wifi_channel(flag);
+              return;
+            }
+          }
+        }
+        else if (menu_number == 2){
+          display.clearDisplay();
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.display();
+          wifi_scan_jam();
+          return;
+        }
       }
     }
   }
@@ -613,6 +695,9 @@ void setup() {
     }
   }
 
+  pinMode(2, OUTPUT);
+  digitalWrite(2, LOW);
+
   handlenRF24Init();
 
   initWiFiSettings();
@@ -634,16 +719,20 @@ void setup() {
 
     WiFi.softAP(current_ssid.c_str(), current_password.c_str());
 
+    dnsServer.start(53, "*", WiFi.softAPIP());
+
     registerRoute("/", handleRoot);
     registerRoute("/bluetooth_jam", []() { jamHandler(String("Bluetooth Jamming"), bluetooth_jam, bitmap_bluetooth_jam); });
     registerRoute("/drone_jam", []() { jamHandler(String("Drone Jamming"), drone_jam, bitmap_drone_jam); });
     registerRoute("/wifi_jam", []() { jamHandler(String("WiFi Jamming"), wifi_jam, bitmap_wifi_jam); });
+    registerRoute("/wifi_scan_jam", []() { jamHandler(String("WiFi Jamming"), wifi_scan_jam, bitmap_wifi_jam); });
     registerRoute("/ble_jam", []() { jamHandler(String("BLE Jamming"), ble_jam, bitmap_ble_jam); });
     registerRoute("/zigbee_jam", []() { jamHandler(String("Zigbee Jamming"), zigbee_jam, bitmap_zigbee_jam); });
     registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
     registerRoute("/web_serial", []() { sendHtmlAndExecute(html_webserial); });
     registerRoute("/misc_jam", miscChannelsHandler);
     registerRoute("/wifi_selected_jam", wifiChannelsHandler);
+    registerRoute("/rescan", RescanHandler);
 
     registerRoute("/setting_display", []() { settingsHandler(html_settings, display_setting, true, 4); });
     registerRoute("/setting_bluetooth_jam", []() { settingsHandler(html_settings, bluetooth_jam_method, true, 5); });
@@ -656,11 +745,19 @@ void setup() {
     
     registerRoute("/OTA", []() { settingsHandler(html_ota, 1010110, false, 0); });
     registerRoute("/wifi_select", []() { settingsHandler(html_wifi_select, 0, false, 0); });
-    registerRoute("/wifi_channel", []() { settingsHandler(html_wifi_channel, 0, false, 0); });
+    registerRoute("/wifi_channel", WiFiChannelHandler);
     registerRoute("/wifi_settings", []() { settingsHandler(html_wifi_settings, wifi_jam_method, true, 0); });
     registerRoute("/nrf24_settings", []() { nRF24SettingsHandler(); });
 
     registerRoute("/WebCommand", HandleWebCommand);
+
+    registerRoute("/generate_204", handleRoot);
+    registerRoute("/redirect", handleRoot);
+    registerRoute("/hotspot-detect.html", handleRoot);
+    registerRoute("/canonical.html", handleRoot);
+    registerRoute("/success.txt", handleRoot);
+    registerRoute("/ncsi.txt", handleRoot);
+    registerRoute("/connecttest.txt", handleRoot);
 
     server.on(
           "/update", HTTP_POST,
@@ -726,11 +823,23 @@ void setup() {
   if (display_setting){
     display.ssd1306_command(SSD1306_DISPLAYOFF);
   }
+  display.clearDisplay();
   if (logo == 0) {
-    display.clearDisplay();
     display.drawBitmap(0, 0, bitmap_logo, 128, 64, WHITE);
+  }
+  else {
+    display.setCursor(0, 0);
+    display.println("Scanning Wi-Fi APs");
+  }
+  display.display();
+
+  int networks = scan_wifi_channels(WiFiScanChannels, false);
+
+  if (logo != 0){
+    display.setCursor(0, 10);
+    display.println("Finded " + String(networks) + " APs");
     display.display();
-    delay(2000);
+    delay(1000);
   }
 
   display.setCursor(0, 0);
@@ -754,6 +863,7 @@ void executeAction(int menuNum) {
     display.display();
     while (nrf24_count <= 0) {
       server.handleClient();
+      dnsServer.processNextRequest();
       delay(100);
     }
   }
@@ -771,6 +881,7 @@ void executeAction(int menuNum) {
                           : (menu_number == 4) ? bitmap_zigbee_jam
                           : (menu_number == 6) ? bitmap_pls_reboot
                                                : NULL;
+
   display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
   display.display();
 
@@ -793,6 +904,8 @@ void executeAction(int menuNum) {
     case 6:
       storeEEPROMAndSet(8, 0, logo);
       break;
+    default:
+      break;
   }
   if (menuNum != 6)
     updateDisplay(menuNum);
@@ -805,8 +918,10 @@ void loop() {
 
   SerialCommands();
 
-  if (access_point == 0)
+  if (access_point == 0) {
     server.handleClient();
+    dnsServer.processNextRequest();
+  }
   if (buttons == 0) {
     if (butt1.isSingle()) {
       menu_number = (menu_number + 1) % (access_point == 0 ? 6 : 7);
@@ -814,6 +929,7 @@ void loop() {
     }
     if (butt1.isHolded()) {
       executeAction(menu_number);
+      butt1.resetStates();
     }
   } else if (buttons == 1) {
     if (butt1.isSingle()) {

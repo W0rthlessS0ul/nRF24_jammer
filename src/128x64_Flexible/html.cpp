@@ -911,7 +911,7 @@ const char *html = R"rawliteral(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-         :root {
+        :root {
             --bg-primary: #0d1117;
             --bg-secondary: #161b22;
             --bg-card: #21262d;
@@ -941,9 +941,7 @@ const char *html = R"rawliteral(
         }
         
         @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
+            to { opacity: 1; }
         }
         
         .header {
@@ -964,13 +962,8 @@ const char *html = R"rawliteral(
         }
         
         @keyframes float {
-            0%,
-            100% {
-                transform: translateY(0) scale(1);
-            }
-            50% {
-                transform: translateY(-5px) scale(1.02);
-            }
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.02); }
         }
         
         .btn {
@@ -1018,35 +1011,15 @@ const char *html = R"rawliteral(
             animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
-        .module-item:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-        
-        .module-item:nth-child(2) {
-            animation-delay: 0.15s;
-        }
-        
-        .module-item:nth-child(3) {
-            animation-delay: 0.2s;
-        }
-        
-        .module-item:nth-child(4) {
-            animation-delay: 0.25s;
-        }
-        
-        .module-item:nth-child(5) {
-            animation-delay: 0.3s;
-        }
-        
-        .module-item:nth-child(6) {
-            animation-delay: 0.35s;
-        }
+        .module-item:nth-child(1) { animation-delay: 0.1s; }
+        .module-item:nth-child(2) { animation-delay: 0.15s; }
+        .module-item:nth-child(3) { animation-delay: 0.2s; }
+        .module-item:nth-child(4) { animation-delay: 0.25s; }
+        .module-item:nth-child(5) { animation-delay: 0.3s; }
+        .module-item:nth-child(6) { animation-delay: 0.35s; }
         
         @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            to { opacity: 1; transform: translateX(0); }
         }
         
         .module-item:hover {
@@ -1104,13 +1077,8 @@ const char *html = R"rawliteral(
         }
         
         @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.9;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
         }
         
         .warning-icon {
@@ -1257,9 +1225,77 @@ const char *html = R"rawliteral(
             font-size: 12px;
             color: var(--text-secondary);
         }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px 0;
+                margin-bottom: 20px;
+            }
+            
+            .logo {
+                height: 35px;
+            }
+            
+            .module-list {
+                gap: 10px;
+                margin-bottom: 30px;
+            }
+            
+            .module-item {
+                padding: 16px;
+            }
+            
+            .config-warning {
+                padding: 14px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+            }
+            
+            .setting-item {
+                padding: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 15px 0;
+                margin-bottom: 15px;
+            }
+            
+            .logo {
+                height: 30px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+            
+            .module-item {
+                padding: 14px;
+            }
+            
+            .module-name {
+                font-size: 15px;
+            }
+            
+            .module-desc {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
-
 <body>
     <div class="header">
         <img src="data:image/png;base64,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"
@@ -1376,8 +1412,8 @@ const char *html = R"rawliteral(
                         <div class="setting-name">nRF24 Pins Configure</div>
                         <div class="setting-desc">Configure radio module pins</div>
                     </a>
-					
-					<a href="/setting_nrf_pa" class="setting-item">
+                    
+                    <a href="/setting_nrf_pa" class="setting-item">
                         <div class="setting-name">nRF24 PA Settings</div>
                         <div class="setting-desc">Configure power amplifier level</div>
                     </a>
@@ -2673,7 +2709,13 @@ const char *html_wifi_select = R"rawliteral(
             <button class="btn" onclick="location.href='/wifi_channel'">
                 <div class="method-info">
                     <div class="method-name">Select Channel To Jam</div>
-                    <div class="method-desc">Target specific WiFi channel (0-12)</div>
+                    <div class="method-desc">Target specific WiFi channel (1-14)</div>
+                </div>
+            </button>
+            <button class="btn" onclick="location.href='/wifi_scan_jam'">
+                <div class="method-info">
+                    <div class="method-name">Smart Jam</div>
+                    <div class="method-desc">Scan for active networks and jam only their</div>
                 </div>
             </button>
         </div>
@@ -2704,6 +2746,7 @@ const char *html_wifi_channel = R"rawliteral(
             --text-secondary: #8b949e;
             --accent: #58a6ff;
             --danger: #f85149;
+            --warning: #f0883e;
         }
         
         * {
@@ -2721,6 +2764,7 @@ const char *html_wifi_channel = R"rawliteral(
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 20px;
             opacity: 0;
             animation: fadeIn 0.6s ease-out forwards;
         }
@@ -2809,6 +2853,17 @@ const char *html_wifi_channel = R"rawliteral(
             box-shadow: 0 8px 20px rgba(88, 166, 255, 0.3);
         }
         
+        .btn.info {
+            border-color: var(--accent);
+            background: rgba(88, 166, 255, 0.1);
+        }
+        
+        .btn.info:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 8px 20px rgba(88, 166, 255, 0.2);
+        }
+        
         .back-btn {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -2868,8 +2923,144 @@ const char *html_wifi_channel = R"rawliteral(
             }
         }
         
+        .success {
+            background: linear-gradient(135deg, var(--accent), #2ea043);
+        }
+        
         .error {
             background: linear-gradient(135deg, var(--danger), #da3633);
+        }
+        
+        .channel-display-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .channel-display {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            flex: 1;
+            display: none;
+        }
+        
+        .rescan-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: none;
+            white-space: nowrap;
+        }
+        
+        .rescan-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.2);
+        }
+        
+        .confirm-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            z-index: 2000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 400px;
+            display: none;
+            opacity: 0;
+            animation: dialogFadeIn 0.3s forwards;
+        }
+        
+        @keyframes dialogFadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .confirm-dialog h3 {
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        
+        .confirm-dialog p {
+            margin-bottom: 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .confirm-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .confirm-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .confirm-btn.cancel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .confirm-btn.cancel:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent);
+        }
+        
+        .confirm-btn.accept {
+            background: var(--accent);
+            border: 1px solid var(--accent);
+            color: white;
+        }
+        
+        .confirm-btn.accept:hover {
+            background: #4493f8;
+            border-color: #4493f8;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1999;
+            display: none;
+            opacity: 0;
+            animation: overlayFadeIn 0.3s forwards;
+        }
+        
+        @keyframes overlayFadeIn {
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -2877,14 +3068,29 @@ const char *html_wifi_channel = R"rawliteral(
 <body>
     <div id="notification" class="notification" style="display: none;"></div>
 
+    <div id="overlay" class="overlay" style="display: none;"></div>
+
+    <div id="confirmDialog" class="confirm-dialog" style="display: none;">
+        <h3 id="confirmTitle">Confirm Action</h3>
+        <p id="confirmMessage">Are you sure you want to perform this action?</p>
+        <div class="confirm-buttons">
+            <button class="confirm-btn cancel" onclick="hideConfirmDialog()">Cancel</button>
+            <button class="confirm-btn accept" onclick="confirmAction()">Confirm</button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>Select WiFi Channel</h1>
         </div>
 
         <div class="input-group">
-            <label class="label" for="channelInput">Channel Number (0-12)</label>
-            <input id="channelInput" class="input" type="number" placeholder="Enter channel number" max="12" min="0" />
+            <label class="label" for="channelInput">Channel Number (1-14)</label>
+            <input id="channelInput" class="input" type="number" placeholder="Enter channel number" max="14" min="1" />
+            <div class="channel-display-container">
+                <div id="channelDisplay" class="channel-display"></div>
+                <button id="rescanBtn" class="rescan-btn" onclick="showUpdateConfirm()">Rescan</button>
+            </div>
         </div>
 
         <div class="buttons-group">
@@ -2896,10 +3102,27 @@ const char *html_wifi_channel = R"rawliteral(
     </div>
 
     <script>
-        function showNotification(message) {
+        let ch1 = 0;
+        let ch2 = 0;
+        let ch3 = 0;
+        let ch4 = 0;
+        let ch5 = 0;
+        let ch6 = 0;
+        let ch7 = 0;
+        let ch8 = 0;
+        let ch9 = 0;
+        let ch10 = 0;
+        let ch11 = 0;
+        let ch12 = 0;
+        let ch13 = 0;
+        let ch14 = 0;
+
+        let actionCallback = null;
+        
+        function showNotification(message, isSuccess) {
             const notification = document.getElementById("notification");
             notification.textContent = message;
-            notification.className = "notification error";
+            notification.className = isSuccess ? "notification success" : "notification error";
             notification.style.display = "block";
 
             setTimeout(() => {
@@ -2913,6 +3136,72 @@ const char *html_wifi_channel = R"rawliteral(
                 }, 500);
             }, 3000);
         }
+        
+        function showConfirmDialog(title, message, callback) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('confirmDialog').style.display = 'block';
+            actionCallback = callback;
+        }
+        
+        function hideConfirmDialog() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('confirmDialog').style.display = 'none';
+            actionCallback = null;
+        }
+        
+        function confirmAction() {
+            if (actionCallback) {
+                actionCallback();
+            }
+            hideConfirmDialog();
+        }
+        
+        function showUpdateConfirm() {
+            showConfirmDialog(
+                "Rescan Wi-Fi APs",
+                "During the scanning process, the device will disconnect from the access point. Do you want to continue?",
+                startUpdateScan
+            );
+        }
+        
+        function startUpdateScan() {
+            showNotification("Starting WiFi scan... The device will temporarily disconnect.", true);
+            setTimeout(() => {
+                location.href = "/rescan";
+            }, 1000);
+        }
+
+        function updateChannelDisplay(channel) {
+            const display = document.getElementById('channelDisplay');
+            const rescanBtn = document.getElementById('rescanBtn');
+            const channelValue = getChannelValue(channel);
+            
+            display.innerHTML = `Channel ${channel} : ${channelValue} WiFi APs`;
+            display.style.display = 'block';
+            rescanBtn.style.display = 'block';
+        }
+
+        function getChannelValue(channel) {
+            switch(channel) {
+                case 1: return ch1;
+                case 2: return ch2;
+                case 3: return ch3;
+                case 4: return ch4;
+                case 5: return ch5;
+                case 6: return ch6;
+                case 7: return ch7;
+                case 8: return ch8;
+                case 9: return ch9;
+                case 10: return ch10;
+                case 11: return ch11;
+                case 12: return ch12;
+                case 13: return ch13;
+                case 14: return ch14;
+                default: return 0;
+            }
+        }
 
         function validateAndRedirect() {
             const channelInput = document.getElementById('channelInput');
@@ -2920,14 +3209,24 @@ const char *html_wifi_channel = R"rawliteral(
 
             channelInput.classList.remove('invalid');
 
-            if (isNaN(channelValue) || channelValue < 0 || channelValue > 12) {
-                showNotification('WiFi channel must be a number between 0 and 12.');
+            if (isNaN(channelValue) || channelValue < 1 || channelValue > 14) {
+                showNotification('WiFi channel must be a number between 1 and 14.', false);
                 channelInput.classList.add('invalid');
                 return;
             }
             
             location.href = `/wifi_selected_jam?channel=${channelValue}`;
         }
+
+        document.getElementById('channelInput').addEventListener('input', function(e) {
+            const channelValue = parseInt(this.value);
+            if (!isNaN(channelValue) && channelValue >= 1 && channelValue <= 14) {
+                updateChannelDisplay(channelValue);
+            } else {
+                document.getElementById('channelDisplay').style.display = 'none';
+                document.getElementById('rescanBtn').style.display = 'none';
+            }
+        });
 
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -3234,7 +3533,7 @@ const char *html_webserial = R"rawliteral(
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         :root {
             --bg-primary: #0d1117;
@@ -3253,6 +3552,7 @@ const char *html_webserial = R"rawliteral(
             padding: 0;
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -3262,88 +3562,98 @@ const char *html_webserial = R"rawliteral(
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            padding: 10px;
             opacity: 0;
             animation: fadeIn 0.6s ease-out forwards;
+            overflow-x: hidden;
         }
         
         @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
+            to { opacity: 1; }
         }
         
         .container {
             width: 100%;
             max-width: 800px;
-            height: 80vh;
-            padding: 30px;
+            height: auto;
+            min-height: calc(100vh - 20px);
+            padding: 15px;
             border-radius: 12px;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
         
         .header {
             text-align: center;
             flex-shrink: 0;
+            padding: 10px 0;
+        }
+        
+        .header h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
         }
         
         .terminal-container {
             flex: 1;
+            min-height: 300px;
+            max-height: 50vh;
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 8px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
         
         .terminal-wrapper {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 15px;
+            -webkit-overflow-scrolling: touch;
         }
         
         .terminal {
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             font-size: 13px;
             white-space: pre-wrap;
             word-break: break-word;
             line-height: 1.4;
             display: flex;
             flex-direction: column;
+            min-height: min-content;
         }
         
         .terminal-line {
             margin-bottom: 8px;
             min-height: 18px;
-        }
-        
-        .terminal-line:last-child {
-            margin-bottom: 0;
+            word-wrap: break-word;
         }
         
         .input-group {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-shrink: 0;
+            width: 100%;
         }
         
         .input {
             flex: 1;
+            min-width: 0;
             background: var(--bg-card);
             border: 1px solid var(--border);
             color: var(--text-primary);
             padding: 14px 16px;
             border-radius: 8px;
             font-family: monospace;
-            font-size: 14px;
+            font-size: 16px;
             outline: none;
+            -webkit-appearance: none;
+            touch-action: manipulation;
         }
         
         .input:focus {
@@ -3355,40 +3665,46 @@ const char *html_webserial = R"rawliteral(
             background: var(--bg-card);
             border: 1px solid var(--accent);
             color: var(--text-primary);
-            padding: 14px 24px;
+            padding: 14px 20px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             flex-shrink: 0;
+            min-width: 80px;
+            touch-action: manipulation;
         }
         
-        .btn:hover {
+        .btn:hover,
+        .btn:active {
             background: var(--accent);
             border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(88, 166, 255, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.2);
         }
         
         .back-btn {
             background: var(--bg-card);
             border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 14px 24px;
+            padding: 14px 20px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
-            flex-shrink: 0;
+            width: 100%;
+            touch-action: manipulation;
+            margin-top: 10px;
         }
         
-        .back-btn:hover {
+        .back-btn:hover,
+        .back-btn:active {
             background: var(--bg-secondary);
             border-color: var(--accent);
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
         
         .prompt {
@@ -3417,6 +3733,86 @@ const char *html_webserial = R"rawliteral(
         .terminal-wrapper::-webkit-scrollbar-thumb:hover {
             background: var(--text-secondary);
         }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+                gap: 12px;
+                height: auto;
+                min-height: calc(100vh - 20px);
+            }
+            
+            .header {
+                padding: 5px 0;
+            }
+            
+            .terminal-container {
+                max-height: 50vh;
+                min-height: 250px;
+            }
+            
+            .terminal-wrapper {
+                padding: 12px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .input {
+                padding: 16px;
+                font-size: 16px;
+            }
+            
+            .btn {
+                padding: 16px;
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .back-btn {
+                padding: 16px;
+            }
+            
+            .terminal {
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+            
+            .container {
+                padding: 10px;
+                border-radius: 8px;
+            }
+            
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .terminal-container {
+                max-height: 45vh;
+                min-height: 200px;
+            }
+            
+            .input, .btn, .back-btn {
+                padding: 14px;
+            }
+            
+            .terminal {
+                font-size: 13px;
+            }
+        }
+
+        @supports (-webkit-touch-callout: none) {
+            .input {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -3432,8 +3828,8 @@ const char *html_webserial = R"rawliteral(
         </div>
         
         <div class="input-group">
-            <input type="text" class="input" id="commandInput" placeholder="Type command..." autocomplete="off">
-            <button class="btn" onclick="sendCommand()">Send</button>
+            <input type="text" class="input" id="commandInput" placeholder="Type command..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+            <button class="btn" id="sendButton">Send</button>
         </div>
         
         <button class="back-btn" onclick="location.href='/'">← Back to Main Menu</button>
@@ -3442,23 +3838,33 @@ const char *html_webserial = R"rawliteral(
     <script>
         const terminal = document.getElementById('terminal');
         const input = document.getElementById('commandInput');
+        const sendButton = document.getElementById('sendButton');
         const terminalWrapper = document.querySelector('.terminal-wrapper');
         
         let history = [];
         let historyIndex = -1;
+        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
         function preventContainerResize() {
             const container = document.querySelector('.container');
-            container.style.height = '80vh';
-            container.style.minHeight = '80vh';
-            container.style.maxHeight = '80vh';
+            container.style.height = isMobile ? 'auto' : '80vh';
+            container.style.minHeight = isMobile ? 'calc(100vh - 20px)' : '80vh';
         }
 
         window.addEventListener('load', async () => {
             preventContainerResize();
             input.focus();
+
+            if (isMobile) {
+                setTimeout(() => {
+                    input.blur();
+                }, 100);
+            }
+            
             await sendAutoHelp();
         });
+        
+        window.addEventListener('resize', preventContainerResize);
         
         async function sendAutoHelp() {
             addCommand('help');
@@ -3480,10 +3886,13 @@ const char *html_webserial = R"rawliteral(
                 scrollToBottom();
             }
         }
-        
+
         input.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 sendCommand();
+                if (isMobile) {
+                    input.blur();
+                }
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 if (history.length > 0) {
@@ -3505,6 +3914,14 @@ const char *html_webserial = R"rawliteral(
                 }
             }
         });
+        
+        sendButton.addEventListener('click', sendCommand);
+
+        if (isMobile) {
+            terminalWrapper.addEventListener('click', () => {
+                input.focus();
+            });
+        }
         
         function addCommand(command) {
             const div = document.createElement('div');
@@ -3562,6 +3979,12 @@ const char *html_webserial = R"rawliteral(
             }
             
             scrollToBottom();
+
+            if (isMobile) {
+                setTimeout(() => {
+                    input.focus();
+                }, 100);
+            }
         }
         
         function scrollToBottom() {
@@ -3569,8 +3992,6 @@ const char *html_webserial = R"rawliteral(
                 terminalWrapper.scrollTop = terminalWrapper.scrollHeight;
             });
         }
-
-        window.addEventListener('resize', preventContainerResize);
     </script>
 </body>
 </html>

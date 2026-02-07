@@ -6,7 +6,7 @@ GButton buttNext(26);
 GButton buttPrevious(27);
 const char *default_ssid = "jammer";
 const char *default_password = "W0rthlessS0ul";
-String Version_Number = "V2.9.0";
+String Version_Number = "V3.0.0";
 String Version_Name = "Flexible";
 
 //  Unchangeable parameters
@@ -38,5 +38,7 @@ const char jam_text[] = "xxxxxxxxxxxxxxxx";
 RF24 *radios[30];
 int ce_pins[30];
 int csn_pins[30];
+int WiFiScanChannels[14];
 int nrf24_count;
 WebServer server(80);
+DNSServer dnsServer;
