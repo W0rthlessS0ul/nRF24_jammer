@@ -113,7 +113,7 @@ bool CommandsHandler(String command, bool web_command){
       }
       String html = FPSTR(html_jam);
 
-      String jamRange = "Jamming from " + SecondWord + " to " + ThirdWord;
+      String jamRange = "Jamming from " + String(SecondWord) + " to " + String(ThirdWord);
       html.replace("[||]EdItAbLe TeXt[||]", jamRange);
       sendHtmlAndExecute(html.c_str(), nullptr); 
       
@@ -182,6 +182,15 @@ bool CommandsHandler(String command, bool web_command){
         }
 
         jamHandler(String("WiFi Jamming"), wifi_jam, bitmap_wifi_jam);
+      } else if (ThirdWord == "smart") {
+        String responce = "Smart Jamming WiFi channels...";
+        Serial.println(responce);
+        Serial.println("ok");
+        if (web_command){
+          server.send(200, "text/html", responce+"\nok");
+        }
+
+        jamHandler(String("WiFi Jamming"), wifi_scan_jam, bitmap_wifi_jam);
       } else if (ThirdWord.toInt() >= 0 && ThirdWord.toInt() <= 13) {
         String responce = "Jamming " + String(ThirdWord) + " WiFi channel...";
         Serial.println(responce);
@@ -191,10 +200,10 @@ bool CommandsHandler(String command, bool web_command){
         }
         String html = FPSTR(html_jam);
         
-        String wifiChannelMsg = "Jamming " + ThirdWord + " WiFi Channel";
+        String wifiChannelMsg = "Jamming " + String(ThirdWord) + " WiFi Channel";
         html.replace("[||]EdItAbLe TeXt[||]", wifiChannelMsg);
         display.clearDisplay();
-        display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
+        display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
         display.display();
         sendHtmlAndExecute(html.c_str(), nullptr);
         wifi_channel(ThirdWord.toInt());
@@ -202,7 +211,7 @@ bool CommandsHandler(String command, bool web_command){
         html.replace(wifiChannelMsg, "[||]EdItAbLe TeXt[||]");
         updateDisplay(menu_number);
       } else {
-        String responce = "No WiFi channel specified\njam WiFi <channel> ==> WiFi channel must be in range 0-13 OR 'all' for all channels";
+        String responce = "No WiFi channel specified\njam WiFi <channel> ==> WiFi channel must be in range 0-13 OR 'all' for all channels OR 'smart' for auto chosing channels";
         Serial.println(responce);
         Serial.println("ok");
         if (web_command){
@@ -262,7 +271,9 @@ bool CommandsHandler(String command, bool web_command){
           {"Display", display_setting,
             "0 - Enable display, 1 - Disable display"},
           {"JammingType", Separate_or_together,
-            "0 - Modules on Different Channels, 1 - Modules on Same Channel"}};
+            "0 - Modules on Different Channels, 1 - Modules on Same Channel"},
+          {"PA", nrf_pa,
+            "0 - MAX (0dBm), 1 - HIGH (-6dBm), 2 - LOW (-12dBm), 3 - MIN (-18dBm)"}};
 
       String responce = "setting <setting name> <value>\n";
       for (auto &setting : settings) {
@@ -354,6 +365,14 @@ bool CommandsHandler(String command, bool web_command){
       storeEEPROMAndReset(2, ThirdWord.toInt(), display_setting);
     } else if (SecondWord == "jammingtype" && ThirdWord.toInt() >= 0 && ThirdWord.toInt() <= 1) {
       storeEEPROMAndSet(4, ThirdWord.toInt(), Separate_or_together);
+      String responce = "Written successfully";
+      Serial.println(responce);
+      Serial.println("ok");
+      if (web_command){
+        server.send(200, "text/html", responce+"\nok");
+      }
+    } else if (SecondWord == "pa" && ThirdWord.toInt() >= 0 && ThirdWord.toInt() <= 3) {
+      storeEEPROMAndSet(5, ThirdWord.toInt(), nrf_pa);
       String responce = "Written successfully";
       Serial.println(responce);
       Serial.println("ok");

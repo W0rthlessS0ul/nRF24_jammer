@@ -50,6 +50,7 @@ void HSPI_init()
     radios[i]->setDataRate(RF24_2MBPS);
     radios[i]->setCRCLength(RF24_CRC_DISABLED);
   }
+  digitalWrite(2, HIGH);
 }
 void HSPI_deinit()
 {
@@ -58,6 +59,7 @@ void HSPI_deinit()
     delete hp;
     hp = nullptr;
   }
+  digitalWrite(2, LOW);
 }
 void bluetooth_jam()
 {
@@ -294,6 +296,123 @@ void wifi_jam()
         break;
     }
   }
+  DeinitRadios(false);
+  HSPI_deinit();
+}
+int scan_wifi_channels(int* channels, bool mode) {
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  int channelCount = 0;
+  int networks = WiFi.scanNetworks();
+  if (mode){
+    memset(channels, 0, 13 * sizeof(int));
+
+    for (int channel = 1; channel <= 14; channel++) {
+      bool channelHasNetworks = false;
+      
+      for (int i = 0; i < networks; i++) {
+        if (WiFi.channel(i) == channel) {
+          channelHasNetworks = true;
+          break;
+        }
+      }
+      
+      if (channelHasNetworks) {
+        channels[channelCount] = channel;
+        channelCount++;
+      }
+    }
+  }
+  else {
+    memset(channels, 0, 13 * sizeof(int));
+    for (int channel = 1; channel <= 14; channel++) {
+      bool channelHasNetworks = false;
+      int temp = 0;
+      for (int i = 0; i < networks; i++) {
+        if (WiFi.channel(i) == channel) {
+          temp++;
+          channelHasNetworks = true;
+        }
+      }
+      channels[channel-1] = temp;
+      if (channelHasNetworks) 
+        channelCount++;
+    }
+  }
+  String current_ssid = getSSIDFromEEPROM();
+  String current_password = getPasswordFromEEPROM();
+  WiFi.softAP(current_ssid.c_str(), current_password.c_str());
+  return channelCount;
+}
+void wifi_scan_jam()
+{
+  InitRadios();
+  HSPI_init();
+  butt1.tick();
+  bool SerialStop = SerialCommands();
+  int scanCounter = 0;
+
+  int NumberChannels = 0;
+
+  NumberChannels = scan_wifi_channels(WiFiScanChannels, true);
+  
+  while (!butt1.isSingle() && SerialStop)
+  {
+    if (scanCounter >= 10000) {
+      NumberChannels = scan_wifi_channels(WiFiScanChannels, true);
+      scanCounter = 0;
+    }
+
+    for (int chIndex = 0; chIndex < NumberChannels; chIndex++)
+    {
+      int wifiChannel = WiFiScanChannels[chIndex];
+      
+      if (Separate_or_together == 0)
+      {
+        int total_channels = 22;
+        int base = total_channels / nrf24_count;
+        int rem = total_channels % nrf24_count;
+        int ch = ((wifiChannel - 1) * 5) + 1;
+        
+        for (int j = 0; j < nrf24_count; j++) {
+          int count = base + (j < rem ? 1 : 0);
+          for (int i = 0; i < count; i++, ch++) {
+            butt1.tick();
+            SerialStop = SerialCommands();
+            if (butt1.isSingle() || !SerialStop) break;
+            
+            if (ch >= 1 && ch <= 125) {
+              radios[j]->setChannel(ch);
+              radios[j]->writeFast(&jam_text, sizeof(jam_text));
+            }
+          }
+          if (butt1.isSingle() || !SerialStop) break;
+        }
+      }
+      else
+      {
+        for (int ch = ((wifiChannel - 1) * 5) + 1; ch < ((wifiChannel - 1) * 5) + 23; ch++)
+        {
+          for (int j = 0; j < nrf24_count; j++)
+          {
+            butt1.tick();
+            SerialStop = SerialCommands();
+            if (butt1.isSingle() || !SerialStop) break;
+            
+            if (ch >= 1 && ch <= 125) {
+              radios[j]->setChannel(ch);
+              radios[j]->writeFast(&jam_text, sizeof(jam_text));
+            }
+          }
+          if (butt1.isSingle() || !SerialStop) break;
+        }
+      }
+      if (butt1.isSingle() || !SerialStop) break;
+    }
+    
+    scanCounter++;
+  }
+  
   DeinitRadios(false);
   HSPI_deinit();
 }

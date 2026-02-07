@@ -3,6 +3,7 @@
 
 #include "options.h"
 
+extern const unsigned char bitmap_smart_jammer[] PROGMEM;
 extern const unsigned char bitmap_access_point[] PROGMEM;
 extern const unsigned char bitmap_pls_reboot[] PROGMEM;
 extern const unsigned char bitmap_wifi_select[] PROGMEM;
