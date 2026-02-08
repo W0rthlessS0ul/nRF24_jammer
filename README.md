@@ -10,6 +10,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [🚀 What Can You Do with This?](#-what-can-you-do-with-this)
 - [📋 List of Components](#-list-of-components)
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
+- [🛠️ Build From Source](#-build-from-source)
 - [📦 Flash Firmware](#-flash-firmware)
 - [🎮 Device Control](#-device-control)
 - [🌐 Web Interface](#-Web-Interface)
@@ -135,6 +136,22 @@ To bring this project to life, you will need the following components:
 
 -----
 
+## 🛠️ Build From Source
+
+#### This section is **addressed to contributors**. If you are a regular user of the project, you can skip it
+
+1. Install **PlatformIO IDE** extension in **VS Code** 
+2. Click the PlatformIO icon → Open → Open Project → select your project folder
+3. Wait until all dependencies are installed
+4. And now you can choose which project to compile in "PROJECT TASKS" or choose "Build all" to compile all kinds of firmware at once.
+5. Output .bin files appear in: ```project_root/bin/[env_name]```
+
+![Build_From_Source](img/gif/Source_Build.gif)
+
+###### ⚠️ Important for source builds: Since v2.5.0, this project uses a modified RF24 library (see /lib).
+
+-----
+
 ## 📦 Flash Firmware
 <details>
 <summary><strong>Manual Update</strong></summary>
@@ -174,8 +191,6 @@ Follow these steps to flash the firmware:
 
 </div>
 </details>
-
-###### ⚠️ Important for source builds: Since v2.5.0, this project uses a modified RF24 library (see /lib).
 
 -----
 
