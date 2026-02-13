@@ -6,7 +6,7 @@ GButton buttNext(26);
 GButton buttPrevious(27);
 const char *default_ssid = "jammer";
 const char *default_password = "W0rthlessS0ul";
-String Version_Number = "V3.0.0";
+String Version_Number = "V3.0.1";
 String Version_Name = "Flexible";
 
 //  Unchangeable parameters

@@ -45,7 +45,7 @@ void updateDisplay(int menuNum) {
                           : (menu_number == 4) ? bitmap_zigbee_jammer
                           : (menu_number == 5) ? bitmap_misc_jammer
                                                : bitmap_access_point;
-  display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
+  display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
   display.display();
 }
 
@@ -117,7 +117,7 @@ void jamHandler(String htmlResponse, void (*jamFunction)(),
                 const unsigned char *bitmap) {
   String html = FPSTR(html_jam);
   display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
+  display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
   display.display();
   html.replace("[||]EdItAbLe TeXt[||]", htmlResponse);
   sendHtmlAndExecute(html.c_str(), jamFunction);
@@ -156,7 +156,7 @@ void wifiChannelsHandler() {
   int channel = server.arg("channel").toInt();
 
   display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+  display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
   display.display();
   String html = FPSTR(html_jam);
   html.replace("[||]EdItAbLe TeXt[||]", "Jamming "+String(channel)+" WiFi Channel");
@@ -223,7 +223,7 @@ void settingsHandler(String htmlResponse, int index, bool editable, int SettingN
 void storeEEPROMAndReset(int index, int value, int &targetVar){
   settingsHandler(html_pls_reboot, 0, false, 0);
   display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE);
+  display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 32, WHITE);
   display.display();
   EEPROM.write(index, value);
   EEPROM.commit();
@@ -500,13 +500,13 @@ void wifi_select() {
         const uint8_t *bitmap =
             (menu_number == 0) ? bitmap_wifi_all :
             (menu_number == 1) ? bitmap_wifi_select : bitmap_smart_jammer;
-        display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
+        display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
         display.display();
       }
       if (butt1.isHolded()) {
         if (menu_number == 0) {
           display.clearDisplay();
-          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
           display.display();
           wifi_jam();
           return;
@@ -530,7 +530,7 @@ void wifi_select() {
             }
             if (butt1.isHolded()) {
               display.clearDisplay();
-              display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+              display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
               display.display();
               wifi_channel(flag);
               return;
@@ -539,7 +539,7 @@ void wifi_select() {
         }
         else if (menu_number == 2){
           display.clearDisplay();
-          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
           display.display();
           wifi_scan_jam();
           return;
@@ -553,13 +553,13 @@ void wifi_select() {
         const uint8_t *bitmap =
             (menu_number == 0) ? bitmap_wifi_all :
             (menu_number == 1) ? bitmap_wifi_select : bitmap_smart_jammer;
-        display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
+        display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
         display.display();
       }
       if (butt1.isSingle()) {
         if (menu_number == 0) {
           display.clearDisplay();
-          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
           display.display();
           wifi_jam();
           return;
@@ -583,7 +583,7 @@ void wifi_select() {
             }
             if (butt1.isSingle()) {
               display.clearDisplay();
-              display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+              display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
               display.display();
               wifi_channel(flag);
               return;
@@ -592,7 +592,7 @@ void wifi_select() {
         }
         else if (menu_number == 2){
           display.clearDisplay();
-          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
           display.display();
           wifi_scan_jam();
           return;
@@ -606,7 +606,7 @@ void wifi_select() {
         const uint8_t *bitmap =
             (menu_number == 0) ? bitmap_wifi_all :
             (menu_number == 1) ? bitmap_wifi_select : bitmap_smart_jammer;
-        display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
+        display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
         display.display();
       }
       if (buttPrevious.isSingle()) {
@@ -615,14 +615,14 @@ void wifi_select() {
         const uint8_t *bitmap =
             (menu_number == 0) ? bitmap_wifi_all :
             (menu_number == 1) ? bitmap_wifi_select : bitmap_smart_jammer;
-        display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
+        display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
         display.display();
       }
 
       if (butt1.isSingle()) {
         if (menu_number == 0) {
           display.clearDisplay();
-          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
           display.display();
           wifi_jam();
           return;
@@ -656,7 +656,7 @@ void wifi_select() {
             }
             if (butt1.isSingle()) {
               display.clearDisplay();
-              display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+              display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
               display.display();
               wifi_channel(flag);
               return;
@@ -665,7 +665,7 @@ void wifi_select() {
         }
         else if (menu_number == 2){
           display.clearDisplay();
-          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+          display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
           display.display();
           wifi_scan_jam();
           return;
@@ -679,7 +679,7 @@ void access_poin_off() {
   settingsHandler(html_pls_reboot, 0, false, 0);
   storeEEPROMAndSet(8, 1, access_point);
   display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE);
+  display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 32, WHITE);
   display.display();
   delay(1000);
   ESP.restart();
@@ -767,7 +767,7 @@ void setup() {
               server.send(200, "text/plain", "Update Success");
               delay(100);
               display.clearDisplay();
-              display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE);
+              display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 32, WHITE);
               display.display();
               delay(2000);
               ESP.restart();
@@ -825,7 +825,7 @@ void setup() {
   }
   display.clearDisplay();
   if (logo == 0) {
-    display.drawBitmap(0, 0, bitmap_logo, 128, 64, WHITE);
+    display.drawBitmap(0, 0, bitmap_logo, 128, 32, WHITE);
   }
   else {
     display.setCursor(0, 0);
@@ -844,7 +844,7 @@ void setup() {
 
   display.setCursor(0, 0);
   display.clearDisplay();
-  display.drawBitmap(0, 0, bitmap_bluetooth_jammer, 128, 64, WHITE);
+  display.drawBitmap(0, 0, bitmap_bluetooth_jammer, 128, 32, WHITE);
   display.display();
 }
 
@@ -882,7 +882,7 @@ void executeAction(int menuNum) {
                           : (menu_number == 6) ? bitmap_pls_reboot
                                                : NULL;
 
-  display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
+  display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
   display.display();
 
   switch (menu_number) {

@@ -304,6 +304,9 @@ int scan_wifi_channels(int* channels, bool mode) {
   WiFi.disconnect();
   int channelCount = 0;
   int networks = WiFi.scanNetworks();
+  String current_ssid = getSSIDFromEEPROM();
+  String current_password = getPasswordFromEEPROM();
+
   if (mode){
     memset(channels, 0, 13 * sizeof(int));
 
@@ -322,9 +325,13 @@ int scan_wifi_channels(int* channels, bool mode) {
         channelCount++;
       }
     }
+
+    WiFi.softAP(current_ssid.c_str(), current_password.c_str());
+    return channelCount;
   }
   else {
     memset(channels, 0, 13 * sizeof(int));
+
     for (int channel = 1; channel <= 14; channel++) {
       bool channelHasNetworks = false;
       int temp = 0;
@@ -338,11 +345,10 @@ int scan_wifi_channels(int* channels, bool mode) {
       if (channelHasNetworks) 
         channelCount++;
     }
+    
+    WiFi.softAP(current_ssid.c_str(), current_password.c_str());
+    return networks;
   }
-  String current_ssid = getSSIDFromEEPROM();
-  String current_password = getPasswordFromEEPROM();
-  WiFi.softAP(current_ssid.c_str(), current_password.c_str());
-  return channelCount;
 }
 void wifi_scan_jam()
 {
