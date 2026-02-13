@@ -6,12 +6,12 @@ GButton buttNext(26);
 GButton buttPrevious(27);
 const char *default_ssid = "jammer";
 const char *default_password = "W0rthlessS0ul";
-String Version_Number = "V2.9.0";
+String Version_Number = "V3.0.1";
 String Version_Name = "Flexible";
 
 //  Unchangeable parameters
 uint8_t SCREEN_WIDTH = 128;
-uint8_t SCREEN_HEIGHT = 64;
+uint8_t SCREEN_HEIGHT = 32;
 int8_t OLED_RESET = -1;
 size_t EEPROM_SIZE = 512;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);

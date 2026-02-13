@@ -203,7 +203,7 @@ bool CommandsHandler(String command, bool web_command){
         String wifiChannelMsg = "Jamming " + String(ThirdWord) + " WiFi Channel";
         html.replace("[||]EdItAbLe TeXt[||]", wifiChannelMsg);
         display.clearDisplay();
-        display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 64, WHITE);
+        display.drawBitmap(0, 0, bitmap_wifi_jam, 128, 32, WHITE);
         display.display();
         sendHtmlAndExecute(html.c_str(), nullptr);
         wifi_channel(ThirdWord.toInt());
