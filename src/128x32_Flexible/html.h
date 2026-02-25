@@ -19,6 +19,7 @@ extern const char *html_wifi_settings;
 extern String html_logo_settings PROGMEM;
 extern String html_separate_or_together PROGMEM;
 extern const char *html_wifi_select;
+extern const char *html_ble_select;
 extern const char *html_wifi_channel;
 extern const char *html_misc_jammer;
 extern const char *html_webserial;

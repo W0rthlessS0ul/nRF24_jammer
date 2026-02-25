@@ -6,7 +6,7 @@ GButton buttNext(26);
 GButton buttPrevious(27);
 const char *default_ssid = "jammer";
 const char *default_password = "W0rthlessS0ul";
-String Version_Number = "V3.0.1";
+String Version_Number = "V3.1.0";
 String Version_Name = "Flexible";
 
 //  Unchangeable parameters
@@ -16,6 +16,7 @@ int8_t OLED_RESET = -1;
 size_t EEPROM_SIZE = 512;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 SPIClass *hp = nullptr;
+String APs_array[14];
 int menu_number = 0;
 int bluetooth_jam_method;
 int drone_jam_method;
