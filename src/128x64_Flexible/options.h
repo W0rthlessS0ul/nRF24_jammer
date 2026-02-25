@@ -25,6 +25,7 @@ extern int8_t OLED_RESET;
 extern size_t EEPROM_SIZE;
 extern Adafruit_SSD1306 display;
 extern SPIClass *hp;
+extern String APs_array[14];
 extern int menu_number;
 extern int bluetooth_jam_method;
 extern int drone_jam_method;

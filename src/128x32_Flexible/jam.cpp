@@ -1,5 +1,7 @@
 #include "jam.h"
 
+int nrf_pa_level;
+
 void InitRadios()
 {
   for (int i = 0; i < nrf24_count; i++)
@@ -38,17 +40,20 @@ void HSPI_init()
     int nrf_pa_level;
     switch (nrf_pa){
       case 0:
-        nrf_pa_level = 3; break;
+        nrf_pa_level = RF24_PA_MAX; break;
       case 1:
-        nrf_pa_level = 2; break;
+        nrf_pa_level = RF24_PA_HIGH; break;
       case 2:
-        nrf_pa_level = 1; break;
+        nrf_pa_level = RF24_PA_LOW; break;
       case 3:
-        nrf_pa_level = 0; break;
+        nrf_pa_level = RF24_PA_MIN; break;
     }
     radios[i]->setPALevel(nrf_pa_level, true);
     radios[i]->setDataRate(RF24_2MBPS);
     radios[i]->setCRCLength(RF24_CRC_DISABLED);
+    radios[i]->disableCRC();
+    radios[i]->disableAckPayload();
+    radios[i]->disableDynamicPayloads();
   }
   digitalWrite(2, HIGH);
 }
@@ -67,7 +72,7 @@ void bluetooth_jam()
   HSPI_init();
   for (int j = 0; j < nrf24_count; j++)
   {
-    radios[j]->startConstCarrier(RF24_PA_MAX, 45);
+    radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
   }
   butt1.tick();
   bool SerialStop = true;
@@ -153,7 +158,7 @@ void drone_jam()
   HSPI_init();
   for (int j = 0; j < nrf24_count; j++)
   {
-    radios[j]->startConstCarrier(RF24_PA_MAX, 45);
+    radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
   }
   butt1.tick();
   bool SerialStop = true;
@@ -210,7 +215,7 @@ void drone_jam()
   DeinitRadios(true);
   HSPI_deinit();
 }
-void ble_jam()
+void ble_advertising_jam()
 {
   InitRadios();
   HSPI_init();
@@ -249,6 +254,47 @@ void ble_jam()
   DeinitRadios(false);
   HSPI_deinit();
 }
+void ble_data_jam()
+{
+  InitRadios();
+  HSPI_init();
+  for (int j = 0; j < nrf24_count; j++)
+  {
+    radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
+  }
+  butt1.tick();
+  bool SerialStop = true;
+  while (!butt1.isSingle() && SerialStop)
+  {
+    butt1.tick();
+    SerialStop = SerialCommands();
+    if (Separate_or_together == 0)
+    {
+      int total_channels = 40;
+      int base = total_channels / nrf24_count;
+      int rem = total_channels % nrf24_count;
+      int ch = 2;
+      for (int j = 0; j < nrf24_count; j++) {
+        int count = base + (j < rem ? 1 : 0);
+        for (int i = 0; i < count; i++, ch+=2) {
+          radios[j]->setChannel(ble_channels[ch]);
+        }
+      }
+    }
+    else
+    {
+      for (int ch = 2; ch <= 80; ch+=2)
+      {
+        for (int j = 0; j < nrf24_count; j++)
+        {
+          radios[j]->setChannel(ble_channels[ch]);
+        }
+      }
+    }
+  }
+  DeinitRadios(true);
+  HSPI_deinit();
+}
 void wifi_jam()
 {
   InitRadios();
@@ -257,11 +303,11 @@ void wifi_jam()
   bool SerialStop = true;
   while (!butt1.isSingle() && SerialStop)
   {
-    for (int channel = 0; channel < 13; channel++)
+    for (int channel = 0; channel < 14; channel++)
     {
       if (Separate_or_together == 0)
       {
-        int total_channels = 22;
+        int total_channels = 23;
         int base = total_channels / nrf24_count;
         int rem = total_channels % nrf24_count;
         int ch = (channel * 5) + 1;
@@ -279,7 +325,7 @@ void wifi_jam()
       }
       else
       {
-        for (int ch = (channel * 5) + 1; ch < (channel * 5) + 23; ch++)
+        for (int ch = (channel * 5) + 1; ch <= (channel * 5) + 23; ch++)
         {
           for (int j = 0; j < nrf24_count; j++)
           {
@@ -299,57 +345,6 @@ void wifi_jam()
   DeinitRadios(false);
   HSPI_deinit();
 }
-int scan_wifi_channels(int* channels, bool mode) {
-  WiFi.mode(WIFI_STA);
-  WiFi.disconnect();
-  int channelCount = 0;
-  int networks = WiFi.scanNetworks();
-  String current_ssid = getSSIDFromEEPROM();
-  String current_password = getPasswordFromEEPROM();
-
-  if (mode){
-    memset(channels, 0, 13 * sizeof(int));
-
-    for (int channel = 1; channel <= 14; channel++) {
-      bool channelHasNetworks = false;
-      
-      for (int i = 0; i < networks; i++) {
-        if (WiFi.channel(i) == channel) {
-          channelHasNetworks = true;
-          break;
-        }
-      }
-      
-      if (channelHasNetworks) {
-        channels[channelCount] = channel;
-        channelCount++;
-      }
-    }
-
-    WiFi.softAP(current_ssid.c_str(), current_password.c_str());
-    return channelCount;
-  }
-  else {
-    memset(channels, 0, 13 * sizeof(int));
-
-    for (int channel = 1; channel <= 14; channel++) {
-      bool channelHasNetworks = false;
-      int temp = 0;
-      for (int i = 0; i < networks; i++) {
-        if (WiFi.channel(i) == channel) {
-          temp++;
-          channelHasNetworks = true;
-        }
-      }
-      channels[channel-1] = temp;
-      if (channelHasNetworks) 
-        channelCount++;
-    }
-    
-    WiFi.softAP(current_ssid.c_str(), current_password.c_str());
-    return networks;
-  }
-}
 void wifi_scan_jam()
 {
   InitRadios();
@@ -360,12 +355,12 @@ void wifi_scan_jam()
 
   int NumberChannels = 0;
 
-  NumberChannels = scan_wifi_channels(WiFiScanChannels, true);
+  NumberChannels = scan_wifi_APs(WiFiScanChannels, true);
   
   while (!butt1.isSingle() && SerialStop)
   {
     if (scanCounter >= 10000) {
-      NumberChannels = scan_wifi_channels(WiFiScanChannels, true);
+      NumberChannels = scan_wifi_APs(WiFiScanChannels, true);
       scanCounter = 0;
     }
 
@@ -375,7 +370,7 @@ void wifi_scan_jam()
       
       if (Separate_or_together == 0)
       {
-        int total_channels = 22;
+        int total_channels = 23;
         int base = total_channels / nrf24_count;
         int rem = total_channels % nrf24_count;
         int ch = ((wifiChannel - 1) * 5) + 1;
@@ -397,7 +392,7 @@ void wifi_scan_jam()
       }
       else
       {
-        for (int ch = ((wifiChannel - 1) * 5) + 1; ch < ((wifiChannel - 1) * 5) + 23; ch++)
+        for (int ch = ((wifiChannel - 1) * 5) + 1; ch <= ((wifiChannel - 1) * 5) + 23; ch++)
         {
           for (int j = 0; j < nrf24_count; j++)
           {
@@ -432,7 +427,7 @@ void wifi_channel(int channel)
   {
     if (Separate_or_together == 0)
     {
-      int total_channels = 22;
+      int total_channels = 23;
       int base = total_channels / nrf24_count;
       int rem = total_channels % nrf24_count;
       int ch = (channel * 5) + 1;
@@ -450,7 +445,7 @@ void wifi_channel(int channel)
     }
     else
     {
-      for (int ch = (channel * 5) + 1; ch < (channel * 5) + 23; ch++)
+      for (int ch = (channel * 5) + 1; ch <= (channel * 5) + 23; ch++)
       {
         for (int j = 0; j < nrf24_count; j++)
         {
@@ -524,7 +519,7 @@ void misc_jam(int channel1, int channel2)
   if (misc_jam_method != 1){
     for (int j = 0; j < nrf24_count; j++)
     {
-      radios[j]->startConstCarrier(RF24_PA_MAX, 45);
+      radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
     }
   }
   butt1.tick();

@@ -1341,7 +1341,7 @@ const char *html = R"rawliteral(
             <div class="module-channels">13 channels</div>
         </div>
 
-        <div class="module-item" onclick="location.href='/ble_jam'">
+        <div class="module-item" onclick="location.href='/ble_select'">
             <div class="module-info">
                 <div class="module-name">BLE Jammer</div>
                 <div class="module-desc">Jams Bluetooth Low Energy devices</div>
@@ -2730,6 +2730,163 @@ const char *html_wifi_select = R"rawliteral(
 </html>
 )rawliteral";
 
+const char *html_ble_select = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --border: #30363d;
+            --text-primary: #ffffff;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .header {
+            text-align: center;
+        }
+        
+        .btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 166, 255, 0.2);
+        }
+        
+        .method-info {
+            text-align: left;
+        }
+        
+        .method-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .method-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .back-container {
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .back-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        .back-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BLE Jamming Mode</h1>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button class="btn" onclick="location.href='/ble_advertising_jam'">
+                <div class="method-info">
+                    <div class="method-name">Jam Advertising Channels</div>
+                    <div class="method-desc">Interfere with the three primary BLE advertising channels</div>
+                </div>
+            </button>
+            <button class="btn" onclick="location.href='/ble_data_jam'">
+                <div class="method-info">
+                    <div class="method-name">Jam Data Channels</div>
+                    <div class="method-desc">Interfere with all BLE data transmission channels</div>
+                </div>
+            </button>
+        </div>
+        
+        <div class="back-container">
+            <button class="back-btn" onclick="location.href='/'">
+                ← Back to Main Menu
+            </button>
+        </div>
+    </div>
+</body>
+</html>
+)rawliteral";
+
 const char *html_wifi_channel = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -3062,12 +3219,26 @@ const char *html_wifi_channel = R"rawliteral(
                 opacity: 1;
             }
         }
+
+        #ssidListContainer {
+            margin-top: 15px;
+        }
+
+        #ssidList {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
     </style>
 </head>
 
 <body>
     <div id="notification" class="notification" style="display: none;"></div>
-
     <div id="overlay" class="overlay" style="display: none;"></div>
 
     <div id="confirmDialog" class="confirm-dialog" style="display: none;">
@@ -3090,6 +3261,10 @@ const char *html_wifi_channel = R"rawliteral(
             <div class="channel-display-container">
                 <div id="channelDisplay" class="channel-display"></div>
                 <button id="rescanBtn" class="rescan-btn" onclick="showUpdateConfirm()">Rescan</button>
+            </div>
+            <div id="ssidListContainer" style="display: none;">
+                <label class="label">Access Points on this channel:</label>
+                <div id="ssidList"></div>
             </div>
         </div>
 
@@ -3116,6 +3291,8 @@ const char *html_wifi_channel = R"rawliteral(
         let ch12 = 0;
         let ch13 = 0;
         let ch14 = 0;
+		
+        let ssidsByChannel = [];
 
         let actionCallback = null;
         
@@ -3161,7 +3338,7 @@ const char *html_wifi_channel = R"rawliteral(
         function showUpdateConfirm() {
             showConfirmDialog(
                 "Rescan Wi-Fi APs",
-                "During the scanning process, the device will disconnect from the access point. Do you want to continue?",
+                "During the scanning process, the device will temporarily disconnect from the access point. Do you want to continue?",
                 startUpdateScan
             );
         }
@@ -3173,14 +3350,14 @@ const char *html_wifi_channel = R"rawliteral(
             }, 1000);
         }
 
-        function updateChannelDisplay(channel) {
-            const display = document.getElementById('channelDisplay');
-            const rescanBtn = document.getElementById('rescanBtn');
-            const channelValue = getChannelValue(channel);
-            
-            display.innerHTML = `Channel ${channel} : ${channelValue} WiFi APs`;
-            display.style.display = 'block';
-            rescanBtn.style.display = 'block';
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/[&<>"]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                return m;
+            });
         }
 
         function getChannelValue(channel) {
@@ -3201,6 +3378,31 @@ const char *html_wifi_channel = R"rawliteral(
                 case 14: return ch14;
                 default: return 0;
             }
+        }
+
+        function updateChannelDisplay(channel) {
+            const display = document.getElementById('channelDisplay');
+            const rescanBtn = document.getElementById('rescanBtn');
+            const ssidContainer = document.getElementById('ssidListContainer');
+            const ssidList = document.getElementById('ssidList');
+            
+            const channelValue = getChannelValue(channel);
+            display.innerHTML = `Channel ${channel} : ${channelValue} WiFi APs`;
+            display.style.display = 'block';
+            rescanBtn.style.display = 'block';
+
+            if (ssidsByChannel && ssidsByChannel[channel-1]) {
+                const ssids = ssidsByChannel[channel-1];
+                if (ssids.trim() !== '') {
+                    const lines = ssids.split('\n').filter(s => s.trim() !== '');
+                    if (lines.length > 0) {
+                        ssidList.innerHTML = lines.map(ssid => `<div>${escapeHtml(ssid)}</div>`).join('');
+                        ssidContainer.style.display = 'block';
+                        return;
+                    }
+                }
+            }
+            ssidContainer.style.display = 'none';
         }
 
         function validateAndRedirect() {
@@ -3225,6 +3427,17 @@ const char *html_wifi_channel = R"rawliteral(
             } else {
                 document.getElementById('channelDisplay').style.display = 'none';
                 document.getElementById('rescanBtn').style.display = 'none';
+                document.getElementById('ssidListContainer').style.display = 'none';
+            }
+        });
+
+        window.addEventListener('load', function() {
+            const input = document.getElementById('channelInput');
+            if (input.value) {
+                const val = parseInt(input.value);
+                if (!isNaN(val) && val >= 1 && val <= 14) {
+                    updateChannelDisplay(val);
+                }
             }
         });
 
