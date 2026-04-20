@@ -24,7 +24,6 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 -----
 
 ## 🎯 Possible Additions
-- **Deauthentication attack**
 - **BLE spam**
 - **Beacon spam**
 - **nRF24 mousejack**
@@ -209,6 +208,10 @@ Follow these steps to flash the firmware:
 - **Long press** → Continuous channel +1 (every 100ms)
 - **Double press** → Select channel
 
+#### 📡 WiFi Attack
+- **Short press** → Stop attack
+- **Double press** → Switch between jam\deauth
+
 </div>
 </details>
 
@@ -224,6 +227,10 @@ Follow these steps to flash the firmware:
 - **Next button** short press → Channel +1
 - **Next button** long press → Continuous channel +1 (every 100ms)
 - **OK button** short press → Select channel
+
+#### 📡 WiFi Attack
+- **Short press** → Stop attack
+- **Next button** → Switch between jam\deauth
 
 </div>
 </details>
@@ -243,6 +250,11 @@ Follow these steps to flash the firmware:
 - **Previous button** short press → Channel -1
 - **Previous button** long press → Continuous channel -1 (every 100ms)
 - **OK button** short press → Select channel
+
+#### 📡 WiFi Attack
+- **Short press** → Stop attack
+- **Next button** → Switch between jam\deauth
+- **Previous button** → Switch between jam\deauth
 
 </div>
 </details>
