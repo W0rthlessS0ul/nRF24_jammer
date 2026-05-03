@@ -108,9 +108,9 @@ void bluetooth_jam()
       }
       if ( bluetooth_jam_method == 1 )
       {
-        int random_channel = random(80);
         for ( int j = 0; j < nrf24_count; j++ )
         {
+          int random_channel = random(80);
           radios[j]->setChannel(random_channel);
         }
       }
