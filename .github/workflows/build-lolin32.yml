@@ -1,0 +1,65 @@
+# ============================================================
+# GitHub Actions – Build firmware per ESP32 LOLIN32 Lite
+# Produce: firmware.bin  bootloader.bin  partitions.bin
+# Artifact: lolin32-firmware  (scaricabile dalla tab Actions)
+# ============================================================
+name: Build LOLIN32 Lite Firmware
+
+on:
+  push:
+    branches:
+      - lolin32-lite
+  pull_request:
+    branches:
+      - lolin32-lite
+  workflow_dispatch:   # avvio manuale dalla UI GitHub
+
+jobs:
+  build:
+    name: PlatformIO build – 128x64_LOLIN32
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Cache PlatformIO packages (velocizza i rebuild) ───
+      - name: Cache PlatformIO packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio/packages
+            ~/.platformio/platforms
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+          restore-keys: pio-${{ runner.os }}-
+
+      # ── 3. Installa PlatformIO Core ──────────────────────────
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # ── 4. Build solo l'environment LOLIN32 ─────────────────
+      - name: Build 128x64_LOLIN32
+        run: pio run -e 128x64_LOLIN32
+
+      # ── 5. Raccoglie i tre file binari necessari al flash ────
+      #   firmware.bin      → codice applicativo
+      #   bootloader.bin    → bootloader ESP32
+      #   partitions.bin    → tabella partizioni
+      - name: Collect firmware artifacts
+        run: |
+          mkdir -p firmware
+          cp .pio/build/128x64_LOLIN32/firmware.bin         firmware/firmware.bin
+          cp .pio/build/128x64_LOLIN32/bootloader.bin       firmware/bootloader.bin
+          cp .pio/build/128x64_LOLIN32/partitions.bin       firmware/partitions.bin
+          # Stampa SHA256 per verifica integrità
+          sha256sum firmware/*
+
+      # ── 6. Pubblica l'artifact scaricabile ───────────────────
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lolin32-firmware-${{ github.sha }}
+          path: firmware/
+          retention-days: 30
+          if-no-files-found: error
