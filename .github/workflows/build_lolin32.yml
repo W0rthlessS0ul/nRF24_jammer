@@ -1,0 +1,147 @@
+# ============================================================
+# GitHub Actions: Build firmware .bin per LOLIN32 Lite
+# Attivato su push/PR al branch lolin32-lite-port
+# Produce firmware.bin e bootloader + partition table
+# per flash via esptool da CLI su Linux
+# ============================================================
+name: Build LOLIN32 Lite Firmware
+
+on:
+  push:
+    branches:
+      - lolin32-lite-port
+      - main
+    paths:
+      - 'src/128x64_LOLIN32/**'
+      - 'include/128x64_LOLIN32/**'
+      - 'platformio.ini'
+      - '.github/workflows/build_lolin32.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/128x64_LOLIN32/**'
+      - 'include/128x64_LOLIN32/**'
+      - 'platformio.ini'
+  workflow_dispatch:  # permette esecuzione manuale dalla UI GitHub
+
+jobs:
+  build:
+    name: Build 128x64_LOLIN32
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            .pio
+          key: pio-lolin32-${{ hashFiles('platformio.ini') }}
+          restore-keys: |
+            pio-lolin32-
+
+      - name: Install Python & PlatformIO
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO Core
+        run: |
+          pip install --upgrade pip
+          pip install platformio
+
+      - name: Build firmware (128x64_LOLIN32)
+        run: |
+          pio run -e 128x64_LOLIN32
+
+      - name: Collect build artifacts
+        run: |
+          mkdir -p artifacts
+          # Firmware principale
+          cp .pio/build/128x64_LOLIN32/firmware.bin artifacts/firmware_lolin32.bin
+          # Bootloader
+          cp .pio/build/128x64_LOLIN32/bootloader.bin artifacts/bootloader_lolin32.bin
+          # Partition table
+          cp .pio/build/128x64_LOLIN32/partitions.bin artifacts/partitions_lolin32.bin
+          # Riepilogo
+          echo "=== Build artifacts ==="
+          ls -lh artifacts/
+          echo "=== Firmware size ==="
+          size .pio/build/128x64_LOLIN32/firmware.elf 2>/dev/null || true
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lolin32-firmware-${{ github.sha }}
+          path: artifacts/
+          retention-days: 30
+
+      - name: Generate flash command reference
+        run: |
+          cat << 'EOF' > artifacts/FLASH_INSTRUCTIONS.md
+          # Come flashare il firmware su LOLIN32 Lite da Linux
+
+          ## 1. Installa esptool
+          ```bash
+          pip install esptool
+          # oppure
+          sudo apt install python3-esptool
+          ```
+
+          ## 2. Identifica la porta seriale
+          ```bash
+          ls /dev/ttyUSB* /dev/ttyACM*
+          # Solitamente: /dev/ttyUSB0
+          ```
+
+          ## 3. Aggiungi il tuo utente al gruppo dialout
+          ```bash
+          sudo usermod -aG dialout $USER
+          # Riavviare la sessione dopo questo comando
+          ```
+
+          ## 4. Flash COMPLETO (bootloader + partizioni + firmware)
+          ```bash
+          esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 921600 \
+            --before default_reset --after hard_reset write_flash -z \
+            --flash_mode dio --flash_freq 80m --flash_size 4MB \
+            0x1000  bootloader_lolin32.bin \
+            0x8000  partitions_lolin32.bin \
+            0x10000 firmware_lolin32.bin
+          ```
+
+          ## 5. Flash solo firmware (aggiornamento, bootloader gia' presente)
+          ```bash
+          esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 921600 \
+            write_flash -z 0x10000 firmware_lolin32.bin
+          ```
+
+          ## 6. Monitor seriale (dopo il flash)
+          ```bash
+          # Con PlatformIO:
+          pio device monitor -p /dev/ttyUSB0 -b 115200
+          # Con minicom:
+          minicom -D /dev/ttyUSB0 -b 115200
+          # Con screen:
+          screen /dev/ttyUSB0 115200
+          # Con picocom:
+          picocom -b 115200 /dev/ttyUSB0
+          ```
+
+          ## 7. Erase flash (factory reset EEPROM)
+          ```bash
+          esptool.py --chip esp32 --port /dev/ttyUSB0 erase_flash
+          ```
+          EOF
+          cat artifacts/FLASH_INSTRUCTIONS.md
+
+      - name: Re-upload with instructions
+        uses: actions/upload-artifact@v4
+        with:
+          name: lolin32-firmware-with-instructions-${{ github.sha }}
+          path: artifacts/
+          retention-days: 30
