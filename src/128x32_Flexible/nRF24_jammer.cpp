@@ -465,6 +465,13 @@ void initWiFiSettings()
   {
     saveWiFiSettings(default_ssid, default_password);
   }
+  // If EEPROM contains an empty SSID (zeros), populate defaults so SoftAP can start
+  String ssid = getSSIDFromEEPROM();
+  if ( ssid.length() == 0 )
+  {
+    Serial.println("[DEBUG] EEPROM SSID empty — writing default SSID/password");
+    saveWiFiSettings(default_ssid, default_password);
+  }
 }
 
 String getSSIDFromEEPROM()
@@ -1327,13 +1334,31 @@ void setup()
     WiFi.mode(WIFI_AP);
     delay(100);
 
-    if ( WiFi.softAP(current_ssid.c_str(), current_password.c_str()) )
+    Serial.println("[DEBUG] Starting SoftAP...");
+    Serial.println("[DEBUG] EEPROM SSID: " + current_ssid);
+    Serial.println("[DEBUG] EEPROM PASS: " + current_password);
+    bool softap_ok = WiFi.softAP(current_ssid.c_str(), current_password.c_str());
+    Serial.printf("[DEBUG] WiFi.softAP returned: %d\n", softap_ok);
+    IPAddress apIp = WiFi.softAPIP();
+    Serial.print("[DEBUG] WiFi.softAPIP(): ");
+    Serial.println(apIp);
+    Serial.printf("[DEBUG] WiFi.getMode(): %d\n", WiFi.getMode());
+
+    if ( softap_ok )
     {
-      IPAddress apIp = WiFi.softAPIP();
       if ( apIp != IPAddress((uint32_t)0) )
       {
         dnsServerStarted = dnsServer.start(53, "*", apIp);
+        Serial.printf("[DEBUG] dnsServer.start returned: %d\n", dnsServerStarted);
       }
+      else
+      {
+        Serial.println("[DEBUG] AP IP is 0.0.0.0, not starting DNS");
+      }
+    }
+    else
+    {
+      Serial.println("[DEBUG] WiFi.softAP failed");
     }
 
     registerRoute("/", handleRoot);
@@ -1428,6 +1453,7 @@ void setup()
 
     server.begin();
     webServerStarted = true;
+    Serial.printf("[DEBUG] webServerStarted=%d dnsServerStarted=%d\n", webServerStarted, dnsServerStarted);
   }
   Serial.println(logotype + "\n\n");
 
