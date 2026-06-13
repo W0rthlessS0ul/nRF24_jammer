@@ -5,6 +5,9 @@
 #include "scan.h"
 #include "serial.h"
 
+static bool webServerStarted = false;
+static bool dnsServerStarted = false;
+
 void handleRoot()
 {
   String main_html = FPSTR(html);
@@ -1321,9 +1324,17 @@ void setup()
     String current_ssid     = getSSIDFromEEPROM();
     String current_password = getPasswordFromEEPROM();
 
-    WiFi.softAP(current_ssid.c_str(), current_password.c_str());
+    WiFi.mode(WIFI_AP);
+    delay(100);
 
-    dnsServer.start(53, "*", WiFi.softAPIP());
+    if ( WiFi.softAP(current_ssid.c_str(), current_password.c_str()) )
+    {
+      IPAddress apIp = WiFi.softAPIP();
+      if ( apIp != IPAddress((uint32_t)0) )
+      {
+        dnsServerStarted = dnsServer.start(53, "*", apIp);
+      }
+    }
 
     registerRoute("/", handleRoot);
     registerRoute("/bluetooth_jam", []() { jamHandler(String("Bluetooth Jamming"), bluetooth_jam, bitmap_bluetooth_jam); });
@@ -1416,6 +1427,7 @@ void setup()
     registerRoute("/set_nrf24_pins", []() { handlernRF24Pins(); });
 
     server.begin();
+    webServerStarted = true;
   }
   Serial.println(logotype + "\n\n");
 
@@ -1484,8 +1496,14 @@ void executeAction(int menuNum)
     display.display();
     while ( nrf24_count <= 0 )
     {
-      server.handleClient();
-      dnsServer.processNextRequest();
+      if ( webServerStarted )
+      {
+        server.handleClient();
+      }
+      if ( dnsServerStarted )
+      {
+        dnsServer.processNextRequest();
+      }
       delay(100);
     }
   }
@@ -1547,8 +1565,14 @@ void loop()
 
   if ( access_point == 0 )
   {
-    server.handleClient();
-    dnsServer.processNextRequest();
+    if ( webServerStarted )
+    {
+      server.handleClient();
+    }
+    if ( dnsServerStarted )
+    {
+      dnsServer.processNextRequest();
+    }
   }
   if ( buttons == 0 )
   {
