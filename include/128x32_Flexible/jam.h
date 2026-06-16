@@ -1,8 +1,8 @@
 #ifndef JAM_H
 #define JAM_H
 
+#include "attack.h"
 #include "config.h"
-#include "deauth.h"
 #include "scan.h"
 #include "serial.h"
 
@@ -16,5 +16,8 @@ void wifi_scan_jam();
 void wifi_channel(int channel);
 void zigbee_jam();
 void misc_jam(int channel1, int channel2);
+void jamHandler(void (*action)(), String htmlResponse = "", const unsigned char *bitmap = nullptr, bool mode = false, bool isMisc = false, bool scan = false, int ch1 = 0, int ch2 = 0);
+
+void updateDisplay(int menuNum);
 
 #endif

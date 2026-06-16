@@ -1,6 +1,8 @@
 #include "jam.h"
 
-int nrf_pa_level;
+int        nrf_pa_level;
+static int global_ch1, global_ch2;
+bool       stopJam = false;
 
 void InitRadios()
 {
@@ -77,18 +79,9 @@ void HSPI_deinit()
 }
 void bluetooth_jam()
 {
-  InitRadios();
-  HSPI_init();
-  for ( int j = 0; j < nrf24_count; j++ )
+  vTaskPrioritySet(NULL, 3);
+  while ( !stopJam )
   {
-    radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
-  }
-  btnOK.tick();
-  bool SerialStop = true;
-  while ( !btnOK.isSingle() && SerialStop )
-  {
-    btnOK.tick();
-    SerialStop = SerialCommands();
     if ( Separate_or_together == 0 )
     {
       if ( bluetooth_jam_method == 0 )
@@ -162,30 +155,20 @@ void bluetooth_jam()
       }
     }
   }
-  DeinitRadios(true);
-  HSPI_deinit();
+  vTaskDelete(NULL);
 }
 void drone_jam()
 {
-  InitRadios();
-  HSPI_init();
-  for ( int j = 0; j < nrf24_count; j++ )
+  vTaskPrioritySet(NULL, 3);
+  while ( !stopJam )
   {
-    radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
-  }
-  btnOK.tick();
-  bool SerialStop = true;
-  while ( !btnOK.isSingle() && SerialStop )
-  {
-    btnOK.tick();
-    SerialStop = SerialCommands();
     if ( Separate_or_together == 0 )
     {
       if ( drone_jam_method == 0 )
       {
-        int random_channel = random(125);
         for ( int j = 0; j < nrf24_count; j++ )
         {
+          int random_channel = random(125);
           radios[j]->setChannel(random_channel);
         }
       }
@@ -227,19 +210,13 @@ void drone_jam()
       }
     }
   }
-  DeinitRadios(true);
-  HSPI_deinit();
+  vTaskDelete(NULL);
 }
 void ble_advertising_jam()
 {
-  InitRadios();
-  HSPI_init();
-  btnOK.tick();
-  bool SerialStop = true;
-  while ( !btnOK.isSingle() && SerialStop )
+  vTaskPrioritySet(NULL, 3);
+  while ( !stopJam )
   {
-    btnOK.tick();
-    SerialStop = SerialCommands();
     if ( Separate_or_together == 0 )
     {
       int total_channels = 3;
@@ -268,23 +245,13 @@ void ble_advertising_jam()
       }
     }
   }
-  DeinitRadios(false);
-  HSPI_deinit();
+  vTaskDelete(NULL);
 }
 void ble_data_jam()
 {
-  InitRadios();
-  HSPI_init();
-  for ( int j = 0; j < nrf24_count; j++ )
+  vTaskPrioritySet(NULL, 3);
+  while ( !stopJam )
   {
-    radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
-  }
-  btnOK.tick();
-  bool SerialStop = true;
-  while ( !btnOK.isSingle() && SerialStop )
-  {
-    btnOK.tick();
-    SerialStop = SerialCommands();
     if ( Separate_or_together == 0 )
     {
       int total_channels = 40;
@@ -311,18 +278,12 @@ void ble_data_jam()
       }
     }
   }
-  DeinitRadios(true);
-  HSPI_deinit();
+  vTaskDelete(NULL);
 }
 void wifi_jam()
 {
-  InitRadios();
-  HSPI_init();
-  btnNext.tick();
-  btnOK.tick();
-  btnPrevious.tick();
-  bool SerialStop = true;
-  while ( (!btnNext.isSingle() && !btnPrevious.isSingle() && !btnOK.isDouble() && !btnOK.isSingle()) && SerialStop )
+  vTaskPrioritySet(NULL, 3);
+  while ( !stopJam )
   {
     for ( int channel = 0; channel < 14; channel++ )
     {
@@ -337,10 +298,6 @@ void wifi_jam()
           int count = base + (j < rem ? 1 : 0);
           for ( int i = 0; i < count; i++, ch++ )
           {
-            btnNext.tick();
-            btnOK.tick();
-            btnPrevious.tick();
-            SerialStop = SerialCommands();
             radios[j]->setChannel(ch);
             radios[j]->writeFast(&jam_text, sizeof(jam_text));
           }
@@ -352,10 +309,6 @@ void wifi_jam()
         {
           for ( int j = 0; j < nrf24_count; j++ )
           {
-            btnNext.tick();
-            btnOK.tick();
-            btnPrevious.tick();
-            SerialStop = SerialCommands();
             radios[j]->setChannel(ch);
             radios[j]->writeFast(&jam_text, sizeof(jam_text));
           }
@@ -363,19 +316,13 @@ void wifi_jam()
       }
     }
   }
-  DeinitRadios(false);
-  HSPI_deinit();
+  vTaskDelete(NULL);
 }
 void wifi_scan_jam()
 {
-  InitRadios();
-  HSPI_init();
-  btnNext.tick();
-  btnOK.tick();
-  btnPrevious.tick();
-  bool SerialStop  = SerialCommands();
-  int  scanCounter = 0;
-  while ( (!btnNext.isSingle() && !btnPrevious.isSingle() && !btnOK.isDouble() && !btnOK.isSingle()) && SerialStop )
+  vTaskPrioritySet(NULL, 3);
+  int scanCounter = 0;
+  while ( !stopJam )
   {
     if ( scanCounter >= 10000 )
     {
@@ -399,11 +346,6 @@ void wifi_scan_jam()
           int count = base + (j < rem ? 1 : 0);
           for ( int i = 0; i < count; i++, ch++ )
           {
-            btnNext.tick();
-            btnOK.tick();
-            btnPrevious.tick();
-            SerialStop = SerialCommands();
-
             if ( ch >= 1 && ch <= 125 )
             {
               radios[j]->setChannel(ch);
@@ -418,11 +360,6 @@ void wifi_scan_jam()
         {
           for ( int j = 0; j < nrf24_count; j++ )
           {
-            btnNext.tick();
-            btnOK.tick();
-            btnPrevious.tick();
-            SerialStop = SerialCommands();
-
             if ( ch >= 1 && ch <= 125 )
             {
               radios[j]->setChannel(ch);
@@ -434,34 +371,24 @@ void wifi_scan_jam()
     }
     scanCounter++;
   }
-  DeinitRadios(false);
-  HSPI_deinit();
+  vTaskDelete(NULL);
 }
-void wifi_channel(int channel)
+void wifi_channel(int channel1)
 {
-  InitRadios();
-  HSPI_init();
-  btnNext.tick();
-  btnOK.tick();
-  btnPrevious.tick();
-  bool SerialStop = true;
-  while ( (!btnNext.isSingle() && !btnPrevious.isSingle() && !btnOK.isDouble() && !btnOK.isSingle()) && SerialStop )
+  vTaskPrioritySet(NULL, 3);
+  while ( !stopJam )
   {
     if ( Separate_or_together == 0 )
     {
       int total_channels = 23;
       int base           = total_channels / nrf24_count;
       int rem            = total_channels % nrf24_count;
-      int ch             = (channel * 5) + 1;
+      int ch             = (global_ch1 * 5) + 1;
       for ( int j = 0; j < nrf24_count; j++ )
       {
         int count = base + (j < rem ? 1 : 0);
         for ( int i = 0; i < count; i++, ch++ )
         {
-          btnNext.tick();
-          btnOK.tick();
-          btnPrevious.tick();
-          SerialStop = SerialCommands();
           radios[j]->setChannel(ch);
           radios[j]->writeFast(&jam_text, sizeof(jam_text));
         }
@@ -469,30 +396,22 @@ void wifi_channel(int channel)
     }
     else
     {
-      for ( int ch = (channel * 5) + 1; ch <= (channel * 5) + 23; ch++ )
+      for ( int ch = (global_ch1 * 5) + 1; ch <= (global_ch1 * 5) + 23; ch++ )
       {
         for ( int j = 0; j < nrf24_count; j++ )
         {
-          btnNext.tick();
-          btnOK.tick();
-          btnPrevious.tick();
-          SerialStop = SerialCommands();
           radios[j]->setChannel(ch);
           radios[j]->writeFast(&jam_text, sizeof(jam_text));
         }
       }
     }
   }
-  DeinitRadios(false);
-  HSPI_deinit();
+  vTaskDelete(NULL);
 }
 void zigbee_jam()
 {
-  InitRadios();
-  HSPI_init();
-  btnOK.tick();
-  bool SerialStop = true;
-  while ( !btnOK.isSingle() && SerialStop )
+  vTaskPrioritySet(NULL, 3);
+  while ( !stopJam )
   {
     for ( int channel = 11; channel < 27; channel++ )
     {
@@ -507,10 +426,6 @@ void zigbee_jam()
           int count = base + (j < rem ? 1 : 0);
           for ( int i = 0; i < count; i++, ch++ )
           {
-            btnOK.tick();
-            SerialStop = SerialCommands();
-            if ( btnOK.isSingle() || !SerialStop )
-              break;
             radios[j]->setChannel(ch);
             radios[j]->writeFast(&jam_text, sizeof(jam_text));
           }
@@ -522,45 +437,26 @@ void zigbee_jam()
         {
           for ( int j = 0; j < nrf24_count; j++ )
           {
-            btnOK.tick();
-            SerialStop = SerialCommands();
-            if ( btnOK.isSingle() || !SerialStop )
-              break;
             radios[j]->setChannel(ch);
             radios[j]->writeFast(&jam_text, sizeof(jam_text));
           }
         }
       }
-      if ( btnOK.isSingle() || !SerialStop )
-        break;
     }
   }
-  DeinitRadios(false);
-  HSPI_deinit();
+  vTaskDelete(NULL);
 }
 void misc_jam(int channel1, int channel2)
 {
-  InitRadios();
-  HSPI_init();
-  if ( misc_jam_method != 1 )
+  vTaskPrioritySet(NULL, 3);
+  while ( !stopJam )
   {
-    for ( int j = 0; j < nrf24_count; j++ )
-    {
-      radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
-    }
-  }
-  btnOK.tick();
-  bool SerialStop = true;
-  while ( !btnOK.isSingle() && SerialStop )
-  {
-    btnOK.tick();
-    SerialStop = SerialCommands();
     if ( Separate_or_together == 0 )
     {
-      int total_channels = channel2 - channel1 + 1;
+      int total_channels = global_ch2 - global_ch1 + 1;
       int base           = total_channels / nrf24_count;
       int rem            = total_channels % nrf24_count;
-      int ch             = channel1;
+      int ch             = global_ch1;
       for ( int j = 0; j < nrf24_count; j++ )
       {
         int count = base + (j < rem ? 1 : 0);
@@ -576,7 +472,7 @@ void misc_jam(int channel1, int channel2)
     }
     else
     {
-      for ( int ch = channel1; ch <= channel2; ch++ )
+      for ( int ch = global_ch1; ch <= global_ch2; ch++ )
       {
         for ( int j = 0; j < nrf24_count; j++ )
         {
@@ -589,13 +485,93 @@ void misc_jam(int channel1, int channel2)
       }
     }
   }
-  if ( misc_jam_method != 1 )
+  vTaskDelete(NULL);
+}
+
+void jamHandler(void (*action)(), String htmlResponse, const unsigned char *bitmap, bool mode, bool isMisc, bool scan, int ch1, int ch2)
+{
+  global_ch1              = ch1;
+  global_ch2              = ch2;
+  stopJam                 = false;
+  String       html       = FPSTR(html_jam);
+  TaskHandle_t TaskHandle = NULL;
+
+  display.clearDisplay();
+  display.drawBitmap(0, 0, bitmap, SCREEN_WIDTH, SCREEN_HEIGHT, WHITE);
+  display.display();
+
+  html.replace("[||]EdItAbLe TeXt[||]", htmlResponse);
+  server.send(200, "text/html", html.c_str());
+  html.replace(htmlResponse, "[||]EdItAbLe TeXt[||]");
+
+  if ( scan )
   {
-    DeinitRadios(true);
+    delay(500);
+    if ( access_point == 0 )
+      WiFi.softAPdisconnect();
+    WiFi.mode(WIFI_STA);
+    delay(100);
+    NumberChannels = scan_wifi_APs(WiFiScanChannels, true);
+  }
+
+  InitRadios();
+  HSPI_init();
+  if ( isMisc )
+  {
+    if ( misc_jam_method != 1 )
+    {
+      for ( int j = 0; j < nrf24_count; j++ )
+      {
+        radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
+      }
+    }
   }
   else
   {
-    DeinitRadios(false);
+    for ( int j = 0; j < nrf24_count; j++ )
+    {
+      radios[j]->startConstCarrier(static_cast<rf24_pa_dbm_e>(nrf_pa_level), 45);
+    }
+  }
+
+  xTaskCreatePinnedToCore(reinterpret_cast<TaskFunction_t>(action), "Jammer", 4096, NULL, 3, &TaskHandle, 0);
+
+  btnNext.tick();
+  btnOK.tick();
+  btnPrevious.tick();
+  bool SerialStop = true;
+  while ( !btnOK.isSingle() && SerialStop )
+  {
+    randomSeed(esp_random() + millis());
+    btnNext.tick();
+    btnOK.tick();
+    btnPrevious.tick();
+    SerialStop = SerialCommands();
+    if ( (btnNext.isSingle() || btnPrevious.isSingle() || btnOK.isDouble()) && mode )
+      break;
+    delay(1);
+  }
+  stopJam = true;
+  while ( eTaskGetState(TaskHandle) != eDeleted )
+  {
+    delay(1);
+  }
+  TaskHandle = NULL;
+  if ( isMisc )
+  {
+    if ( misc_jam_method != 1 )
+    {
+      DeinitRadios(true);
+    }
+    else
+    {
+      DeinitRadios(false);
+    }
+  }
+  else
+  {
+    DeinitRadios(true);
   }
   HSPI_deinit();
+  updateDisplay(menu_number);
 }

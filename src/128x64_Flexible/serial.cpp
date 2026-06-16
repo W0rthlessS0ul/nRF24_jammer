@@ -79,19 +79,44 @@ bool CommandsHandler(String command, bool web_command)
   if ( command.length() == 0 )
     return true;
 
-  String args[10];
+  String args[15];
   int    argCount = 0;
   int    pos      = 0;
-  while ( pos < command.length() && argCount < 10 )
+  int    len      = command.length();
+
+  while ( pos < len && argCount < 15 )
   {
-    int space = command.indexOf(' ', pos);
-    if ( space == -1 )
-    {
-      args[argCount++] = command.substring(pos);
+    while ( pos < len && command[pos] == ' ' )
+      pos++;
+    if ( pos >= len )
       break;
+
+    String token = "";
+
+    if ( command[pos] == '"' )
+    {
+      pos++;
+      while ( pos < len && command[pos] != '"' )
+      {
+        token += command[pos];
+        pos++;
+      }
+      if ( pos < len && command[pos] == '"' )
+        pos++;
     }
-    args[argCount++] = command.substring(pos, space);
-    pos              = space + 1;
+    else
+    {
+      while ( pos < len && command[pos] != ' ' )
+      {
+        token += command[pos];
+        pos++;
+      }
+    }
+
+    if ( token.length() > 0 )
+    {
+      args[argCount++] = token;
+    }
   }
 
   args[0].toLowerCase();
@@ -217,7 +242,7 @@ bool handleJamCommand(String *args, int argCount, bool web_command, String &resp
     printLine("Starting Bluetooth jammer...", response, web_command);
     if ( web_command )
       server.send(200, "text/html", response + "ok\n");
-    jamHandler("Bluetooth Jamming", bluetooth_jam, bitmap_bluetooth_jam);
+    jamHandler(bluetooth_jam, String("Bluetooth Jamming"), bitmap_bluetooth_jam, false);
     return true;
   }
 
@@ -226,7 +251,7 @@ bool handleJamCommand(String *args, int argCount, bool web_command, String &resp
     printLine("Starting Drone jammer...", response, web_command);
     if ( web_command )
       server.send(200, "text/html", response + "ok\n");
-    jamHandler("Drone Jamming", drone_jam, bitmap_drone_jam);
+    jamHandler(drone_jam, String("Drone Jamming"), bitmap_drone_jam, false);
     return true;
   }
 
@@ -250,7 +275,7 @@ bool handleJamCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Starting WiFi all channels jammer...", response, web_command);
       if ( web_command )
         server.send(200, "text/html", response + "ok\n");
-      jamHandler("WiFi Jamming", wifi_jam, bitmap_wifi_jam);
+      jamHandler(wifi_jam, String("WiFi Jamming"), bitmap_wifi_jam, false);
       return true;
     }
 
@@ -259,7 +284,7 @@ bool handleJamCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Starting WiFi smart jammer...", response, web_command);
       if ( web_command )
         server.send(200, "text/html", response + "ok\n");
-      jamHandler("WiFi Jamming", wifi_scan_jam, bitmap_wifi_jam);
+      jamHandler(wifi_scan_jam, String("WiFi Jamming"), bitmap_wifi_jam, false);
       return true;
     }
 
@@ -310,7 +335,7 @@ bool handleJamCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Starting BLE advertising jammer...", response, web_command);
       if ( web_command )
         server.send(200, "text/html", response + "ok\n");
-      jamHandler("BLE Jamming", ble_advertising_jam, bitmap_ble_jam);
+      jamHandler(ble_advertising_jam, String("BLE Jamming"), bitmap_ble_jam, false);
       return true;
     }
 
@@ -319,7 +344,7 @@ bool handleJamCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Starting BLE data jammer...", response, web_command);
       if ( web_command )
         server.send(200, "text/html", response + "ok\n");
-      jamHandler("BLE Jamming", ble_data_jam, bitmap_ble_jam);
+      jamHandler(ble_data_jam, String("BLE Jamming"), bitmap_ble_jam, false);
       return true;
     }
 
@@ -332,7 +357,7 @@ bool handleJamCommand(String *args, int argCount, bool web_command, String &resp
     printLine("Starting Zigbee jammer...", response, web_command);
     if ( web_command )
       server.send(200, "text/html", response + "ok\n");
-    jamHandler("Zigbee Jamming", zigbee_jam, bitmap_zigbee_jam);
+    jamHandler(zigbee_jam, String("Zigbee Jamming"), bitmap_zigbee_jam, false);
     return true;
   }
 
@@ -411,6 +436,7 @@ bool handleAttackCommand(String *args, int argCount, bool web_command, String &r
     {
       printLine("", response, web_command);
       printCmd("deauth", "Deauth attack", response, web_command);
+      printCmd("spam", "Beacon spam attack", response, web_command);
       printLine("", response, web_command);
       return true;
     }
@@ -445,13 +471,14 @@ bool handleAttackCommand(String *args, int argCount, bool web_command, String &r
       if ( deauthSub == "smart" )
       {
         printLine("Starting WiFi smart deauther...", response, web_command);
+        if ( access_point == 0 )
+          WiFi.softAPdisconnect();
         WiFi.mode(WIFI_STA);
-        WiFi.disconnect();
         delay(100);
         NumberChannels = scan_wifi_APs(WiFiScanChannels, true);
         if ( web_command )
           server.send(200, "text/html", response + "ok\n");
-        attackHandler(String("WiFi Deauthing"), wifi_deauth_scan, bitmap_wifi_deauth);
+        attackScanHandler(String("WiFi Deauthing"), wifi_deauth_scan, bitmap_wifi_deauth);
         return true;
       }
 
@@ -478,14 +505,52 @@ bool handleAttackCommand(String *args, int argCount, bool web_command, String &r
         updateDisplay(menu_number);
         return true;
       }
+
+      printLine("Unknown deauth option type 'attack wifi deauth' for list", response, web_command);
       return true;
     }
 
-    printLine("Unknown deauth option Type 'attack deauth' for list", response, web_command);
+    if ( wifiSub == "spam" )
+    {
+      if ( argCount == 3 )
+      {
+        printLine("", response, web_command);
+        printCmd("random", "Spam with randomly generated SSIDs", response, web_command);
+        printCmd("array", "Spam using SSIDs from the predefined array in settings", response, web_command);
+        printLine("", response, web_command);
+        return true;
+      }
+
+      String spamSub = args[3];
+      spamSub.toLowerCase();
+
+      if ( spamSub == "random" )
+      {
+        printLine("Starting random beacon spaming...", response, web_command);
+        if ( web_command )
+          server.send(200, "text/html", response + "ok\n");
+        attackHandler(String("WiFi Beacon Spaming"), wifi_beacon_spam_random, bitmap_beacon_spaming);
+        return true;
+      }
+
+      if ( spamSub == "array" )
+      {
+        printLine("Starting array beacon spaming...", response, web_command);
+        if ( web_command )
+          server.send(200, "text/html", response + "ok\n");
+        attackHandler(String("WiFi Beacon Spaming"), wifi_beacon_spam_array, bitmap_beacon_spaming);
+        return true;
+      }
+
+      printLine("Unknown spam option type 'attack wifi spam' for list", response, web_command);
+      return true;
+    }
+
+    printLine("Unknown attack option type 'attack wifi' for list", response, web_command);
     return true;
   }
 
-  printLine("Unknown attack mode Type 'attack' for list", response, web_command);
+  printLine("Unknown attack mode type 'attack' for list", response, web_command);
   return true;
 }
 
@@ -643,6 +708,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
     printCmd("sweep", "Channel sweep direction", response, web_command);
     printCmd("PA", "nRF24 PA settings", response, web_command);
     printCmd("nrf24", "nRF24 pins configure", response, web_command);
+    printCmd("array", "SSIDs array for WiFi array beacon spam", response, web_command);
     printLine("", response, web_command);
     return true;
   }
@@ -669,7 +735,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Value must be 0-2", response, web_command);
       return true;
     }
-    storeEEPROMAndSet(0, val, bluetooth_jam_method);
+    storeEEPROMAndSet("bl_jam_configs", val, bluetooth_jam_method);
     printLine("Bluetooth method set to " + String(val), response, web_command);
     return true;
   }
@@ -692,7 +758,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Value must be 0-1", response, web_command);
       return true;
     }
-    storeEEPROMAndSet(1, val, drone_jam_method);
+    storeEEPROMAndSet("drone_jam_configs", val, drone_jam_method);
     printLine("Drone method set to " + String(val), response, web_command);
     return true;
   }
@@ -715,7 +781,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Value must be 0-1", response, web_command);
       return true;
     }
-    storeEEPROMAndSet(6, val, misc_jam_method);
+    storeEEPROMAndSet("mics_jam_configs", val, misc_jam_method);
     printLine("Misc method set to " + String(val), response, web_command);
     return true;
   }
@@ -738,7 +804,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Value must be 0-1", response, web_command);
       return true;
     }
-    storeEEPROMAndSet(7, val, logo);
+    storeEEPROMAndSet("logo_configs", val, logo);
     printLine("Logo setting set to " + String(val), response, web_command);
     return true;
   }
@@ -767,7 +833,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
     }
     else
     {
-      storeEEPROMAndSet(8, 0, access_point);
+      storeEEPROMAndSet("AP_configs", 0, access_point);
       printLine("Access point will be enabled after reboot", response, web_command);
       if ( web_command )
         server.send(200, "text/html", response + "ok\n");
@@ -795,7 +861,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Value must be 0-2", response, web_command);
       return true;
     }
-    storeEEPROMAndSet(9, val, buttons);
+    storeEEPROMAndSet("buttons_configs", val, buttons);
     printLine("Button mode set to " + String(val), response, web_command);
     return true;
   }
@@ -818,7 +884,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Value must be 0-1", response, web_command);
       return true;
     }
-    storeEEPROMAndReset(2, val, display_setting);
+    storeEEPROMAndReset("display_configs", val, display_setting);
     return true;
   }
 
@@ -840,7 +906,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Value must be 0-1", response, web_command);
       return true;
     }
-    storeEEPROMAndSet(4, val, Separate_or_together);
+    storeEEPROMAndSet("SorT_configs", val, Separate_or_together);
     printLine("Sweep direction set to " + String(val), response, web_command);
     return true;
   }
@@ -865,7 +931,7 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
       printLine("Value must be 0-3", response, web_command);
       return true;
     }
-    storeEEPROMAndSet(5, val, nrf_pa);
+    storeEEPROMAndSet("PA_configs", val, nrf_pa);
     printLine("PA level set to " + String(val), response, web_command);
     return true;
   }
@@ -873,6 +939,11 @@ bool handleSetCommand(String *args, int argCount, bool web_command, String &resp
   if ( param == "nrf24" )
   {
     return handleSetNrf24Command(args, argCount, web_command, response);
+  }
+
+  if ( param == "array" )
+  {
+    return handleSetArray(args, argCount, web_command, response);
   }
 
   printLine("Unknown setting Type 'set' for list", response, web_command);
@@ -884,10 +955,10 @@ bool handleSetNrf24Command(String *args, int argCount, bool web_command, String 
   if ( argCount == 2 )
   {
     printLine("", response, web_command);
-    printLine("  Module count: " + String(nrf24_count), response, web_command);
+    printLine("Module count: " + String(nrf24_count), response, web_command);
     for ( int i = 0; i < nrf24_count; i++ )
     {
-      printLine("    Module " + String(i) + ": CE=" + String(ce_pins[i]) + ", CSN=" + String(csn_pins[i]), response, web_command);
+      printLine("  Module " + String(i) + ": CE=" + String(ce_pins[i]) + ", CSN=" + String(csn_pins[i]), response, web_command);
     }
     printLine("Usage: set nrf24 <ce1,csn1> [<ce2,csn2> ...]", response, web_command);
     printLine("Example: set nrf24 9,10 5,6", response, web_command);
@@ -931,21 +1002,83 @@ bool handleSetNrf24Command(String *args, int argCount, bool web_command, String 
   }
 
   nrf24_count = pairCount;
+  memcpy(ce_pins, 0, sizeof(ce_pins));
+  memcpy(csn_pins, 0, sizeof(csn_pins));
   for ( int i = 0; i < nrf24_count; i++ )
   {
     ce_pins[i]  = new_ce[i];
     csn_pins[i] = new_csn[i];
-    EEPROM.write(74 + i, ce_pins[i]);
-    EEPROM.write(104 + i, csn_pins[i]);
   }
-  EEPROM.write(134, nrf24_count);
-  EEPROM.commit();
+  prefs.putInt("nRF24_count", nrf24_count);
+  prefs.putBytes("nRF24_ce_pins", ce_pins, sizeof(ce_pins));
+  prefs.putBytes("nRF24_csn_pins", csn_pins, sizeof(csn_pins));
 
-  printLine("nRF24 configuration updated. Rebooting...", response, web_command);
-  if ( web_command )
-    server.send(200, "text/html", response + "ok\n");
-  delay(100);
-  ESP.restart();
+  printLine("nRF24 configuration updated", response, web_command);
+  return true;
+}
+
+bool handleSetArray(String *args, int argCount, bool web_command, String &response)
+{
+  if ( argCount == 2 )
+  {
+    uint16_t count = 0;
+    for ( int i = 0; i < 100; i++ )
+    {
+      if ( SSIDs_Array[i][0] == '\0' )
+        break;
+      count = i + 1;
+    }
+    printLine("", response, web_command);
+    printLine("SSIDs array count: " + String(count), response, web_command);
+    for ( int i = 0; i < count; i++ )
+    {
+      printLine("  " + String(SSIDs_Array[i]), response, web_command);
+    }
+    printLine("Usage: set array \"Never gonna\" \"give you up\" ...", response, web_command);
+    printLine("", response, web_command);
+    return true;
+  }
+
+  char new_ssids[100][33] = {0};
+  int  ssid_count         = 0;
+
+  for ( int i = 2; i < argCount && ssid_count < 99; i++ )
+  {
+    String ssid = args[i];
+    ssid.trim();
+
+    if ( ssid.length() >= 2 && ssid[0] == '"' && ssid[ssid.length() - 1] == '"' )
+    {
+      ssid = ssid.substring(1, ssid.length() - 1);
+    }
+
+    if ( ssid.length() > 31 )
+    {
+      ssid = ssid.substring(0, 32);
+    }
+
+    if ( ssid.length() > 0 )
+    {
+      strlcpy(new_ssids[ssid_count], ssid.c_str(), 33);
+      ssid_count++;
+    }
+  }
+
+  if ( ssid_count == 0 )
+  {
+    printLine("No valid SSID found", response, web_command);
+    return true;
+  }
+
+  memset(SSIDs_Array, 0, sizeof(SSIDs_Array));
+  for ( int i = 0; i < ssid_count; i++ )
+  {
+    strlcpy(SSIDs_Array[i], new_ssids[i], 33);
+  }
+
+  prefs.putBytes("SSIDs_Array", SSIDs_Array, sizeof(SSIDs_Array));
+
+  printLine("SSIDs array updated (" + String(ssid_count) + " entries)", response, web_command);
   return true;
 }
 

@@ -3,6 +3,495 @@
 
 #include "config.h"
 
+static const char *const html_spam_array = R"rawliteral(<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --border: #30363d;
+            --text-primary: #ffffff;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --danger: #f85149;
+            --warning: #f0883e;
+            --success: #2ea043;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 550px;
+            padding: 30px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .header {
+            text-align: center;
+        }
+        
+        .module-counter {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            height: 48px;
+        }
+        
+        .btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 166, 255, 0.2);
+        }
+        
+        .btn.add {
+            background: var(--bg-card);
+            border: 1px solid #2ea043;
+            color: white;
+        }
+        
+        .btn.add:hover {
+            background: #2ea043;
+            border-color: #2ea043;
+            box-shadow: 0 8px 20px rgba(46, 160, 67, 0.2);
+        }
+        
+        .input-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            width: 100%;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .input {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            width: 100%;
+            height: 48px;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+        }
+        
+        .input-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            height: 16px;
+            line-height: 16px;
+        }
+        
+        .input.invalid {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 2px rgba(248, 81, 73, 0.2);
+        }
+        
+        .delete-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            flex-shrink: 0;
+            font-size: 20px;
+            margin-top: 16px;
+        }
+        
+        .delete-btn:not(:disabled) {
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        .delete-btn:not(:disabled):hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(248, 81, 73, 0.2);
+        }
+        
+        .delete-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .modules-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding-right: 5px;
+        }
+        
+        .modules-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .modules-container::-webkit-scrollbar-track {
+            background: var(--bg-card);
+            border-radius: 3px;
+        }
+        
+        .modules-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .back-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            height: 48px;
+        }
+        
+        .back-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .notification {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 14px 24px;
+            border-radius: 0 0 8px 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: top 0.5s ease-out;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            opacity: 0;
+            animation: notificationFadeIn 0.3s forwards;
+        }
+        
+        @keyframes notificationFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .error {
+            background: linear-gradient(135deg, var(--danger), #da3633);
+        }
+        
+        .success {
+            background: linear-gradient(135deg, var(--accent), #2ea043);
+        }
+        
+        .warning-note {
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(240, 136, 62, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            color: var(--warning);
+            font-size: 13px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification" style="display: none;"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Array Beacon Spam</h1>
+            <div class="module-counter" id="ssidCounter">0 SSIDs configured</div>
+        </div>
+
+        <div class="modules-container" id="inputs-container"></div>
+
+        <button class="btn add" onclick="addSsidField()">+ Add SSID</button>
+
+        <div class="controls">
+            <button class="btn" onclick="validateAndSave()">Save Configuration</button>
+            <button type="button" class="back-btn" onclick="location.href='/'">← Back to Main Menu</button>
+        </div>
+
+        <div class="warning-note">
+            ⚠️ Each SSID max 31 characters. Max 99 SSIDs total.
+        </div>
+    </div>
+
+    <div id="existingSsidsData" style="display: none;">
+	[||]EdItAbLe TeXt[||]
+	</div>
+
+    <script>
+        const MAX_SSIDS = 99;
+        const MAX_SSID_LEN = 31;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            populateExistingSsids();
+            updateCounter();
+            updateDeleteButtons();
+        });
+
+        function showNotification(message, isError = true) {
+            const notification = document.getElementById("notification");
+            notification.textContent = message;
+            notification.className = isError ? "notification error" : "notification success";
+            notification.style.display = "block";
+
+            setTimeout(() => {
+                notification.style.top = "20px";
+            }, 10);
+
+            setTimeout(() => {
+                notification.style.top = "-100px";
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 500);
+            }, 3000);
+        }
+
+        function populateExistingSsids() {
+            const dataDiv = document.getElementById('existingSsidsData');
+            let raw = dataDiv.textContent || dataDiv.innerText;
+            raw = raw.trim();
+            const ssids = raw === '' ? [] : raw.split('\n').filter(s => s.trim() !== '');
+            
+            if (ssids.length === 0) {
+                addSsidField('');
+            } else {
+                ssids.forEach(ssid => {
+                    addSsidField(ssid);
+                });
+            }
+            updateCounter();
+            updateDeleteButtons();
+        }
+
+        function updateCounter() {
+            const count = document.querySelectorAll('.input-group').length;
+            const counter = document.getElementById('ssidCounter');
+            counter.textContent = `${count} SSID${count !== 1 ? 's' : ''} configured`;
+        }
+
+        function updateDeleteButtons() {
+            const allDeleteBtns = document.querySelectorAll('.delete-btn');
+            const currentCount = document.querySelectorAll('.input-group').length;
+            allDeleteBtns.forEach(btn => {
+                btn.disabled = currentCount <= 1;
+            });
+        }
+
+        function addSsidField(initialValue = '') {
+            const container = document.getElementById('inputs-container');
+            const currentCount = container.querySelectorAll('.input-group').length;
+            
+            if (currentCount >= MAX_SSIDS) {
+                showNotification(`Maximum ${MAX_SSIDS} SSIDs allowed`);
+                return;
+            }
+            
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'input-group';
+            inputGroup.style.animationDelay = `${currentCount * 0.05}s`;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'input-wrapper';
+            
+            const label = document.createElement('div');
+            label.className = 'input-label';
+            label.textContent = 'SSID';
+            
+            const textInput = document.createElement('input');
+            textInput.className = 'input ssid-input';
+            textInput.type = 'text';
+            textInput.placeholder = 'WiFi SSID (max 31 chars)';
+            textInput.maxLength = MAX_SSID_LEN;
+            if (initialValue) {
+                textInput.value = initialValue;
+            }
+            textInput.addEventListener('input', function() {
+                const isValid = this.value.length <= MAX_SSID_LEN;
+                this.classList.toggle('invalid', !isValid);
+            });
+            
+            wrapper.appendChild(label);
+            wrapper.appendChild(textInput);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-btn';
+            deleteButton.innerHTML = '<span>×</span>';
+            deleteButton.onclick = function() { removeSsidField(this); };
+            
+            inputGroup.appendChild(wrapper);
+            inputGroup.appendChild(deleteButton);
+            container.appendChild(inputGroup);
+            
+            updateCounter();
+            updateDeleteButtons();
+
+            setTimeout(() => {
+                inputGroup.style.opacity = '1';
+                inputGroup.style.transform = 'translateX(0)';
+            }, 10);
+        }
+
+        function removeSsidField(button) {
+            const inputGroup = button.parentElement;
+            inputGroup.style.opacity = '0';
+            inputGroup.style.transform = 'translateX(20px)';
+            inputGroup.style.transition = 'all 0.3s ease';
+            
+            setTimeout(() => {
+                inputGroup.remove();
+                updateCounter();
+                updateDeleteButtons();
+            }, 300);
+        }
+
+        function validateAndSave() {
+            const inputs = document.querySelectorAll('.ssid-input');
+            const ssids = [];
+            let isValid = true;
+
+            inputs.forEach(input => {
+                const value = input.value.trim();
+                if (value === '') {
+                    isValid = false;
+                    input.classList.add('invalid');
+                    showNotification('SSID cannot be empty', true);
+                    return;
+                }
+                if (value.length > MAX_SSID_LEN) {
+                    isValid = false;
+                    input.classList.add('invalid');
+                    showNotification(`SSID too long (max ${MAX_SSID_LEN} chars)`, true);
+                    return;
+                }
+                input.classList.remove('invalid');
+                ssids.push(value);
+            });
+
+            if (!isValid || ssids.length === 0) {
+                return;
+            }
+
+            const ssidsStr = ssids.join('|');
+            // const encoded = encodeURIComponent(ssidsStr);
+            
+            showNotification('Saving configuration...', false);
+            
+            setTimeout(() => {
+                location.href = `/setting_array?ssids=${ssidsStr}`;
+            }, 500);
+        }
+    </script>
+</body>
+</html>
+)rawliteral";
+
 static const char *const html_nrf24_settings = R"rawliteral(<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1422,6 +1911,11 @@ static const char *const html = R"rawliteral(<!DOCTYPE html>
                         <div class="setting-name">Display Settings</div>
                         <div class="setting-desc">Configure screen and display options</div>
                     </a>
+
+                    <a href="/setting_array_spam" class="setting-item">
+                        <div class="setting-name">Array Spam</div>
+                        <div class="setting-desc">Configure array for wifi beacon spam</div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -2483,8 +2977,9 @@ static const char *const html_wifi_select = R"rawliteral(<!DOCTYPE html>
         </div>
 
         <div class="toggle" id="modeToggle">
-            <button id="jamBtn" class="toggle-btn active" onclick="switchMode('jam')">JAM</button>
-            <button id="deauthBtn" class="toggle-btn" onclick="switchMode('deauth')">DEAUTH</button>
+            <button id="jamBtn" class="toggle-btn active" onclick="switchMode('jam')">Jam</button>
+            <button id="deauthBtn" class="toggle-btn" onclick="switchMode('deauth')">Deauth</button>
+            <button id="spamBtn" class="toggle-btn" onclick="switchMode('spam')">Spam</button>
         </div>
 
         <div id="jamOptions" class="options">
@@ -2528,6 +3023,21 @@ static const char *const html_wifi_select = R"rawliteral(<!DOCTYPE html>
                 </div>
             </button>
         </div>
+
+        <div id="spamOptions" class="options hidden">
+            <button class="btn" onclick="location.href='/wifi_random_spam'">
+                <div class="method-info">
+                    <div class="method-name">Random Beacon Spam</div>
+                    <div class="method-desc">Spam with randomly generated SSIDs</div>
+                </div>
+            </button>
+            <button class="btn" onclick="location.href='/wifi_array_spam'">
+                <div class="method-info">
+                    <div class="method-name">Array Beacon Spam</div>
+                    <div class="method-desc">Spam using SSIDs from the predefined list in settings</div>
+                </div>
+            </button>
+        </div>
         
         <div class="back-container">
             <button class="back-btn" onclick="location.href='/'">
@@ -2540,21 +3050,35 @@ static const char *const html_wifi_select = R"rawliteral(<!DOCTYPE html>
         function switchMode(mode) {
             const jamBtn = document.getElementById('jamBtn');
             const deauthBtn = document.getElementById('deauthBtn');
+            const spamBtn = document.getElementById('spamBtn');
             const jamOptions = document.getElementById('jamOptions');
             const deauthOptions = document.getElementById('deauthOptions');
+            const spamOptions = document.getElementById('spamOptions');
 
             if (mode === 'jam') {
                 jamBtn.classList.add('active');
                 deauthBtn.classList.remove('active');
+                spamBtn.classList.remove('active');
                 
                 deauthOptions.classList.add('hidden');
+                spamOptions.classList.add('hidden');
                 jamOptions.classList.remove('hidden');
-            } else {
+            } else if (mode === 'deauth') {
                 deauthBtn.classList.add('active');
                 jamBtn.classList.remove('active');
+                spamBtn.classList.remove('active');
                 
                 jamOptions.classList.add('hidden');
+                spamOptions.classList.add('hidden');
                 deauthOptions.classList.remove('hidden');
+            } else {
+                spamBtn.classList.add('active');
+                deauthBtn.classList.remove('active');
+                jamBtn.classList.remove('active');
+
+                jamOptions.classList.add('hidden');
+                deauthOptions.classList.add('hidden');
+                spamOptions.classList.remove('hidden');
             }
         }
     </script>

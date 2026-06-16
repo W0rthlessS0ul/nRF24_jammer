@@ -25,4 +25,8 @@ def copy_all_binaries(source, target, env):
         else:
             print(f"Warning: {filename} not found in {build_dir}")
 
-env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", copy_all_binaries)
+copy_target = env.Alias("copy_bin", None, copy_all_binaries)
+
+env.AlwaysBuild(copy_target)
+
+env.Default(copy_target)
