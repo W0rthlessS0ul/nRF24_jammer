@@ -8,6 +8,7 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 ## 📚 Table of Contents
 - [🎯 Possible Additions](#-possible-additions)
 - [🚀 What Can You Do with This?](#-what-can-you-do-with-this)
+- [📱 Ported Firmware](#-ported-firmware)
 - [📋 List of Components](#-list-of-components)
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
 - [🛠️ Build From Source](#-build-from-source)
@@ -39,6 +40,15 @@ This amazing jammer is built on the **ESP32** architecture integrated with **con
 - **Drones** 🚁
 - **Wi-Fi** 📶
 - **Zigbee**📡
+
+-----
+
+## 📱 Ported Firmware
+
+| Device       | Repository URL                                                      |
+|--------------|---------------------------------------------------------------------|
+| Flipper Zero | [FZ_nRF24_jammer](https://github.com/W0rthlessS0ul/FZ_nRF24_jammer) |
+| LOLIN32 Lite | [nRF24_jammer](https://github.com/gitati16/nRF24_jammer)            |
 
 -----
 

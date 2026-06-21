@@ -3,7 +3,7 @@ IndentWidth: 2
 TabWidth: 2
 UseTab: Never
 ColumnLimit: 0
-# ColumnLimit: 75
+# ColumnLimit: 75 #for bitmap.h
 
 AllowShortLambdasOnASingleLine: All
 BinPackArguments: false
