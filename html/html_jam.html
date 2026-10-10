@@ -46,10 +46,46 @@
     </style>
 </head>
 <body>
-    <div id="textElement">[||]EdItAbLe TeXt[||]</div>
+    <div id="textElement"></div>
     
     <script>
+        function resolveJamText() {
+            const path = location.pathname;
+            const params = new URLSearchParams(location.search);
+
+            const explicit = params.get('text');
+            if (explicit) return explicit;
+
+            if (path.includes('bluetooth')) return 'Bluetooth Jamming';
+            if (path.includes('drone'))     return 'Drone Jamming';
+            if (path.includes('zigbee'))    return 'Zigbee Jamming';
+            if (path.includes('ble_'))      return 'BLE Jamming';
+
+            if (path.includes('deauth_all'))  return 'WiFi Deauthing';
+            if (path.includes('deauth_scan')) return 'WiFi Deauthing';
+            if (path.includes('random_spam')) return 'WiFi Beacon Spam';
+            if (path.includes('array_spam'))  return 'WiFi Beacon Spam';
+            if (path.includes('scan_jam'))    return 'WiFi Jamming';
+            if (path.includes('wifi_jam'))    return 'WiFi Jamming';
+
+            const ch = params.get('channel');
+            if (ch) {
+                return path.includes('deauth')
+                    ? 'Attacking ' + ch + ' WiFi Channel'
+                    : 'Jamming ' + ch + ' WiFi Channel';
+            }
+
+            const start = params.get('start');
+            const stop  = params.get('stop');
+            if (start !== null && stop !== null) {
+                return 'Jamming from ' + start + ' to ' + stop;
+            }
+
+            return 'Jamming';
+        }
+
         const textElement = document.getElementById('textElement');
+        textElement.textContent = resolveJamText();
         const originalText = textElement.textContent;
         const specialChars = '*&^%$#@!)(_+-';
         

@@ -96,11 +96,19 @@
             width: 100%;
         }
         
-        .btn:hover {
+        .btn:hover:not(:disabled) {
             background: var(--accent);
             border-color: var(--accent);
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(88, 166, 255, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            border-color: var(--border);
+            transform: none;
+            box-shadow: none;
         }
         
         .file-upload-container {
@@ -180,6 +188,7 @@
             color: #f0883e;
             font-size: 13px;
             text-align: center;
+            display: none;
         }
         
         .upload-form {
@@ -254,7 +263,7 @@
 
 <body>
     <div class="container">
-        <div class="version-badge">version</div>
+        <div class="version-badge" id="versionBadge">—</div>
 
         <div class="header">
             <h2>Firmware Update</h2>
@@ -281,7 +290,7 @@
                 <button class="back-btn" type="button" onclick="location.href='/'">← Back to Main Menu</button>
             </div>
 
-            <div class="warning">⚠️ Do not select bootloader or partition files!</div>
+            <div class="warning" id="warningBox">⚠️ Do not select bootloader or partition files!</div>
         </form>
     </div>
 
@@ -293,15 +302,69 @@
         const progressText = document.getElementById('progressText');
         const uploadForm = document.getElementById('uploadForm');
         const uploadBtn = document.getElementById('uploadBtn');
+        const warningBox = document.getElementById('warningBox');
 
         fileInput.addEventListener('change', function(e) {
+            warningBox.style.display = 'none';
+
             if (this.files && this.files[0]) {
                 const file = this.files[0];
                 fileInfoDisplay.innerHTML = `<span>Selected: <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>`;
                 fileInfoDisplay.classList.add('has-file');
+
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const buf = new Uint8Array(evt.target.result);
+                    const view = new DataView(evt.target.result);
+
+                    let isValidFirmware = false;
+                    let errorMessage = '⚠️ Do not select bootloader or partition files!';
+
+                    if (buf.length < 64) {
+                        errorMessage = '⚠️ Selected file is corrupted or too small!';
+                    } else if (buf[0] === 0xAA && buf[1] === 0x50) {
+                        errorMessage = '⚠️ Do not select partition files! Please choose firmware.bin';
+                    } else if (buf[0] !== 0xE9) {
+                        errorMessage = '⚠️ Not a valid ESP32 binary image!';
+                    } else {
+                        const APP_DESC_MAGIC = 0xABCD5432;
+                        let foundAppDesc = false;
+
+                        if (view.getUint32(0x20, true) === APP_DESC_MAGIC) {
+                            foundAppDesc = true;
+                        } else {
+                            for (let i = 0; i <= buf.length - 32; i += 4) {
+                                if (view.getUint32(i, true) === APP_DESC_MAGIC) {
+                                    foundAppDesc = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!foundAppDesc) {
+                            errorMessage = '⚠️ Do not select bootloader files! Please choose firmware.bin';
+                        } else {
+                            isValidFirmware = true;
+                        }
+                    }
+
+                    if (!isValidFirmware) {
+                        warningBox.textContent = errorMessage;
+                        warningBox.style.display = 'block';
+                        uploadBtn.disabled = true;
+                    } else {
+                        warningBox.style.display = 'none';
+                        uploadBtn.disabled = false;
+                    }
+                };
+
+                reader.readAsArrayBuffer(file.slice(0, 512));
+
             } else {
                 fileInfoDisplay.innerHTML = '<span class="no-file-text">No file selected</span>';
                 fileInfoDisplay.classList.remove('has-file');
+                warningBox.style.display = 'none';
+                uploadBtn.disabled = false;
             }
         });
 
@@ -346,6 +409,14 @@
             xhr.send(formData);
             uploadBtn.disabled = true;
         });
+
+        fetch('/api/version', { cache: 'no-store' })
+            .then(r => r.ok ? r.json() : Promise.reject(r.status))
+            .then(d => {
+                const el = document.getElementById('versionBadge');
+                if (el) el.textContent = d.version || '—';
+            })
+            .catch(() => {});
     </script>
 </body>
 </html>

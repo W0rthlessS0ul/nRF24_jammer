@@ -634,7 +634,7 @@
                     <div class="module-name">Bluetooth Jammer</div>
                     <div class="module-desc">Jams all Bluetooth devices in range</div>
                 </div>
-                <div class="module-channels">[||]EdItAbLe TeXt[||]</div>
+                <div class="module-channels" id="btChannelsCount">—</div>
             </div>
 
             <div class="module-item" onclick="location.href='/drone_jam'">
@@ -862,14 +862,6 @@
             document.getElementById(viewId).classList.add('active');
         }
 
-        if (false) { //IsModulesConfigured
-            document.getElementById('modulesWarning').style.display = 'flex';
-            document.querySelectorAll('.module-item').forEach(item => {
-                item.classList.add('disabled');
-                item.onclick = () => alert('Please configure nRF24 modules first. Go to Settings → nRF24');
-            });
-        }
-
         function showNotification(message, isSuccess = false) {
             const notification = document.getElementById("notification");
             notification.textContent = message;
@@ -957,22 +949,34 @@
             }
         }
 
-        let ch1 = 0;
-        let ch2 = 0;
-        let ch3 = 0;
-        let ch4 = 0;
-        let ch5 = 0;
-        let ch6 = 0;
-        let ch7 = 0;
-        let ch8 = 0;
-        let ch9 = 0;
-        let ch10 = 0;
-        let ch11 = 0;
-        let ch12 = 0;
-        let ch13 = 0;
-        let ch14 = 0;
-		
+        let wifiChannelCounts = new Array(14).fill(0);
         let ssidsByChannel = [];
+
+        async function loadStatus() {
+            try {
+                const res = await fetch('/api/status', { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+
+                const bt = document.getElementById('btChannelsCount');
+                if (bt) bt.textContent = data.bt_channels_text || '—';
+
+                ssidsByChannel = data.ssids_by_channel || [];
+                wifiChannelCounts = data.wifi_channels || new Array(14).fill(0);
+
+                if ((data.nrf24_count || 0) <= 0) {
+                    document.getElementById('modulesWarning').style.display = 'flex';
+                    document.querySelectorAll('.module-item').forEach(item => {
+                        item.classList.add('disabled');
+                        item.onclick = () => alert('Please configure nRF24 modules first. Go to Settings → nRF24');
+                    });
+                }
+            } catch (e) {
+                console.error('Status load failed:', e);
+            }
+        }
+
+        window.addEventListener('load', loadStatus);
         
         let actionCallback = null;
 
@@ -1019,13 +1023,7 @@
         }
 
         function getChannelValue(channel) {
-            switch(channel) {
-                case 1: return ch1; case 2: return ch2; case 3: return ch3;
-                case 4: return ch4; case 5: return ch5; case 6: return ch6;
-                case 7: return ch7; case 8: return ch8; case 9: return ch9;
-                case 10: return ch10; case 11: return ch11; case 12: return ch12;
-                case 13: return ch13; case 14: return ch14; default: return 0;
-            }
+            return wifiChannelCounts[channel - 1] || 0;
         }
 
         function updateChannelDisplay(channel, suffix) {

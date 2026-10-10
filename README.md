@@ -6,9 +6,9 @@
 Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF interference with this unique project based on the ESP32 and nRF24 technology.
 
 ## 📚 Table of Contents
-- [🎯 Possible Additions](#-possible-additions)
 - [🚀 What Can You Do with This?](#-what-can-you-do-with-this)
 - [📱 Ported Firmware](#-ported-firmware)
+- [📟 Supported & Community PCBs](#-supported-&-community-pcbs)
 - [📋 List of Components](#-list-of-components)
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
 - [🛠️ Build From Source](#-build-from-source)
@@ -21,15 +21,6 @@ Welcome to the **nRF24 Jammer** repository! 🎉 Dive into the world of RF inter
 - [🤝 Project Supporters](#-project-supporters)
 - [❤️ Support the project](#-support-the-project)
 - [⭐ Star History](#-star-history)
-
------
-
-## 🎯 Possible Additions
-- **BLE spam**
-- **Beacon spam**
-- **nRF24 mousejack**
-
-***`If you have the capability to assist with these features, please feel free to create pull requests!`***
 
 -----
 
@@ -54,11 +45,31 @@ This amazing jammer is built on the **ESP32** architecture integrated with **con
 
 ## 📋 List of Components
 To bring this project to life, you will need the following components:
-1. **nRF24L01+PA+LNA modules** 🛠️
+
+1. <details><summary><b>nRF24 modules 🛠️</b></summary>
+
+    *Any nRF24 modules are suitable, but **CDEBYTE E01-2G4M27D** is recommended*
+
+   </details>
+
 2. **ESP-WROOM-32** ⚙️
 3. **16V capacitors** rated at **100µF** 🔋
 4. **128x32 or 128x64 OLED display** 📺 *(optional)*
 5. **Tactile button** 🔘 *(optional)*
+
+-----
+
+## 📟 Supported & Community PCBs
+
+| Preview | Author | Rev | Board README |
+|---------|--------|-----|--------------|
+| <img src="PCB/W0rthlessS0ul/v1.0.0/img/front_angled.png" width="200" /> | [@W0rthlessS0ul](https://github.com/W0rthlessS0ul) | `v1.0.0` | [README](/PCB/W0rthlessS0ul/v1.0.0/README.md) |
+
+> 💡 **Want to contribute your own PCB design?**  
+> If you feel confident in designing a high-quality PCB, feel free to submit your board via a **Pull Request**!  
+> 
+> - **Well-engineered and verified designs** will be merged directly into the repository.  
+> - If there are any doubts regarding layout quality, routing, or component selection, a thread will be opened in **[Discussions](https://github.com/W0rthlessS0ul/nRF24_jammer/discussions)** so the community can review, discuss, and vote on whether it should be added.
 
 -----
 
@@ -139,15 +150,15 @@ To bring this project to life, you will need the following components:
 | NEXT (Optional)             | GPIO 26       |
 | PREVIOUS (Optional)            | GPIO 27       |
 
-![Flexible](schemes/Flexible/scheme.png)
+<img src="schemes/Flexible/scheme.png" width="60%" />
 
-###### In all configurations the same SCK, MOSI, and MISO pins are used. This is not a mistake—SPI interfaces can share clock and data lines, while proper operation is ensured by separate control signals (CSN and CE)
+###### In all configurations the same SCK, MOSI, and MISO pins are used. This is not a mistake - SPI interfaces can share clock and data lines, while proper operation is ensured by separate control signals (CSN and CE)
 
 -----
 
 ## 🛠️ Build From Source
 
-#### This section is **addressed to contributors**. If you are a regular user of the project, you can skip it
+#### `This section is addressed to contributors. If you are a regular user of the project, you can skip it`
 
 1. Install **PlatformIO IDE** extension in **VS Code** 
 2. Click the PlatformIO icon → Open → Open Project → select your project folder
@@ -297,7 +308,7 @@ Follow these steps to flash the firmware:
 
 ## 🎉 Final Outcome
 
-![Compact](img/Compact.jpg)
+<img src="img/device.png" width="60%"/>
 
 ### Normal Spectrum
 ![Normal Spectrum](img/gif/normal_spctr.gif)
@@ -336,29 +347,47 @@ Follow these steps to flash the firmware:
 
 -----
 
-## ❤️ Support the project
-If you would like to support this project, please consider starring the repository or following me! If you appreciate the hard work that went into this, buying me a cup of coffee would keep me fueled! ☕ 
+## ❤️ Support the Project
 
-**BTC Address:** `bc1qvul4mlxxw5h2hnt8knnxdrxuwgpf4styyk20tm`
+If you find this project useful and want to support its ongoing development, consider starring the repository ⭐, following the author, or buying a cup of coffee to keep things fueled! ☕
 
-**ETH Address:** `0x5c54eAb2acFE1c6C866FB4b050d8B69CfB1138Af`
+<div align="center">
+  <table width="70%">
+    <tr>
+      <td width="50%" align="center">
+        <a href="https://t.me/W0rthlessS0ul" target="_blank" rel="noreferrer noopener">
+          <img src="img/svg/telegram_donate.svg" width="100%" alt="Telegram Stars &amp; Gifts" />
+        </a>
+      </td>
+      <td width="50%" align="center">
+        <a href="https://nowpayments.io/donation?api_key=6370NCF-SXJ4MMC-N71CVMS-6G52PW9" target="_blank" rel="noreferrer noopener">
+          <img src="https://nowpayments.io/images/embeds/donation-button-black.svg" width="100%" alt="NOWPayments Crypto" />
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
 
-**LTC Address:** `LbdzCsYbxuD341raar6Cg1yKavaDq7fjuV`
+<br>
 
-**XRP Address:** `rKLLPzoBGfqY3pAQPwTFPRYaWjpHSwHNDw`
+<details>
+<summary><b>🪙 Direct Cryptocurrency Transfer</b></summary>
+<br>
 
-**ADA Address:** `addr1qyz2aku0ucmxqnl60lza23lkx2xha8zmxz9wqxnrtvpjysgy4mdcle3kvp8l5l7964rlvv5d06w9kvy2uqdxxkcryfqs7pajev`
+| Coin / Network | Direct Wallet Address |
+| :--- | :--- |
+| 🟧 **Bitcoin (BTC)** | `bc1qvul4mlxxw5h2hnt8knnxdrxuwgpf4styyk20tm` |
+| 🔷 **Ethereum (ETH)** | `0x5c54eAb2acFE1c6C866FB4b050d8B69CfB1138Af` |
+| ⚪ **Litecoin (LTC)** | `LbdzCsYbxuD341raar6Cg1yKavaDq7fjuV` |
+| ⚫ **Ripple (XRP)** | `rKLLPzoBGfqY3pAQPwTFPRYaWjpHSwHNDw` |
+| 🔵 **Cardano (ADA)** | `addr1qyz2aku0ucmxqnl60lza23lkx2xha8zmxz9wqxnrtvpjysgy4mdcle3kvp8l5l7964rlvv5d06w9kvy2uqdxxkcryfqs7pajev` |
+| 🟡 **Dogecoin (DOGE)** | `DBzAvD62yQUkP4Cb7C5LuFYQEierF3D3oG` |
 
-**DOGE Address:** `DBzAvD62yQUkP4Cb7C5LuFYQEierF3D3oG`
+</details>
 
-<a href="https://nowpayments.io/donation?
-  api_key=6370NCF-SXJ4MMC-N71CVMS-6G52PW9"
-  target="_blank" rel="noreferrer noopener">
-  <img src="https://nowpayments.io/images/embeds/donation-button-black.svg" 
-  alt="Cryptocurrency & Bitcoin donation button by NOWPayments">
-</a>
+<br>
 
-Every donation is greatly appreciated and contributes to the ongoing development of this project!
+> Every donation is greatly appreciated and directly contributes to the development, testing, and new hardware revisions of this project!
 
 ---
 

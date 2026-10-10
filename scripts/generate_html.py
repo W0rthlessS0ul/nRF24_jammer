@@ -1,5 +1,6 @@
 import os
 import glob
+import gzip
 
 Import("env")
 
@@ -13,18 +14,30 @@ def generate_html_header():
         print(f"Warning: '{html_dir}' directory not found.")
         return
 
-    header_content = "#ifndef HTML_H\n#define HTML_H\n\n"
+    header_content = (
+        "// AUTO-GENERATED FILE\n"
+        "#ifndef HTML_H\n"
+        "#define HTML_H\n\n"
+        "#include <pgmspace.h>\n"
+        "#include <stddef.h>\n"
+        "#include <stdint.h>\n\n"
+    )
 
-    html_files = sorted(glob.glob(os.path.join(html_dir, "*.html")))
+    html_files = sorted(glob.glob(os.path.join(html_dir, "*.*")))
     
     for file_path in html_files:
         filename = os.path.basename(file_path)
-        var_name = os.path.splitext(filename)[0]
+        var_name = os.path.splitext(filename)[0].replace(".", "_").replace("-", "_")
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "rb") as f:
             content = f.read()
 
-        header_content += f'static const char *const {var_name} = R"rawliteral(\n{content}\n)rawliteral";\n\n'
+        compressed = gzip.compress(content, compresslevel=9)
+        
+        bytes_str = ", ".join(f"0x{b:02x}" for b in compressed)
+
+        header_content += f'static const uint8_t {var_name}[] PROGMEM = {{ {bytes_str} }};\n'
+        header_content += f'static const size_t {var_name}_len = {len(compressed)};\n\n'
 
     header_content += "#endif\n"
 

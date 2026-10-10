@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 72" width="220" height="72">
+  <defs>
+    <filter id="iconShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect width="220" height="70" rx="12" fill="#13171c"/>
+
+  <g opacity="0.09" stroke="#ffffff" fill="none">
+    <path d="M118 16 v7 M114.5 19.5 h7" stroke-width="1"/>
+    <path d="M204 46 v7 M200.5 49.5 h7" stroke-width="1"/>
+    <path d="M68 54 v6 M65 57 h6" stroke-width="1"/>
+    <path d="M38 60 Q 95 24, 165 36 T 215 18" stroke-width="0.9" stroke-dasharray="2,3"/>
+    <path d="M190 12 h12 v12" stroke-width="1"/>
+  </g>
+
+  <g fill="#ffffff" opacity="0.12">
+    <path d="M104 14 l1.2 2.6 l2.6 1.2 l-2.6 1.2 l-1.2 2.6 l-1.2 -2.6 l-2.6 -1.2 l2.6 -1.2 z"/>
+    <path d="M156 50 l1.4 3 l3 1.4 l-3 1.4 l-1.4 3 l-1.4 -3 l-3 -1.4 l3 -1.4 z"/>
+    <path d="M196 20 l1.6 3.4 l3.4 1.6 l-3.4 1.6 l-1.6 3.4 l-1.6 -3.4 l-3.4 -1.6 l3.4 -1.6 z"/>
+    <path d="M210 38 l1 2.2 l2.2 1 l-2.2 1 l-1 2.2 l-1 -2.2 l-2.2 -1 l2.2 -1 z"/>
+  </g>
+
+  <g fill="#ff7da0">
+    <path d="M72 16 l1 2.2 l2.2 1 l-2.2 1 l-1 2.2 l-1 -2.2 l-2.2 -1 l2.2 -1 z" opacity="0.18"/>
+    <circle cx="178" cy="54" r="1.4" opacity="0.25"/>
+    <circle cx="140" cy="22" r="1.2" opacity="0.18"/>
+    <circle cx="88" cy="56" r="1.1" opacity="0.16"/>
+  </g>
+
+  <g transform="translate(14, 15)" filter="url(#iconShadow)">
+    <circle cx="21" cy="21" r="21" fill="#2aabee"/>
+    <path d="M9.5 20.6 l18.5 -7.7 c0.9 -0.3 1.6 0.2 1.3 1.5 l-3.2 14.9 c-0.2 1.1 -0.9 1.3 -1.7 0.8 l-4.8 -3.5 l-2.3 2.2 c-0.3 0.3 -0.5 0.5 -1 0.5 l0.3 -4.9 l8.9 -8.1 c0.4 -0.3 -0.1 -0.5 -0.6 -0.2 l-11 6.9 l-4.8 -1.5 c-1 -0.3 -1 -1 0.2 -1.5 z" fill="#ffffff"/>
+  </g>
+
+  <text x="68" y="29" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="700" fill="#ff7da0" letter-spacing="0.5">
+    SEND STARS &amp; GIFTS
+  </text>
+
+  <text x="68" y="52" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="20" font-weight="800" fill="#ffffff" letter-spacing="0.3">
+    TELEGRAM
+  </text>
+</svg>

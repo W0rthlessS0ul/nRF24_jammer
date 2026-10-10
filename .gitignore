@@ -1,3 +1,5 @@
-.pio
+.pio/
 .vscode/
 bin/
+include/Flexible/bitmap.h
+include/Flexible/html.h

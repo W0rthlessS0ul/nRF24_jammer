@@ -136,6 +136,17 @@
             text-align: left;
         }
 
+        .option-btn:disabled {
+            background: var(--bg-card);
+            border-color: var(--border);
+            border: none;
+            color: var(--text-secondary);
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .option-btn:hover {
             background: var(--accent);
             border-color: var(--accent);
@@ -151,6 +162,13 @@
             background: var(--success);
             border-color: var(--success);
             box-shadow: 0 8px 20px rgba(46, 160, 67, 0.2);
+        }
+
+        .option-btn:disabled:hover {
+            background: var(--bg-card);
+            border-color: var(--border);
+            transform: none;
+            box-shadow: none;
         }
 
         .method-info { text-align: left; }
@@ -315,6 +333,42 @@
         }
         .delete-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
+        .nrf-notice {
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            margin-top: 10px;
+            border-radius: 8px;
+            background: rgba(240, 136, 62, 0.08);
+            border: 1px solid rgba(240, 136, 62, 0.45);
+            color: var(--warning);
+            font-family: ui-monospace, 'SFMono-Regular', 'JetBrains Mono',
+                         'Fira Code', 'Cascadia Code', Menlo, Consolas,
+                         'Liberation Mono', monospace;
+            font-size: 12.5px;
+            line-height: 1.55;
+            letter-spacing: 0.2px;
+            word-break: break-word;
+            animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .nrf-notice-icon {
+            flex: 0 0 auto;
+            width: 18px;
+            height: 18px;
+            margin-top: 1px;
+            border-radius: 50%;
+            background: var(--warning);
+            color: var(--bg-primary);
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .controls {
             display: flex;
             flex-direction: column;
@@ -370,10 +424,10 @@
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('tab-general')">General</button>
-            <button class="tab-btn" onclick="switchTab('tab-nrf')">nRF24</button>
-            <button class="tab-btn" onclick="switchTab('tab-jam')">Jammer</button>
-            <button class="tab-btn" onclick="switchTab('tab-attacks')">Attacks</button>
+            <button class="tab-btn active" onclick="switchTab('tab-general', this)">General</button>
+            <button class="tab-btn" onclick="switchTab('tab-nrf', this)">nRF24</button>
+            <button class="tab-btn" onclick="switchTab('tab-jam', this)">Jammer</button>
+            <button class="tab-btn" onclick="switchTab('tab-attacks', this)">Attacks</button>
         </div>
 
         <div id="tab-general" class="tab-content active">
@@ -395,16 +449,22 @@
 
             <div class="section-title">Display Control</div>
             <div class="options-group">
-                <button class="option-btn opt-display active" onclick="setOpt('display', 0)">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="display-disable" onchange="toggleDisplayStatus()">
+                    <div class="checkmark"></div>
+                    <span class="checkbox-label">Disable display</span>
+                </label>
+
+                <button id="display-height-64" class="option-btn opt-screen_height active" onclick="setOpt('screen_height', 64)">
                     <div class="method-info">
-                        <div class="method-name">Enable Display</div>
-                        <div class="method-desc">Turn on display</div>
+                        <div class="method-name">128x64 px</div>
+                        <div class="method-desc">0.96 inch display</div>
                     </div>
                 </button>
-                <button class="option-btn opt-display" onclick="setOpt('display', 1)">
+                <button id="display-height-32" class="option-btn opt-screen_height" onclick="setOpt('screen_height', 32)">
                     <div class="method-info">
-                        <div class="method-name">Disable Display</div>
-                        <div class="method-desc">Turn off display</div>
+                        <div class="method-name">128x32 px</div>
+                        <div class="method-desc">0.91 inch display</div>
                     </div>
                 </button>
             </div>
@@ -429,6 +489,15 @@
                         <div class="method-desc">Pins 25, 26, 27</div>
                     </div>
                 </button>
+            </div>
+
+            <div class="section-title">Baudrate Configuration</div>
+                <div class="options-group">
+                    <div class="input-group" style="margin-bottom: 0;">
+                    <div class="input-wrapper">
+                        <input type="number" id="baudrate" class="input" placeholder="UART Baudrate">
+                    </div>
+                </div>
             </div>
 
             <div class="section-title" style="margin-top: 5px;">WiFi Settings</div>
@@ -489,6 +558,12 @@
             </div>
 
             <div class="section-title" style="margin-top: 10px;">nRF24 Modules Setup</div>
+
+            <div id="nrf-notice" class="nrf-notice">
+                <span class="nrf-notice-icon">!</span>
+                <span id="nrf-notice-text"></span>
+            </div>
+
             <div id="nrf-container" class="modules-container">
             </div>
             <button class="btn-add" onclick="addNrfModule()">+ Add Module</button>
@@ -527,6 +602,13 @@
                     <div class="method-info"><div class="method-name">Packet Sending</div><div class="method-desc">Slow mode</div></div>
                 </button>
             </div>
+
+            <div class="section-title">Jam Delay</div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <div class="input-wrapper">
+                    <input type="number" id="jam-delay" class="input" placeholder="Jam Delay [µs]">
+                </div>
+            </div>
         </div>
 
         <div id="tab-attacks" class="tab-content">
@@ -545,33 +627,59 @@
     </div>
 
     <script>
+        const NRF_MSG_NO_MODULES =
+            "Couldn’t identify the pins";
+        
         const state = {
+            baudrate: 0,
             logo: 0,
             display: 0,
+            screen_height: 0,
             button: 0,
             sweep: 0,
             pa: 0,
             bt: 0,
             drone: 0,
             misc: 0,
-            ap: 0
+            ap: 0,
+            delay: 0
         };
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            const content = document.getElementById(tabId);
+            if (content) content.classList.add('active');
+
+            if (!btn) {
+                const ids = ['tab-general', 'tab-nrf', 'tab-jam', 'tab-attacks'];
+                const idx = ids.indexOf(tabId);
+                btn = document.querySelectorAll('.tab-btn')[idx];
+            }
+            if (btn) btn.classList.add('active');
         }
 
         function setOpt(category, value) {
             state[category] = value;
             const buttons = document.querySelectorAll(`.opt-${category}`);
             buttons.forEach(el => el.classList.remove('active'));
-            if (buttons[value]) {
-                buttons[value].classList.add('active');
+
+            for (const el of buttons) {
+                const onclick = el.getAttribute('onclick') || '';
+                const m = onclick.match(/setOpt\s*\(\s*['"][^'"]+['"]\s*,\s*(\d+)\s*\)/);
+                if (m && parseInt(m[1], 10) === value) {
+                    el.classList.add('active');
+                    break;
+                }
             }
+        }
+
+        function toggleDisplayStatus() {
+            const isChecked = document.getElementById('display-disable').checked;
+            state.display = isChecked ? 1 : 0;
+            document.getElementById('display-height-64').disabled = isChecked;
+            document.getElementById('display-height-32').disabled = isChecked;
         }
 
         function toggleApStatus() {
@@ -579,6 +687,20 @@
             state.ap = isChecked ? 1 : 0;
             document.getElementById('wifi-ssid').disabled = isChecked;
             document.getElementById('wifi-pass').disabled = isChecked;
+        }
+
+        function showNrfNotice(text) {
+            const box  = document.getElementById('nrf-notice');
+            const span = document.getElementById('nrf-notice-text');
+            if (!box || !span) return;
+
+            if (!text) {
+                box.style.display = 'none';
+                span.textContent = '';
+                return;
+            }
+            span.textContent = text;
+            box.style.display = 'flex';
         }
 
         function addNrfModule(ce = '', csn = '') {
@@ -670,9 +792,12 @@
             let hasNrfError = false;
 
             ceInputs.forEach((el, idx) => {
-                const ce = el.value;
-                const csn = csnInputs[idx].value;
-                if (ce === "" || csn === "") hasNrfError = true;
+                const ce  = el.value.trim();
+                const csn = csnInputs[idx].value.trim();
+
+                if (ce === '' && csn === '') return;
+
+                if (ce === '' || csn === '') hasNrfError = true;
                 ceList.push(ce);
                 csnList.push(csn);
             });
@@ -682,6 +807,10 @@
                 switchTab('tab-nrf');
                 return;
             }
+
+            state.delay = document.getElementById('jam-delay').value;
+
+            state.baudrate = document.getElementById('baudrate').value;
 
             const wifiSsid = encodeURIComponent(document.getElementById('wifi-ssid').value);
             const wifiPassValue = document.getElementById('wifi-pass').value;
@@ -701,9 +830,14 @@
                 if (val !== "") beaconSsids.push(val);
             });
 
-            const url = `/set_settings?logo=${state.logo}&display=${state.display}&button=${state.button}&sweep=${state.sweep}&pa=${state.pa}&bt_method=${state.bt}&drone_method=${state.drone}&misc_method=${state.misc}&ssid=${wifiSsid}&password=${wifiPass}&ap=${state.ap}` + 
-                        (beaconSsids.length > 0 ? `&beacon=${beaconSsids.join('|')}` : '') +
-                        `&ce=${ceList.join('|')}&csn=${csnList.join('|')}`;
+            let url = `/set_settings?baudrate=${state.baudrate}&logo=${state.logo}&display=${state.display}&screen_height=${state.screen_height}&button=${state.button}&sweep=${state.sweep}&pa=${state.pa}&bt_method=${state.bt}&drone_method=${state.drone}&misc_method=${state.misc}&ssid=${wifiSsid}&password=${wifiPass}&ap=${state.ap}&delay=${state.delay}`;
+
+            if (beaconSsids.length > 0) {
+                url += `&beacon=${beaconSsids.join('|')}`;
+            }
+            if (ceList.length > 0) {
+                url += `&ce=${ceList.join('|')}&csn=${csnList.join('|')}`;
+            }
 
             fetch(url)
                 .then(response => {
@@ -718,53 +852,93 @@
                 });
         }
 
-        function applyServerData() {
-            const rawData = "[||]EdItAbLe TeXt[||]";
-            
-            if (rawData !== "[||]" + "EdItAbLe TeXt" + "[||]") {
-                const pairs = rawData.split(';');
-                
-                pairs.forEach(pair => {
-                    const [key, val] = pair.split('=');
-                    if (!key || val === undefined) return;
-                    
-                    const k = key.trim();
-                    const v = val.trim();
+        function parseServerData(rawData) {
+            const parsed = {};
+            if (!rawData) return parsed;
 
-                    if (state.hasOwnProperty(k) && k !== 'ap') {
-                        setOpt(k, parseInt(v, 10));
-                    } 
-                    else if (k === 'ssid') {
-                        document.getElementById('wifi-ssid').value = v;
-                    }
-                    else if (k === 'password') {
-                        document.getElementById('wifi-pass').value = v;
-                    }
-                    else if (k === 'ap') {
-                        state.ap = parseInt(v, 10);
-                        document.getElementById('ap-disable').checked = (state.ap === 1);
-                        toggleApStatus();
-                    }
-                    else if (k === 'beacon') {
-                        document.getElementById('beacon-container').innerHTML = '';
-                        v.split('|').forEach(ssid => addBeaconModule(ssid));
-                    }
-                    else if (k === 'ce') {
-                        const ceArr = v.split('|');
-                        const csnArr = (pairs.find(p => p.startsWith('csn=')) || '').split('=')[1]?.split('|') || [];
-                        
-                        document.getElementById('nrf-container').innerHTML = '';
-                        ceArr.forEach((ce, i) => addNrfModule(ce, csnArr[i] || ''));
-                    }
-                });
+            rawData.split(';').forEach(pair => {
+                const idx = pair.indexOf('=');
+                if (idx === -1) return;
+                const k = pair.slice(0, idx).trim();
+                const v = pair.slice(idx + 1).trim();
+                if (k) parsed[k] = v;
+            });
+            return parsed;
+        }
+
+        function applyNrfModules(parsed) {
+            const container = document.getElementById('nrf-container');
+            container.innerHTML = '';
+
+            const ceArr  = Array.isArray(parsed.ce_pins)  ? parsed.ce_pins  : [];
+            const csnArr = Array.isArray(parsed.csn_pins) ? parsed.csn_pins : [];
+
+            if (ceArr.length > 0 && csnArr.length > 0) {
+                ceArr.forEach((ce, i) => addNrfModule(ce, csnArr[i] ?? ''));
+                showNrfNotice(null);
+            } else {
+                showNrfNotice(NRF_MSG_NO_MODULES);
+            }
+            updateNrfButtons();
+        }
+
+        async function fetchSettings() {
+            try {
+                const res = await fetch('/api/settings', { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return await res.json();
+            } catch (e) {
+                console.error('Settings load failed:', e);
+                return {};
             }
         }
 
-        addNrfModule();
-        addBeaconModule();
-        
-        applyServerData();
+        async function applyServerData() {
+            const parsed = await fetchSettings();
 
+            ['baudrate', 'logo', 'display', 'screen_height', 'button', 'sweep', 'pa', 'bt', 'drone', 'misc'].forEach(k => {
+                if (parsed[k] !== undefined) {
+                    setOpt(k, parseInt(parsed[k], 10));
+                }
+            });
+
+            if (parsed.delay !== undefined) {
+                state.delay = parsed.delay;
+                document.getElementById('jam-delay').value = parsed.delay;
+            }
+            if (parsed.baudrate !== undefined) {
+                state.baudrate = parsed.baudrate;
+                document.getElementById('baudrate').value = parsed.baudrate;
+            }
+            if (parsed.ssid !== undefined) {
+                document.getElementById('wifi-ssid').value = parsed.ssid;
+            }
+            if (parsed.password !== undefined) {
+                document.getElementById('wifi-pass').value = parsed.password;
+            }
+            if (parsed.display !== undefined) {
+                state.display = parseInt(parsed.display, 10);
+                document.getElementById('display-disable').checked = (state.display === 1);
+                toggleDisplayStatus();
+            }
+            if (parsed.ap !== undefined) {
+                state.ap = parseInt(parsed.ap, 10);
+                document.getElementById('ap-disable').checked = (state.ap === 1);
+                toggleApStatus();
+            }
+
+            const bc = document.getElementById('beacon-container');
+            bc.innerHTML = '';
+            if (Array.isArray(parsed.beacon) && parsed.beacon.length > 0) {
+                parsed.beacon.forEach(ssid => addBeaconModule(ssid));
+            } else {
+                addBeaconModule();
+            }
+
+            applyNrfModules(parsed);
+        }
+
+        window.addEventListener('load', applyServerData);
     </script>
 </body>
 </html>
