@@ -71,7 +71,7 @@
 | Resource | Description | Link |
 | :--- | :--- | :---: |
 | 🗜️ **Gerber Files** | Production-ready archive | [Download ZIP](gerber/nRF24_jammer.zip) |
-| 📝 **BOM** | Bill of Materials | [View BOM](bom/nRF24_jammer.csv) |
+| 📝 **BOM** | Bill of Materials | [View BOM](BOM/nRF24_jammer.csv) |
 | 📐 **Schematic** | Electrical schematic | [Download PDF](/schemes/W0rthlessS0ul/v1.0.0/nRF24_jammer.pdf) |
 | 🛠️ **KiCad Project** | Full project files | [Open Directory](kicad/) |
 | 🖨️ **3D Enclosure** | Printable case models | [Open Directory](enclosure/) |
