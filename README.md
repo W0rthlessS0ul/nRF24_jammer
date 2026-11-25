@@ -344,6 +344,7 @@ Follow these steps to flash the firmware:
 | **Supporter**                                  | **Contribution**|
 |------------------------------------------------|-----------------|
 |  [@sergey2735](https://github.com/sergey2735)  |    40.7 ADA     |
+|  [@kritos77](https://github.com/kritos77)      |    30 TGStars   |
 
 -----
 
